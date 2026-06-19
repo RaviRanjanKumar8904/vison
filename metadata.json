@@ -1,0 +1,6 @@
+{
+  "name": "Invigo Infotech",
+  "description": "A futuristic internship portal offering cutting-edge skill development and industry-certified programs across 15+ domains for B.Tech, Diploma, BCA, B.Sc, and MBA students.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

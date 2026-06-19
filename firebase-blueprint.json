@@ -1,0 +1,57 @@
+{
+  "entities": {
+    "StudentUser": {
+      "title": "StudentUser",
+      "description": "User profile information for a student",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "collegeName": { "type": "string" },
+        "degree": { "type": "string", "enum": ["B.Tech", "Diploma", "BCA", "B.Sc", "MBA"] },
+        "fieldOfStudy": { "type": "string" },
+        "currentYear": { "type": "string" },
+        "passingYear": { "type": "string" }
+      },
+      "required": ["id", "fullName", "email", "phone"]
+    },
+    "Enrollment": {
+      "title": "Enrollment",
+      "description": "An internship course enrollment record",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "collegeName": { "type": "string" },
+        "degree": { "type": "string", "enum": ["B.Tech", "Diploma", "BCA", "B.Sc", "MBA"] },
+        "fieldOfStudy": { "type": "string" },
+        "currentYear": { "type": "string" },
+        "passingYear": { "type": "string" },
+        "domainId": { "type": "string" },
+        "durationWeeks": { "type": "number" },
+        "startDate": { "type": "string" },
+        "motivation": { "type": "string" },
+        "candidateId": { "type": "string" },
+        "enrollmentDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["Initiated", "Approved", "In Progress", "Completed"] },
+        "trainingMode": { "type": "string", "enum": ["online", "offline"] },
+        "amountPaid": { "type": "number" },
+        "paymentTxnId": { "type": "string" }
+      },
+      "required": ["fullName", "email", "phone", "collegeName", "degree", "fieldOfStudy", "currentYear", "passingYear", "domainId", "durationWeeks", "candidateId", "enrollmentDate", "status"]
+    }
+  },
+  "firestore": {
+    "students/{studentId}": {
+      "schema": "StudentUser",
+      "description": "User profile collection"
+    },
+    "enrollments/{enrollmentId}": {
+      "schema": "Enrollment",
+      "description": "Registered/enrolled courses collection"
+    }
+  }
+}
