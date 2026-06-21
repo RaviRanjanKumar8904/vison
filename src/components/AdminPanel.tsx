@@ -194,7 +194,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
       try { setSettings(JSON.parse(savedSettings)); } catch (e) { /* ignore */ }
     }
 
-    // Simulate initial errors for demo
+    
     setErrors([
       { id: 'err_1', timestamp: new Date(Date.now() - 7200000).toLocaleString(), message: 'Firestore cold-start latency spike detected (450ms)', source: 'Firestore SDK', severity: 'low', resolved: true },
     ]);
@@ -1254,17 +1254,17 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                                 <div className="space-y-1.5">
                                   {!enr.paymentVerified ? (
                                     <span className="text-[9px] text-slate-400 font-mono italic">Verify payment first</span>
-                                  ) : !durationDone ? (
-                                    <span className="text-[9px] text-slate-400 font-mono italic">Duration in progress...</span>
                                   ) : (
                                     <>
-                                      <span className="block text-[9px] text-emerald-600 font-bold">✓ Eligible for certificate</span>
-                                      <div className="flex gap-1">
+                                      <span className={`block text-[9px] font-bold ${durationDone ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                        {durationDone ? '✓ Eligible for certificate' : '⚠️ Bypass: Duration incomplete'}
+                                      </span>
+                                      <div className="flex gap-1 mt-1">
                                         <button
                                           onClick={() => handleIssueCertificate(enr)}
-                                          className="flex-1 px-2.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[9px] font-bold active:scale-95 transition-all shadow-sm cursor-pointer"
+                                          className={`flex-1 px-2.5 py-1.5 rounded-lg text-white text-[9px] font-bold active:scale-95 transition-all shadow-sm cursor-pointer ${durationDone ? 'bg-blue-600 hover:bg-blue-700' : 'bg-amber-500 hover:bg-amber-600'}`}
                                         >
-                                          Issue
+                                          {durationDone ? 'Issue' : 'Bypass'}
                                         </button>
                                         <button
                                           title="Custom Date"
@@ -1433,9 +1433,6 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                           {!enr.paymentVerified && (
                             <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">Payment Pending</span>
                           )}
-                          {enr.paymentVerified && !durationDone && (
-                            <span className="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200">In Progress</span>
-                          )}
                           {enr.certificateIssued ? (
                             <div className="flex items-center gap-1.5">
                               <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Issued ✓</span>
@@ -1448,10 +1445,10 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                               </button>
                             </div>
                           ) : (
-                            enr.paymentVerified && durationDone && (
+                            enr.paymentVerified && (
                               <button
                                 onClick={() => handleIssueCertificate(enr)}
-                                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-[9px] font-bold rounded-lg cursor-pointer active:scale-95 transition-all"
+                                className={`px-3 py-1.5 text-white text-[9px] font-bold rounded-lg cursor-pointer active:scale-95 transition-all ${durationDone ? 'bg-blue-600 hover:bg-blue-700' : 'bg-amber-500 hover:bg-amber-600'}`}
                               >
                                 🎓 Issue
                               </button>
@@ -2320,6 +2317,8 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                       <option value="BCA">BCA</option>
                       <option value="B.Sc">B.Sc</option>
                       <option value="MBA">MBA</option>
+                      <option value="BA">BA</option>
+                      <option value="B.Com">B.Com</option>
                     </select>
                   </div>
                   <div className="space-y-1">

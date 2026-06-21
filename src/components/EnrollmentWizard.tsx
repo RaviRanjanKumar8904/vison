@@ -31,7 +31,7 @@ export default function EnrollmentWizard({
     email: currentUser?.email || '',
     phone: currentUser?.phone || '',
     collegeName: currentUser?.collegeName || '',
-    degree: (currentUser?.degree || 'B.Tech') as 'B.Tech' | 'Diploma' | 'BCA' | 'B.Sc' | 'MBA',
+    degree: (currentUser?.degree || 'B.Tech') as 'B.Tech' | 'Diploma' | 'BCA' | 'B.Sc' | 'MBA' | 'BA' | 'B.Com',
     fieldOfStudy: currentUser?.fieldOfStudy || '',
     currentYear: currentUser?.currentYear || '3rd Year',
     passingYear: currentUser?.passingYear || '2027',
@@ -351,7 +351,8 @@ export default function EnrollmentWizard({
                           <option value="BCA">BCA (Computer Applications)</option>
                           <option value="B.Sc">B.Sc (Science/CS)</option>
                           <option value="MBA">MBA (Business Administration)</option>
-                        </select>
+                          <option value="BA">BA (Arts/Humanities)</option>
+                          <option value="B.Com">B.Com (Commerce)</option>                        </select>
                       </div>
 
                       <div className="space-y-1">

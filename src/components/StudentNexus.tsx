@@ -153,30 +153,11 @@ export default function StudentNexus({
 }: StudentNexusProps) {
   const hasEnrolled = enrollments.length > 0;
   
-  // High quality student fallback for demo mode so the screen is never blank
-  const sampleEnrollment: EnrollmentState = {
-    fullName: 'Priyanshu Ranjan',
-    email: 'priyanshu@university.edu',
-    phone: '9876543210',
-    collegeName: 'Delhi Technological University (DTU)',
-    degree: 'B.Tech',
-    fieldOfStudy: 'Computer Engineering',
-    currentYear: '3rd Year',
-    passingYear: '2027',
-    domainId: 'ai_ml',
-    durationWeeks: 8,
-    startDate: '2026-06-15',
-    motivation: 'Aims to learn data science and build interactive artificial intelligence tools.',
-    candidateId: 'INV-2026-X8AC39',
-    enrollmentDate: 'June 15, 2026',
-    status: 'In Progress'
-  };
-
-  const activeEnrollments = hasEnrolled ? enrollments : [sampleEnrollment];
+  const activeEnrollments = enrollments;
   const [selectedEnrollmentIdx, setSelectedEnrollmentIdx] = useState(0);
   const activeEnrollment = activeEnrollments[selectedEnrollmentIdx];
 
-  const matchedDomain = INTERNSHIP_DOMAINS.find(domain => domain.id === activeEnrollment.domainId) || INTERNSHIP_DOMAINS[0];
+  const matchedDomain = INTERNSHIP_DOMAINS.find(domain => domain.id === activeEnrollment?.domainId) || INTERNSHIP_DOMAINS[0];
 
   // Active sub-sections (Samsung One UI segmented control)
   const [activeSubTab, setActiveSubTab] = useState<'homework' | 'mentor' | 'certificate' | 'roadmap' | 'profile'>('homework');
@@ -316,7 +297,7 @@ export default function StudentNexus({
   const [certCompiled, setCertCompiled] = useState(false);
 
   // Calculate Progress Percent based on materials and test
-  const progressPercent = testResult?.passed ? 100 : Math.min(95, Math.round((unlockedMaterials.length / Math.max(1, materials.length)) * 100));
+  const progressPercent = testResult?.passed ? 100 : Math.round((unlockedMaterials.length / Math.max(1, materials.length)) * 100);
 
   const submitMCQTest = async () => {
     setIsSubmittingTest(true);
@@ -467,34 +448,31 @@ export default function StudentNexus({
     }
 
     setSaveSuccess(true);
-    setTimeout(() => {
-      setSaveSuccess(false);
-    }, 3000);
-  };
+      setTimeout(() => {
+        setSaveSuccess(false);
+      }, 3000);
+    };
 
-  return (
+    if (!hasEnrolled || !activeEnrollment) {
+      return (
+        <div className="pt-24 pb-12 bg-slate-50 min-h-[80vh] flex flex-col items-center justify-center">
+          <div className="w-20 h-20 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mb-6">
+            <GraduationCap className="h-10 w-10" />
+          </div>
+          <h2 className="text-3xl font-display font-extrabold text-slate-800 mb-3">No Active Enrollments</h2>
+          <p className="text-slate-600 text-center max-w-md mb-8">You haven't enrolled in any internship programs yet. Explore our cutting-edge cohorts and start your journey.</p>
+          <button onClick={() => setCurrentTab('internships')} className="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md shadow-blue-500/20 cursor-pointer">
+            Browse Internships
+          </button>
+        </div>
+      );
+    }
+
+    return (
     <div className="relative bg-transparent text-slate-800 py-12 font-sans animate-fade-in">
       
       <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6 space-y-10">
         
-        {/* Banner notification for demo mode */}
-        {!hasEnrolled && (
-          <div className="rounded-2xl border border-blue-150 bg-blue-50/50 p-5 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs">
-            <div className="flex gap-2.5 items-center">
-              <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
-              <span>
-                <strong className="text-blue-900 uppercase text-[10px] tracking-wide font-bold">Demo workspace:</strong> We have preloaded a sample DTU Student profile. Feel free to explore and test.
-              </span>
-            </div>
-            <button
-              onClick={() => setCurrentTab('enroll')}
-              className="px-5 py-2 rounded-full bg-blue-655 hover:bg-blue-700 text-white font-bold transition-all text-xs cursor-pointer shadow-xs"
-            >
-              Sign up / Enroll Now
-            </button>
-          </div>
-        )}
-
         {/* Header - Samsung One UI style: Giant comfortable text left, profile details right */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200">
           <div className="space-y-1">
@@ -1722,6 +1700,8 @@ export default function StudentNexus({
                       <option value="BCA">BCA (Bachelor of Computer Applications)</option>
                       <option value="B.Sc">B.Sc (Bachelor of Science)</option>
                       <option value="MBA">MBA (Master of Business Administration)</option>
+                      <option value="BA">BA (Bachelor of Arts)</option>
+                      <option value="B.Com">B.Com (Bachelor of Commerce)</option>
                     </select>
                   </div>
 

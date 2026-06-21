@@ -1,17 +1,18 @@
 import { useState } from 'react';
-import { GraduationCap, Sparkles, MonitorPlay } from 'lucide-react';
+import { GraduationCap, Sparkles, MonitorPlay, Lock } from 'lucide-react';
 import { StudentUser } from '../types';
 
 interface HeaderProps {
   currentTab: string;
   setCurrentTab: (tab: string) => void;
-  onInitiateDemo: () => void;
+
   savedEnrollmentsCount: number;
   currentUser: StudentUser | null;
   onLogout: () => void;
+  hasCompletedInternship?: boolean;
 }
 
-export default function Header({ currentTab, setCurrentTab, onInitiateDemo, savedEnrollmentsCount, currentUser, onLogout }: HeaderProps) {
+export default function Header({ currentTab, setCurrentTab, savedEnrollmentsCount, currentUser, onLogout, hasCompletedInternship }: HeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isAdmin = currentUser && currentUser.email.toLowerCase() === 'raviranjan8904@gmail.com';
@@ -19,6 +20,7 @@ export default function Header({ currentTab, setCurrentTab, onInitiateDemo, save
   const navItems = [
     { id: 'home', label: 'Home' },
     { id: 'internships', label: 'Internships' },
+    { id: 'placements', label: hasCompletedInternship ? 'Placements' : '🔒 Placements' },
     { id: 'about', label: 'About Us' },
     ...(isAdmin ? [{ id: 'admin', label: 'Admin Console 👑' }] : [{ id: 'nexus', label: 'Student Dashboard' }]),
     { id: 'verify', label: 'Verify Certificate' },

@@ -12,7 +12,7 @@ export default function AboutView() {
   const corePillars = [
     {
       title: 'Industry-Accredited Roadmap',
-      desc: 'Invigo designs programs synchronized with actual workforce configurations. B.Tech, Diploma, BCA, B.Sc, and MBA paths receive exactly appropriate structural projects.',
+      desc: 'Invigo designs programs synchronized with actual workforce configurations. B.Tech, Diploma, BCA, B.Sc, MBA, BA, and B.Com paths receive exactly appropriate structural projects.',
       icon: Cpu,
       color: 'text-blue-600 border-blue-100 bg-blue-50/40'
     },
@@ -41,7 +41,7 @@ export default function AboutView() {
       year: '2023',
       title: 'Academic Curriculum Launched',
       location: '12+ Colleges Connected',
-      desc: 'Synthesized 10 customized technical study modules mapped onto autonomous credit schemes for B.Tech, Diploma, and BCA structures.'
+      desc: 'Synthesized 10 customized technical study modules mapped onto autonomous credit schemes for B.Tech, Diploma, BCA, B.Sc, MBA, BA, and B.Com structures.'
     },
     {
       year: '2024',
@@ -109,7 +109,7 @@ export default function AboutView() {
               </span>
             </h1>
             <p className="text-slate-650 text-sm leading-relaxed">
-              Invigo Infotech is a specialized internship-providing organization designed exclusively for tech and management scholars (B.Tech, Diploma, BCA, B.Sc, and MBA students). We establish interactive workspaces that turn classrooms into active production repositories.
+              Invigo Infotech is a specialized internship-providing organization designed exclusively for tech and management scholars (B.Tech, Diploma, BCA, B.Sc, MBA, BA, and B.Com students). We establish interactive workspaces that turn classrooms into active production repositories.
             </p>
             <p className="text-slate-650 text-sm leading-relaxed">
               By working within our 16 highly responsive domains, candidates become comfortable with asynchronous architectures, database constraints, hardware registers, and corporate strategic guidelines.

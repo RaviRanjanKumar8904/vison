@@ -4,7 +4,7 @@ export interface StudentUser {
   email: string;
   phone: string;
   collegeName?: string;
-  degree?: 'B.Tech' | 'Diploma' | 'BCA' | 'B.Sc' | 'MBA';
+  degree?: 'B.Tech' | 'Diploma' | 'BCA' | 'B.Sc' | 'MBA' | 'BA' | 'B.Com';
   fieldOfStudy?: string;
   currentYear?: string;
   passingYear?: string;
@@ -18,7 +18,8 @@ export interface InternshipDomain {
   shortDesc: string;
   iconName: string; // Lucide icon lookup
   durationWeeks: number[]; // e.g. [4, 8, 12]
-  targetDegrees: ('B.Tech' | 'Diploma' | 'BCA' | 'B.Sc' | 'MBA')[];
+  targetDegrees: ('B.Tech' | 'Diploma' | 'BCA' | 'B.Sc' | 'MBA' | 'BA' | 'B.Com')[];
+  targetBranches?: string[];
   skills: string[];
   toolsAndTech: string[];
   gradient: string; // CSS gradient class
@@ -35,7 +36,7 @@ export interface EnrollmentState {
   email: string;
   phone: string;
   collegeName: string;
-  degree: 'B.Tech' | 'Diploma' | 'BCA' | 'B.Sc' | 'MBA';
+  degree: 'B.Tech' | 'Diploma' | 'BCA' | 'B.Sc' | 'MBA' | 'BA' | 'B.Com';
   fieldOfStudy: string;
   currentYear: string; // e.g. '1st Year', '2nd Year', '3rd Year', '4th Year'
   passingYear: string;

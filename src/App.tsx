@@ -1,18 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import HomeView from './components/HomeView';
-import AboutView from './components/AboutView';
-import InternshipsView from './components/InternshipsView';
-import EnrollmentWizard from './components/EnrollmentWizard';
-import StudentNexus from './components/StudentNexus';
-import VerifyView from './components/VerifyView';
-import AuthView from './components/AuthView';
-import AdminPanel from './components/AdminPanel';
 import { EnrollmentState, StudentUser } from './types';
 import { auth, db, handleFirestoreError, OperationType } from './firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { collection, query, where, onSnapshot, doc, getDoc, getDocs, setDoc, deleteDoc } from 'firebase/firestore';
+
+// Lazy load all page-level components for faster initial load
+const HomeView = lazy(() => import('./components/HomeView'));
+const AboutView = lazy(() => import('./components/AboutView'));
+const InternshipsView = lazy(() => import('./components/InternshipsView'));
+const EnrollmentWizard = lazy(() => import('./components/EnrollmentWizard'));
+const StudentNexus = lazy(() => import('./components/StudentNexus'));
+const VerifyView = lazy(() => import('./components/VerifyView'));
+const AuthView = lazy(() => import('./components/AuthView'));
+const AdminPanel = lazy(() => import('./components/AdminPanel'));
+const PlacementsView = lazy(() => import('./components/PlacementsView'));
+
+// Lightweight loading fallback
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center py-32 flex-col gap-3">
+      <div className="h-8 w-8 animate-spin rounded-full border-3 border-blue-200 border-t-blue-600"></div>
+      <p className="text-xs font-semibold text-slate-400 animate-pulse">Loading...</p>
+    </div>
+  );
+}
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<string>('home');
@@ -55,6 +68,7 @@ export default function App() {
           if (docSnap.exists()) {
             const userData = docSnap.data() as StudentUser;
             setCurrentUser(userData);
+            // Only redirect admin to admin panel on auth state change
             if (userData.email.toLowerCase() === 'raviranjan8904@gmail.com') {
               setCurrentTab('admin');
             }
@@ -121,7 +135,8 @@ export default function App() {
     if (user.email.toLowerCase() === 'raviranjan8904@gmail.com') {
       setCurrentTab('admin');
     } else {
-      setCurrentTab('nexus');
+      // After login, redirect to HOME page instead of nexus
+      setCurrentTab('home');
     }
   };
 
@@ -160,11 +175,7 @@ export default function App() {
     setCurrentTab('home');
   };
 
-  const handleInitiateDemo = () => {
-    setCurrentTab('internships');
-    setSelectedCategoryFilter('All');
-    setSelectedDegreeFilter('All');
-  };
+
 
   if (isAuthLoading) {
     return (
@@ -174,6 +185,9 @@ export default function App() {
       </div>
     );
   }
+
+  // Check if user has completed at least 1 internship (for placement unlock)
+  const hasCompletedInternship = enrollments.some(e => e.status === 'Completed' || e.certificateIssued);
 
   return (
     <div className="flex min-h-screen flex-col bg-[#f8fafc] font-sans text-slate-800 selection:bg-cyan-100 selection:text-cyan-900 relative overflow-hidden">
@@ -187,101 +201,112 @@ export default function App() {
       <Header 
         currentTab={currentTab} 
         setCurrentTab={setCurrentTab} 
-        onInitiateDemo={handleInitiateDemo}
+        
         savedEnrollmentsCount={currentUser ? enrollments.filter(e => e.email.toLowerCase() === currentUser.email.toLowerCase()).length : 0}
         currentUser={currentUser}
         onLogout={handleLogout}
+        hasCompletedInternship={hasCompletedInternship}
       />
 
       {/* Main viewport switcher */}
       <main className="flex-grow relative z-10">
-        {currentTab === 'home' && (
-          <HomeView 
-            setCurrentTab={setCurrentTab} 
-            setSelectedCategoryFilter={setSelectedCategoryFilter}
-            setSelectedDegreeFilter={setSelectedDegreeFilter}
-            enrollments={currentUser ? enrollments.filter(e => e.email.toLowerCase() === currentUser.email.toLowerCase()) : []}
-            onClearEnrollments={handleClearEnrollments}
-          />
-        )}
-        
-        {currentTab === 'internships' && (
-          <InternshipsView 
-            currentTab={currentTab}
-            setCurrentTab={setCurrentTab}
-            selectedCategoryFilter={selectedCategoryFilter}
-            setSelectedCategoryFilter={setSelectedCategoryFilter}
-            selectedDegreeFilter={selectedDegreeFilter}
-            setSelectedDegreeFilter={setSelectedDegreeFilter}
-            onSelectDomainForEnrollment={handleSelectDomainForEnrollment}
-          />
-        )}
-
-        {currentTab === 'about' && (
-          <AboutView />
-        )}
-
-        {currentTab === 'auth' && (
-          <AuthView 
-            onLoginSuccess={handleLoginSuccess}
-            setCurrentTab={setCurrentTab}
-            preselectedDomainId={preselectedDomainId}
-          />
-        )}
-
-        {currentTab === 'enroll' && (
-          currentUser ? (
-            <EnrollmentWizard 
-              preselectedDomainId={preselectedDomainId}
-              setPreselectedDomainId={setPreselectedDomainId}
-              onEnrollmentComplete={handleEnrollmentComplete}
-              setCurrentTab={setCurrentTab}
-              currentUser={currentUser}
+        <Suspense fallback={<PageLoader />}>
+          {currentTab === 'home' && (
+            <HomeView 
+              setCurrentTab={setCurrentTab} 
+              setSelectedCategoryFilter={setSelectedCategoryFilter}
+              setSelectedDegreeFilter={setSelectedDegreeFilter}
+              enrollments={currentUser ? enrollments.filter(e => e.email.toLowerCase() === currentUser.email.toLowerCase()) : []}
+              onClearEnrollments={handleClearEnrollments}
             />
-          ) : (
-            <AuthView 
-              onLoginSuccess={handleLoginSuccess}
+          )}
+          
+          {currentTab === 'internships' && (
+            <InternshipsView 
+              currentTab={currentTab}
               setCurrentTab={setCurrentTab}
-              preselectedDomainId={preselectedDomainId}
-            />
-          )
-        )}
-
-        {currentTab === 'nexus' && (
-          currentUser ? (
-            <StudentNexus 
-              enrollments={enrollments.filter(e => e.email.toLowerCase() === currentUser.email.toLowerCase())} 
-              setCurrentTab={setCurrentTab}
+              selectedCategoryFilter={selectedCategoryFilter}
+              setSelectedCategoryFilter={setSelectedCategoryFilter}
+              selectedDegreeFilter={selectedDegreeFilter}
+              setSelectedDegreeFilter={setSelectedDegreeFilter}
               onSelectDomainForEnrollment={handleSelectDomainForEnrollment}
             />
-          ) : (
+          )}
+
+          {currentTab === 'about' && (
+            <AboutView />
+          )}
+
+          {currentTab === 'auth' && (
             <AuthView 
               onLoginSuccess={handleLoginSuccess}
               setCurrentTab={setCurrentTab}
+              preselectedDomainId={preselectedDomainId}
             />
-          )
-        )}
+          )}
 
-        {currentTab === 'verify' && (
-          <VerifyView 
-            enrollments={enrollments} 
-            setCurrentTab={setCurrentTab}
-          />
-        )}
+          {currentTab === 'enroll' && (
+            currentUser ? (
+              <EnrollmentWizard 
+                preselectedDomainId={preselectedDomainId}
+                setPreselectedDomainId={setPreselectedDomainId}
+                onEnrollmentComplete={handleEnrollmentComplete}
+                setCurrentTab={setCurrentTab}
+                currentUser={currentUser}
+              />
+            ) : (
+              <AuthView 
+                onLoginSuccess={handleLoginSuccess}
+                setCurrentTab={setCurrentTab}
+                preselectedDomainId={preselectedDomainId}
+              />
+            )
+          )}
 
-        {currentTab === 'admin' && (
-          currentUser && currentUser.email.toLowerCase() === 'raviranjan8904@gmail.com' ? (
-            <AdminPanel 
-              currentUser={currentUser} 
+          {currentTab === 'nexus' && (
+            currentUser ? (
+              <StudentNexus 
+                enrollments={enrollments.filter(e => e.email.toLowerCase() === currentUser.email.toLowerCase())} 
+                setCurrentTab={setCurrentTab}
+                onSelectDomainForEnrollment={handleSelectDomainForEnrollment}
+              />
+            ) : (
+              <AuthView 
+                onLoginSuccess={handleLoginSuccess}
+                setCurrentTab={setCurrentTab}
+              />
+            )
+          )}
+
+          {currentTab === 'placements' && (
+            <PlacementsView
+              hasCompletedInternship={hasCompletedInternship}
+              setCurrentTab={setCurrentTab}
+              enrollments={enrollments}
+            />
+          )}
+
+          {currentTab === 'verify' && (
+            <VerifyView 
+              enrollments={enrollments} 
               setCurrentTab={setCurrentTab}
             />
-          ) : (
-            <AuthView 
-              onLoginSuccess={handleLoginSuccess}
-              setCurrentTab={setCurrentTab}
-            />
-          )
-        )}
+          )}
+
+          {currentTab === 'admin' && (
+            currentUser && currentUser.email.toLowerCase() === 'raviranjan8904@gmail.com' ? (
+              <AdminPanel 
+                currentUser={currentUser} 
+                setCurrentTab={setCurrentTab}
+              />
+            ) : (
+              <AuthView 
+                onLoginSuccess={handleLoginSuccess}
+                setCurrentTab={setCurrentTab}
+              />
+            )
+          )}
+        </Suspense>
       </main>
 
       {/* Translucent Footer */}

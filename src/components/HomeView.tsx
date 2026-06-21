@@ -1,4 +1,4 @@
-import { ArrowRight, Sparkles, Brain, Award, ShieldCheck, Milestone, GraduationCap, Users, Code, BookOpen, User, Calendar, FileText, Trash2, HelpCircle } from 'lucide-react';
+import { ArrowRight, Sparkles, Brain, Award, ShieldCheck, Milestone, GraduationCap, Users, Code, BookOpen, User, Calendar, FileText, Trash2, HelpCircle, Phone, Star } from 'lucide-react';
 import { motion } from 'motion/react';
 import { TESTIMONIALS, INTERNSHIP_DOMAINS } from '../data';
 import { EnrollmentState } from '../types';
@@ -19,7 +19,7 @@ export default function HomeView({
   onClearEnrollments
 }: HomeViewProps) {
   
-  const handleDegreeFocus = (degree: 'B.Tech' | 'Diploma' | 'BCA' | 'B.Sc' | 'MBA') => {
+  const handleDegreeFocus = (degree: 'B.Tech' | 'Diploma' | 'BCA' | 'B.Sc' | 'MBA' | 'BA' | 'B.Com') => {
     setSelectedDegreeFilter(degree);
     setSelectedCategoryFilter('All');
     setCurrentTab('internships');
@@ -60,6 +60,20 @@ export default function HomeView({
       desc: 'Strategic finance auditing, FinTech venture capital setups, growth funnel designs, and behavioral marketing strategies.',
       color: 'border-slate-200 text-amber-600 bg-white hover:bg-amber-50/50 hover:border-amber-300 shadow-sm rounded-[1.5rem]',
       icon: BusinessIcon
+    },
+    {
+      degree: 'BA' as const,
+      label: 'Arts & Humanities',
+      desc: 'Creative design, content strategy, human resources management, and digital marketing.',
+      color: 'border-slate-200 text-pink-600 bg-white hover:bg-pink-50/50 hover:border-pink-300 shadow-sm rounded-[1.5rem]',
+      icon: CodeIcon
+    },
+    {
+      degree: 'B.Com' as const,
+      label: 'Commerce & Finance',
+      desc: 'Financial modeling, accounting software integrations, business analytics, and e-commerce setups.',
+      color: 'border-slate-200 text-indigo-600 bg-white hover:bg-indigo-50/50 hover:border-indigo-300 shadow-sm rounded-[1.5rem]',
+      icon: BusinessIcon
     }
   ];
 
@@ -72,6 +86,15 @@ export default function HomeView({
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
+
+        {/* BULK CERTIFICATE BANNER */}
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-center py-2.5 px-4 rounded-xl text-sm font-bold shadow-md shadow-emerald-500/20 mb-6 max-w-2xl mx-auto flex items-center justify-center gap-2 cursor-pointer hover:scale-105 transition-transform"
+        >
+          <Phone className="w-4 h-4 text-emerald-100" />
+          <span>Contact for bulk certificate <a href="tel:+916204266080" className="underline decoration-emerald-200 underline-offset-2 ml-1 text-white font-extrabold">+91 62042 66080</a></span>
+        </motion.div>
         
         {/* HERO SECTION */}
         <div className="text-center space-y-8 max-w-4xl mx-auto py-12 md:py-24">
@@ -344,6 +367,48 @@ export default function HomeView({
           </div>
         </div>
 
+        {/* TOP 5 SELLING COURSES */}
+        <div className="py-16 border-t border-slate-150">
+          <div className="text-center space-y-4 mb-12">
+            <h2 className="font-display text-3xl font-extrabold text-slate-900 flex items-center justify-center gap-3">
+              <Star className="h-8 w-8 text-amber-500 fill-amber-500" />
+              Top Selling Courses
+              <Star className="h-8 w-8 text-amber-500 fill-amber-500" />
+            </h2>
+            <p className="text-slate-600">The most popular, highly-rated offline and virtual internship programs.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            {INTERNSHIP_DOMAINS.slice(0, 5).map((domain, idx) => (
+              <div key={domain.id} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between group h-64 cursor-pointer" onClick={() => { setCurrentTab('internships'); setSelectedCategoryFilter('All'); setSelectedDegreeFilter('All'); }}>
+                <div className={`absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r ${domain.gradient}`} />
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold font-mono px-2 py-1 bg-slate-100 text-slate-500 rounded-md">#{idx + 1}</span>
+                    <div className="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase flex items-center gap-1">
+                      <Award className="h-3 w-3" /> BESTSELLER
+                    </div>
+                  </div>
+                  <h3 className="font-display font-extrabold text-slate-800 text-lg leading-tight group-hover:text-blue-600 transition-colors">{domain.title}</h3>
+                </div>
+                <div className="mt-4">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 block mb-1">Target Audience</span>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {domain.targetDegrees.slice(0, 2).map((deg) => (
+                      <span key={deg} className="px-2 py-0.5 rounded-sm bg-slate-100 text-slate-600 text-[10px] font-bold">{deg}</span>
+                    ))}
+                    {domain.targetDegrees.length > 2 && <span className="px-2 py-0.5 rounded-sm bg-slate-50 text-slate-500 text-[10px] font-bold">+{domain.targetDegrees.length - 2}</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 text-center">
+            <button onClick={() => setCurrentTab('internships')} className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700">
+              View all {INTERNSHIP_DOMAINS.length} courses <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
         {/* CORE VALUES / THE CORE MATRIX */}
         <div className="py-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border-t border-slate-150">
           <div className="lg:col-span-5 space-y-6">
@@ -406,7 +471,7 @@ export default function HomeView({
               <div className="space-y-2">
                 <h3 className="font-display font-bold text-base text-slate-805">Academic Alignment</h3>
                 <p className="text-xs text-slate-600 leading-relaxed">
-                  Specially coded curriculum pathways mapped directly onto college credits for B.Tech, Diploma, BCA, B.Sc, and MBA degrees.
+                  Specially coded curriculum pathways mapped directly onto college credits for B.Tech, Diploma, BCA, B.Sc, MBA, BA, and B.Com degrees.
                 </p>
               </div>
             </div>

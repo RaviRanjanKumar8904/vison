@@ -35,10 +35,12 @@ export default function InternshipsView({
 }: InternshipsViewProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedDomain, setSelectedDomain] = useState<InternshipDomain | null>(null);
+  const [selectedBranchFilter, setSelectedBranchFilter] = useState('All');
 
   // Filter lists
   const categories = ['All', 'Tech', 'Hardware', 'Management', 'Design'];
-  const degrees = ['All', 'B.Tech', 'Diploma', 'BCA', 'B.Sc', 'MBA'];
+  const degrees = ['All', 'B.Tech', 'Diploma', 'BCA', 'B.Sc', 'MBA', 'BA', 'B.Com'];
+  const branches = ['All', 'Electrical', 'ECE', 'CSE', 'Mech', 'Civil', 'Robotics', 'Mechatronics', 'IT'];
 
   // Analytical computation mapping onto state variables
   const filteredDomains = INTERNSHIP_DOMAINS.filter((domain) => {
@@ -54,7 +56,11 @@ export default function InternshipsView({
     const matchesDegree = 
       selectedDegreeFilter === 'All' || domain.targetDegrees.includes(selectedDegreeFilter as any);
 
-    return matchesSearch && matchesCategory && matchesDegree;
+    const matchesBranch = 
+      selectedBranchFilter === 'All' || 
+      (domain.targetBranches && domain.targetBranches.some(b => b.toLowerCase().includes(selectedBranchFilter.toLowerCase())));
+
+    return matchesSearch && matchesCategory && matchesDegree && matchesBranch;
   });
 
   const handleEnrollClick = (domainId: string) => {
@@ -147,7 +153,7 @@ export default function InternshipsView({
             <div className="flex items-center justify-between lg:justify-end px-2 font-mono text-xs text-slate-500 gap-2 shrink-0">
               <span>Matching Coordinates:</span>
               <span className="bg-slate-50 px-3 py-1 rounded-full text-blue-600 font-bold border border-slate-200">
-                {filteredDomains.length} / 16
+                {filteredDomains.length} / {INTERNSHIP_DOMAINS.length}
               </span>
             </div>
           </div>
@@ -197,6 +203,29 @@ export default function InternshipsView({
                   </button>
                 ))}
               </div>
+              {(selectedDegreeFilter === 'B.Tech' || selectedDegreeFilter === 'Diploma') && (
+                <div className="space-y-3 pt-3 border-t border-slate-100">
+                  <span className="flex items-center gap-2 text-xs font-bold text-slate-500 uppercase tracking-widest">
+                    <Layers className="h-4 w-4 text-emerald-500" />
+                    <span>Specialization Branches</span>
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {branches.map((branch) => (
+                      <button
+                        key={branch}
+                        onClick={() => setSelectedBranchFilter(branch)}
+                        className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
+                          selectedBranchFilter === branch
+                            ? 'border-emerald-600 text-emerald-750 bg-emerald-50/50 font-bold'
+                            : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                        }`}
+                      >
+                        {branch === 'All' ? 'All Branches' : branch}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -318,6 +347,7 @@ export default function InternshipsView({
                 setSearchQuery('');
                 setSelectedCategoryFilter('All');
                 setSelectedDegreeFilter('All');
+                setSelectedBranchFilter('All');
               }}
               className="px-4 py-2 border border-slate-300 rounded-xl text-xs font-bold text-blue-600 bg-white hover:bg-slate-50 cursor-pointer"
             >

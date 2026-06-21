@@ -15,6 +15,20 @@ export const DOMAIN_IMAGES: Record<string, string> = {
   ic_engine: '/domain_ic_engine.png',
 };
 
+// Branch options per degree for branch-wise filtering
+export const BRANCH_OPTIONS: Record<string, string[]> = {
+  'B.Tech': ['CSE', 'IT', 'ECE', 'Electrical', 'Mechanical', 'Civil', 'Robotics', 'Mechatronics', 'Automobile', 'Architecture', 'Industrial'],
+  'Diploma': ['CSE', 'IT', 'ECE', 'Electrical', 'Mechanical', 'Civil', 'Automobile'],
+  'BCA': ['General'],
+  'B.Sc': ['Computer Science', 'Mathematics', 'Physics', 'Chemistry'],
+  'MBA': ['Finance', 'Marketing', 'HR', 'Operations', 'IT Management'],
+  'BA': ['English', 'Economics', 'Psychology', 'Sociology', 'Political Science'],
+  'B.Com': ['Accounting', 'Finance', 'Taxation', 'Banking', 'General'],
+};
+
+// Top selling course IDs (featured on home page)
+export const TOP_SELLING_COURSE_IDS = ['web_development', 'python_programming', 'data_science', 'full_stack', 'core_java'];
+
 export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
   {
     id: 'building_construction',
@@ -24,26 +38,15 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     iconName: 'Blocks',
     durationWeeks: [4, 8, 12],
     targetDegrees: ['B.Tech', 'Diploma'],
+    targetBranches: ['Civil', 'Mechanical', 'Architecture'],
     skills: ['Structural Estimations', 'Foundation Calculus', 'Material Strength Analysis', 'Project Management'],
     toolsAndTech: ['MS Project', 'P6 Primavera', 'STAAD.Pro', 'Concrete Mix Calibration'],
     gradient: 'from-amber-600 via-orange-600 to-red-700',
     imageUrl: '/domain_building_construction.png',
     phases: [
-      {
-        title: 'Structural Material Diagnostics',
-        description: 'Establish structural load factors, examine concrete mix design ratios, and evaluate material stress capacities.',
-        deliverables: ['Concrete compressive strength analysis matrix', 'Standard concrete mix design calculations record']
-      },
-      {
-        title: 'Foundation & Estimate Calculus',
-        description: 'Model shallow and deep footings weight tolerances, estimate structural material volumes and project bills.',
-        deliverables: ['Quantity Takeoff Spreadsheet and estimation sheet', 'Structural slab reinforcement layout schematic']
-      },
-      {
-        title: 'Capstone Construction Project Schedule',
-        description: 'Synthesize project management phases, schedule critical path progress timelines, and assess site safety checklists.',
-        deliverables: ['Primavera / MS Project execution timeline build', 'Construction site quality assurance audit checklist']
-      }
+      { title: 'Structural Material Diagnostics', description: 'Establish structural load factors, examine concrete mix design ratios, and evaluate material stress capacities.', deliverables: ['Concrete compressive strength analysis matrix', 'Standard concrete mix design calculations record'] },
+      { title: 'Foundation & Estimate Calculus', description: 'Model shallow and deep footings weight tolerances, estimate structural material volumes and project bills.', deliverables: ['Quantity Takeoff Spreadsheet and estimation sheet', 'Structural slab reinforcement layout schematic'] },
+      { title: 'Capstone Construction Project Schedule', description: 'Synthesize project management phases, schedule critical path progress timelines, and assess site safety checklists.', deliverables: ['Primavera / MS Project execution timeline build', 'Construction site quality assurance audit checklist'] }
     ]
   },
   {
@@ -54,26 +57,15 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     iconName: 'Layers',
     durationWeeks: [4, 8, 12],
     targetDegrees: ['B.Tech', 'Diploma'],
+    targetBranches: ['Mechanical', 'Civil', 'Architecture', 'Electrical'],
     skills: ['2D Geometric Drafting', 'Isometric Projections', 'Architectural Layout Planning', 'Orthographic Projection Models'],
     toolsAndTech: ['Autodesk AutoCAD', 'CAD coordinate helpers', 'Standard Layer libraries', 'Plotting & Sheet Sets'],
     gradient: 'from-red-500 via-rose-600 to-pink-700',
     imageUrl: '/domain_autocad.png',
     phases: [
-      {
-        title: '2D Coordinate & Isometric Drafts',
-        description: 'Understand absolute, relative polar coordinates, command shortcuts, layers, hatch parameters, and engineering notation.',
-        deliverables: ['Precision mechanical part engineering draft drawing', 'Custom architectural layers and styles template']
-      },
-      {
-        title: '3D Modeling & Sectional Projections',
-        description: 'Extrude 2D drafts into solid 3D solids, perform Boolean join subtracts, and generate orthographic layouts.',
-        deliverables: ['3D parametric block model design files', 'Sectional views details diagram and documentation']
-      },
-      {
-        title: 'Capstone Architectural Floor Plan',
-        description: 'Draw complete floor layouts showing doors, windows, elevations, annotations, schedules, and plot styles.',
-        deliverables: ['Comprehensive multi-story 2BHK architectural floor blueprint', 'Finished CAD drawing set exported to standard formats']
-      }
+      { title: '2D Coordinate & Isometric Drafts', description: 'Understand absolute, relative polar coordinates, command shortcuts, layers, hatch parameters, and engineering notation.', deliverables: ['Precision mechanical part engineering draft drawing', 'Custom architectural layers and styles template'] },
+      { title: '3D Modeling & Sectional Projections', description: 'Extrude 2D drafts into solid 3D solids, perform Boolean join subtracts, and generate orthographic layouts.', deliverables: ['3D parametric block model design files', 'Sectional views details diagram and documentation'] },
+      { title: 'Capstone Architectural Floor Plan', description: 'Draw complete floor layouts showing doors, windows, elevations, annotations, schedules, and plot styles.', deliverables: ['Comprehensive multi-story 2BHK architectural floor blueprint', 'Finished CAD drawing set exported to standard formats'] }
     ]
   },
   {
@@ -83,27 +75,16 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     shortDesc: 'Create fast, responsive web systems using structural modern HTML, CSS, JavaScript engines, adaptive layouts, and web components.',
     iconName: 'CodeXml',
     durationWeeks: [4, 8, 12],
-    targetDegrees: ['B.Tech', 'Diploma', 'BCA', 'B.Sc'],
+    targetDegrees: ['B.Tech', 'Diploma', 'BCA', 'B.Sc', 'B.Com'],
+    targetBranches: ['CSE', 'IT', 'ECE'],
     skills: ['Semantic DOM Structure', 'Advanced Flexbox and CSS Grids', 'Dynamic Core JavaScript', 'Responsive Styling & Layouts'],
     toolsAndTech: ['HTML5', 'CSS3', 'JavaScript ES6+', 'Tailwind CSS', 'Vite compiler', 'Git control'],
     gradient: 'from-cyan-500 via-blue-600 to-indigo-700',
     imageUrl: '/domain_web_development.png',
     phases: [
-      {
-        title: 'Semantic Layouts and CSS Styling',
-        description: 'Author standards-compliant HTML forms and master Tailwind responsive classes, shadows, borders, and margins.',
-        deliverables: ['Pixel-perfect product sales page build', 'Active responsive administration grid dashboard']
-      },
-      {
-        title: 'Asynchronous Logic & DOM control',
-        description: 'Bind actions to user events, manipulate list nodes dynamically, parse JSON, and handle API responses.',
-        deliverables: ['Static stateful listing app with live search options', 'Remote API data integration script']
-      },
-      {
-        title: 'Capstone High Performance Web App',
-        description: 'Coordinate UI paths, optimize bundle build weights, structure static deployment pipelines, and verify responsiveness.',
-        deliverables: ['Finished web product directory application', 'Production build speed benchmark evaluation sheet']
-      }
+      { title: 'Semantic Layouts and CSS Styling', description: 'Author standards-compliant HTML forms and master Tailwind responsive classes, shadows, borders, and margins.', deliverables: ['Pixel-perfect product sales page build', 'Active responsive administration grid dashboard'] },
+      { title: 'Asynchronous Logic & DOM control', description: 'Bind actions to user events, manipulate list nodes dynamically, parse JSON, and handle API responses.', deliverables: ['Static stateful listing app with live search options', 'Remote API data integration script'] },
+      { title: 'Capstone High Performance Web App', description: 'Coordinate UI paths, optimize bundle build weights, structure static deployment pipelines, and verify responsiveness.', deliverables: ['Finished web product directory application', 'Production build speed benchmark evaluation sheet'] }
     ]
   },
   {
@@ -113,27 +94,16 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     shortDesc: 'Learn object-oriented programming, file operations, algorithmic puzzles, data parsers, and automation script engines in Python.',
     iconName: 'Brain',
     durationWeeks: [4, 8, 12],
-    targetDegrees: ['B.Tech', 'BCA', 'B.Sc', 'Diploma', 'MBA'],
+    targetDegrees: ['B.Tech', 'BCA', 'B.Sc', 'Diploma', 'MBA', 'B.Com'],
+    targetBranches: ['CSE', 'IT', 'ECE', 'Mechanical'],
     skills: ['OOP Design Patterns', 'File Input/Output Engines', 'Algorithm Complexity Analysis', 'Excel and API Automation'],
     toolsAndTech: ['Python 3+', 'Pipenv environments', 'Jupyter Lab', 'Pandas datasets', 'OpenPyXL excel tools', 'Requests SDK'],
     gradient: 'from-yellow-500 via-green-600 to-teal-700',
     imageUrl: '/domain_python_programming.png',
     phases: [
-      {
-        title: 'Algorithmic Data Structures',
-        description: 'Master list comprehensions, dictionary indexing, error try/except blocks, string manipulations, and file system reads.',
-        deliverables: ['Optimized custom CSV data parser script', 'Automated system directories backup tool']
-      },
-      {
-        title: 'OOP Architectures & Command Lines',
-        description: 'Compose robust class inheritance models, custom decorators, and process CLI input prompts with structural validation.',
-        deliverables: ['Interactive terminal bank application program outline', 'Automated data log generator and text analyzer']
-      },
-      {
-        title: 'Capstone File & Data Pipeline',
-        description: 'Sync multiple Excel workbooks, parse structured remote APIs, create charts, and send automated notifications.',
-        deliverables: ['Comprehensive multi-format report compiler system', 'System automated test logs showing data validation']
-      }
+      { title: 'Algorithmic Data Structures', description: 'Master list comprehensions, dictionary indexing, error try/except blocks, string manipulations, and file system reads.', deliverables: ['Optimized custom CSV data parser script', 'Automated system directories backup tool'] },
+      { title: 'OOP Architectures & Command Lines', description: 'Compose robust class inheritance models, custom decorators, and process CLI input prompts with structural validation.', deliverables: ['Interactive terminal bank application program outline', 'Automated data log generator and text analyzer'] },
+      { title: 'Capstone File & Data Pipeline', description: 'Sync multiple Excel workbooks, parse structured remote APIs, create charts, and send automated notifications.', deliverables: ['Comprehensive multi-format report compiler system', 'System automated test logs showing data validation'] }
     ]
   },
   {
@@ -143,27 +113,16 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     shortDesc: 'Extract deep knowledge from complex datasets, write statistical regression/classification algorithms, and deploy predictive engines.',
     iconName: 'BarChart4',
     durationWeeks: [4, 8, 12],
-    targetDegrees: ['B.Tech', 'BCA', 'B.Sc', 'MBA'],
+    targetDegrees: ['B.Tech', 'BCA', 'B.Sc', 'MBA', 'B.Com'],
+    targetBranches: ['CSE', 'IT', 'ECE'],
     skills: ['Exploratory Statistical Audits', 'Feature Engineering Matrices', 'Regression & RandomForest Modeling', 'Interactive Data Dashboards'],
     toolsAndTech: ['Python', 'Pandas', 'NumPy', 'Scikit-Learn', 'Matplotlib & Seaborn', 'Tableau desktop tools'],
     gradient: 'from-rose-500 via-purple-600 to-indigo-700',
     imageUrl: '/domain_data_science.png',
     phases: [
-      {
-        title: 'Data Cleaning & Exploratory Analysis',
-        description: 'Impute missing values, remove outlier records, normalize distributions, and generate Pearson correlation matrices.',
-        deliverables: ['Comprehensive Exploratory Data Analysis Jupyter Notebook', 'Custom distribution charts showing data insights']
-      },
-      {
-        title: 'Predictive Modeling & Tuning',
-        description: 'Split datasets into train/test, build regression models, evaluate performance metrics, and optimize parameters.',
-        deliverables: ['Calibrated random forest classifier algorithm', 'Model accuracy scorecard with MSE / ROC metrics']
-      },
-      {
-        title: 'Capstone Insights BI Dashboard',
-        description: 'Integrate dynamic filters, compile feature importance logs, and write executive summary business proposals.',
-        deliverables: ['Fully functional analytical dashboard mockup', 'Executive-level summary of actionable predictive insights']
-      }
+      { title: 'Data Cleaning & Exploratory Analysis', description: 'Impute missing values, remove outlier records, normalize distributions, and generate Pearson correlation matrices.', deliverables: ['Comprehensive Exploratory Data Analysis Jupyter Notebook', 'Custom distribution charts showing data insights'] },
+      { title: 'Predictive Modeling & Tuning', description: 'Split datasets into train/test, build regression models, evaluate performance metrics, and optimize parameters.', deliverables: ['Calibrated random forest classifier algorithm', 'Model accuracy scorecard with MSE / ROC metrics'] },
+      { title: 'Capstone Insights BI Dashboard', description: 'Integrate dynamic filters, compile feature importance logs, and write executive summary business proposals.', deliverables: ['Fully functional analytical dashboard mockup', 'Executive-level summary of actionable predictive insights'] }
     ]
   },
   {
@@ -174,26 +133,15 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     iconName: 'Layers',
     durationWeeks: [4, 8, 12],
     targetDegrees: ['B.Tech', 'Diploma'],
+    targetBranches: ['Civil', 'Architecture'],
     skills: ['Parametric Family Design', 'Structural Level Modeling', 'BIM Interoperability', 'Material Schedule Audit'],
     toolsAndTech: ['Autodesk Revit', 'BIM parameters', 'Enscape renderer', 'Material schedules lists'],
     gradient: 'from-sky-400 via-blue-500 to-indigo-600',
     imageUrl: '/domain_revit.png',
     phases: [
-      {
-        title: 'Levels, Walls, and basic layouts',
-        description: 'Model floor configurations, specify wall structural composite layers, modify doors and windows parametric parameters.',
-        deliverables: ['Finished 3D architectural shell prototype design', 'Custom component families collection catalog']
-      },
-      {
-        title: 'BIM Schedules, Sheets, & MEP checks',
-        description: 'Design ceiling layers, coordinate electrical lighting nodes, generate quantity takeoffs schedules, and run clash checkings.',
-        deliverables: ['Calculated structural schedules tables sheets', 'Integrated MEP HVAC / Plumbing routing plan']
-      },
-      {
-        title: 'Capstone Professional BIM Rendering',
-        description: 'Apply realistic exterior materials, configure atmospheric background lights, set camera flythrough walk frames.',
-        deliverables: ['Complete BIM construction drawings sheet document', 'Exterior scene rendered walkthrough scenes and animation frames']
-      }
+      { title: 'Levels, Walls, and basic layouts', description: 'Model floor configurations, specify wall structural composite layers, modify doors and windows parametric parameters.', deliverables: ['Finished 3D architectural shell prototype design', 'Custom component families collection catalog'] },
+      { title: 'BIM Schedules, Sheets, & MEP checks', description: 'Design ceiling layers, coordinate electrical lighting nodes, generate quantity takeoffs schedules, and run clash checkings.', deliverables: ['Calculated structural schedules tables sheets', 'Integrated MEP HVAC / Plumbing routing plan'] },
+      { title: 'Capstone Professional BIM Rendering', description: 'Apply realistic exterior materials, configure atmospheric background lights, set camera flythrough walk frames.', deliverables: ['Complete BIM construction drawings sheet document', 'Exterior scene rendered walkthrough scenes and animation frames'] }
     ]
   },
   {
@@ -204,26 +152,15 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     iconName: 'CodeXml',
     durationWeeks: [4, 8, 12],
     targetDegrees: ['B.Tech', 'Diploma', 'BCA', 'B.Sc'],
+    targetBranches: ['CSE', 'IT'],
     skills: ['React Virtual DOM', 'Asynchronous API Gateways', 'Relational/Non-relational Schemas', 'JWT Token Authentication'],
     toolsAndTech: ['React.js', 'Node.js', 'Express.js', 'MongoDB / SQL', 'TypeScript', 'Tailwind CSS'],
     gradient: 'from-emerald-400 via-teal-600 to-cyan-700',
     imageUrl: '/domain_full_stack.png',
     phases: [
-      {
-        title: 'Responsive Frontend Framework State',
-        description: 'Harness state lifecycle callbacks, custom React hooks, prop validations, and fluid responsive grid layers.',
-        deliverables: ['Single page dashboard view with search filters', 'Local persistent state-driven tracker catalog']
-      },
-      {
-        title: 'REST API & Secure Database Operations',
-        description: 'Build backend routes, configure schemas with field restrictions, sanitize input data, and encrypt passwords.',
-        deliverables: ['JSON database modeling files', 'Complete API server routing registry showing active CRUD controls']
-      },
-      {
-        title: 'Capstone Full Stack Deployment',
-        description: 'Deploy assets, secure route protection parameters, configure environment variables, and verify latency profiles.',
-        deliverables: ['Deployed full-stack app on a live host server', 'System benchmark and API performance validation sheet']
-      }
+      { title: 'Responsive Frontend Framework State', description: 'Harness state lifecycle callbacks, custom React hooks, prop validations, and fluid responsive grid layers.', deliverables: ['Single page dashboard view with search filters', 'Local persistent state-driven tracker catalog'] },
+      { title: 'REST API & Secure Database Operations', description: 'Build backend routes, configure schemas with field restrictions, sanitize input data, and encrypt passwords.', deliverables: ['JSON database modeling files', 'Complete API server routing registry showing active CRUD controls'] },
+      { title: 'Capstone Full Stack Deployment', description: 'Deploy assets, secure route protection parameters, configure environment variables, and verify latency profiles.', deliverables: ['Deployed full-stack app on a live host server', 'System benchmark and API performance validation sheet'] }
     ]
   },
   {
@@ -234,26 +171,15 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     iconName: 'Layers',
     durationWeeks: [4, 8, 12],
     targetDegrees: ['B.Tech', 'BCA', 'B.Sc'],
+    targetBranches: ['CSE', 'IT', 'ECE'],
     skills: ['Java Collections Pipeline', 'JVM Heap Management', 'Spring Boot API Routing', 'Hibernate & JPA Persistence'],
     toolsAndTech: ['Java 17+', 'Spring Boot framework', 'Hibernate ORM', 'Maven Builds tools', 'PostgreSQL SQL', 'JUnit Engine'],
     gradient: 'from-orange-500 via-rose-600 to-indigo-700',
     imageUrl: '/domain_core_java.png',
     phases: [
-      {
-        title: 'OOP & Concurrent Collection Libraries',
-        description: 'Master hash map parameters, array resizing limits, concurrent thread queues, and clean object memory design.',
-        deliverables: ['Thread-safe consumer matching queue processor script', 'Comprehensive logic test cases dataset built in JUnit']
-      },
-      {
-        title: 'Spring Framework REST Pipelines',
-        description: 'Implement MVC controllers, establish relational maps, handle parameter mapping exceptions, and configure filters.',
-        deliverables: ['Secure Spring Boot microservice with complete data layers', 'Database schema migration and validation file']
-      },
-      {
-        title: 'Capstone Enterprise API Registry',
-        description: 'Draft decouplers, rate limits, request handlers, cache parameters, and secure transaction limits.',
-        deliverables: ['Fully functional enterprise data service pipeline', 'Performance profiling metrics worksheet showing latency logs']
-      }
+      { title: 'OOP & Concurrent Collection Libraries', description: 'Master hash map parameters, array resizing limits, concurrent thread queues, and clean object memory design.', deliverables: ['Thread-safe consumer matching queue processor script', 'Comprehensive logic test cases dataset built in JUnit'] },
+      { title: 'Spring Framework REST Pipelines', description: 'Implement MVC controllers, establish relational maps, handle parameter mapping exceptions, and configure filters.', deliverables: ['Secure Spring Boot microservice with complete data layers', 'Database schema migration and validation file'] },
+      { title: 'Capstone Enterprise API Registry', description: 'Draft decouplers, rate limits, request handlers, cache parameters, and secure transaction limits.', deliverables: ['Fully functional enterprise data service pipeline', 'Performance profiling metrics worksheet showing latency logs'] }
     ]
   },
   {
@@ -264,26 +190,15 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     iconName: 'Cpu',
     durationWeeks: [4, 8, 12],
     targetDegrees: ['B.Tech', 'Diploma'],
+    targetBranches: ['Electrical', 'ECE', 'Mechanical', 'Mechatronics'],
     skills: ['Battery Cell Balancing', 'BMS Modeling and Safety', 'BLDC Motor Speed Control', 'Kinetic Energy Recovery Models'],
     toolsAndTech: ['MATLAB Sim', 'BMS Hardware', 'BLDC Motors configs', 'Battery Packs Systems'],
     gradient: 'from-green-500 via-emerald-600 to-teal-700',
     imageUrl: '/domain_electric_vehicle.png',
     phases: [
-      {
-        title: 'EV Battery Pack Cell Simulation',
-        description: 'Explore lithium cell thermodynamic behaviors, cooling schedules, state-of-charge tracking levels, and overcharge safety.',
-        deliverables: ['Thermodynamic battery degradation mock calculations', 'Cell matching and balancing logic simulator program']
-      },
-      {
-        title: 'BLDC Vector Torque & Speed',
-        description: 'Understand brushless current components, rotational speed profiles under load changes, and regenerative braking metrics.',
-        deliverables: ['Brushless motor rotational current simulation file', 'Dynamic braking regeneration efficiency mapping chart']
-      },
-      {
-        title: 'Capstone Complete EV Power System',
-        description: 'Assemble complete BMS feedback routines, battery temperature alarms, and drive cycle energy usage charts.',
-        deliverables: ['System-level electrical connection schematics', 'Vehicle drive-cycle simulation power consumption worksheet']
-      }
+      { title: 'EV Battery Pack Cell Simulation', description: 'Explore lithium cell thermodynamic behaviors, cooling schedules, state-of-charge tracking levels, and overcharge safety.', deliverables: ['Thermodynamic battery degradation mock calculations', 'Cell matching and balancing logic simulator program'] },
+      { title: 'BLDC Vector Torque & Speed', description: 'Understand brushless current components, rotational speed profiles under load changes, and regenerative braking metrics.', deliverables: ['Brushless motor rotational current simulation file', 'Dynamic braking regeneration efficiency mapping chart'] },
+      { title: 'Capstone Complete EV Power System', description: 'Assemble complete BMS feedback routines, battery temperature alarms, and drive cycle energy usage charts.', deliverables: ['System-level electrical connection schematics', 'Vehicle drive-cycle simulation power consumption worksheet'] }
     ]
   },
   {
@@ -294,26 +209,15 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     iconName: 'Wrench',
     durationWeeks: [4, 8, 12],
     targetDegrees: ['B.Tech', 'Diploma'],
+    targetBranches: ['Mechanical', 'Civil', 'Robotics', 'Mechatronics'],
     skills: ['Parametric Feature Design', 'Kinematic Assembly Simulation', 'Stress/Load Finite Elements Analysis', 'Technical Sheet Drafting'],
     toolsAndTech: ['DS SolidWorks', 'FEA Simulation tools', 'Assembly relations', 'Drafting standards'],
     gradient: 'from-blue-500 via-indigo-600 to-sky-700',
     imageUrl: '/domain_solidworks.png',
     phases: [
-      {
-        title: 'Part Modeling & Sketches Design',
-        description: 'Create fully defined mechanical sketches and master boss-extrude, cut-revolve, shell, fillets, and chamfer features.',
-        deliverables: ['3D parametric engine valve solid part design', 'Sketches portfolio with correct constraints and tolerances']
-      },
-      {
-        title: 'Mates & Assembly Kinematic Structures',
-        description: 'Learn coincident, concentric, distance mates, mechanical slider-crank joints, and examine collisions.',
-        deliverables: ['Slider-crank rotational assembly design draft', 'Clash analysis report with interference corrections logs']
-      },
-      {
-        title: 'Capstone FEA Loading Validation',
-        description: 'Apply simulated steel weights, mesh geometries, measure stress Von Mises factors, and safety margins.',
-        deliverables: ['Structural loading FEA analysis sheet report', 'Standard orthographic blueprint sheet exported with dimensions']
-      }
+      { title: 'Part Modeling & Sketches Design', description: 'Create fully defined mechanical sketches and master boss-extrude, cut-revolve, shell, fillets, and chamfer features.', deliverables: ['3D parametric engine valve solid part design', 'Sketches portfolio with correct constraints and tolerances'] },
+      { title: 'Mates & Assembly Kinematic Structures', description: 'Learn coincident, concentric, distance mates, mechanical slider-crank joints, and examine collisions.', deliverables: ['Slider-crank rotational assembly design draft', 'Clash analysis report with interference corrections logs'] },
+      { title: 'Capstone FEA Loading Validation', description: 'Apply simulated steel weights, mesh geometries, measure stress Von Mises factors, and safety margins.', deliverables: ['Structural loading FEA analysis sheet report', 'Standard orthographic blueprint sheet exported with dimensions'] }
     ]
   },
   {
@@ -324,34 +228,375 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     iconName: 'Settings',
     durationWeeks: [4, 8, 12],
     targetDegrees: ['B.Tech', 'Diploma'],
+    targetBranches: ['Mechanical', 'Automobile'],
     skills: ['Otto & Diesel Cycle Calculus', 'Valve Timing Layout Optimization', 'Air-Fuel Induction Schedules', 'Exhaust Emission Auditing'],
     toolsAndTech: ['Thermodynamics', 'Engine Simulators', 'Combustion analyzers', 'CFD basics'],
     gradient: 'from-orange-600 via-red-650 to-amber-700',
     imageUrl: '/domain_ic_engine.png',
     phases: [
-      {
-        title: 'Indicated Thermal Cycle Efficiency',
-        description: 'Analyze thermodynamic gas equations, compression rates, combustion start phases, and calculate engine work output.',
-        deliverables: ['Ideal Otto/Diesel cycle PV-diagram calculation sheets', 'Indicated thermal efficiency performance comparison checklist']
-      },
-      {
-        title: 'Multi-cylinder Valve Balance Diagrams',
-        description: 'Optimize air-fuel intake timing overlaps, fuel injectors firing patterns, and cooling channel thermal constraints.',
-        deliverables: ['Drawn rotational valve timing mechanical diagram', 'Thermal dissipation capacity requirement worksheet']
-      },
-      {
-        title: 'Capstone Engine Performance Audit',
-        description: 'Examine brake horse power, torque outputs, frictional losses, fuel consumption, and emission safety tests.',
-        deliverables: ['Actual output performance curves analytical charts', 'Exhaust emissions and particulate matter containment system draft']
-      }
+      { title: 'Indicated Thermal Cycle Efficiency', description: 'Analyze thermodynamic gas equations, compression rates, combustion start phases, and calculate engine work output.', deliverables: ['Ideal Otto/Diesel cycle PV-diagram calculation sheets', 'Indicated thermal efficiency performance comparison checklist'] },
+      { title: 'Multi-cylinder Valve Balance Diagrams', description: 'Optimize air-fuel intake timing overlaps, fuel injectors firing patterns, and cooling channel thermal constraints.', deliverables: ['Drawn rotational valve timing mechanical diagram', 'Thermal dissipation capacity requirement worksheet'] },
+      { title: 'Capstone Engine Performance Audit', description: 'Examine brake horse power, torque outputs, frictional losses, fuel consumption, and emission safety tests.', deliverables: ['Actual output performance curves analytical charts', 'Exhaust emissions and particulate matter containment system draft'] }
     ]
-  }
+  },
+  // ═══════════════ NEW DOMAINS ═══════════════
+  {
+    id: 'ai_ml',
+    title: 'AI & Machine Learning',
+    category: 'Tech',
+    shortDesc: 'Build intelligent systems using neural networks, deep learning frameworks, NLP pipelines, and computer vision models.',
+    iconName: 'Brain',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'BCA', 'B.Sc', 'Diploma'],
+    targetBranches: ['CSE', 'IT', 'ECE', 'Robotics'],
+    skills: ['Neural Network Architecture', 'TensorFlow & PyTorch', 'Natural Language Processing', 'Computer Vision Models'],
+    toolsAndTech: ['Python', 'TensorFlow', 'PyTorch', 'Keras', 'OpenCV', 'Hugging Face'],
+    gradient: 'from-violet-500 via-purple-600 to-fuchsia-700',
+    phases: [
+      { title: 'Foundations of Machine Learning', description: 'Master supervised/unsupervised algorithms, feature engineering, and model evaluation.', deliverables: ['Classification model on real dataset', 'Performance metrics comparison report'] },
+      { title: 'Deep Learning & Neural Networks', description: 'Build CNNs, RNNs, and transformer architectures for image and text tasks.', deliverables: ['Image classifier using CNN', 'Sentiment analysis NLP model'] },
+      { title: 'Capstone AI Application', description: 'Deploy an end-to-end AI solution with API integration and monitoring.', deliverables: ['Deployed ML model with REST API', 'Model monitoring dashboard'] }
+    ]
+  },
+  {
+    id: 'cybersecurity',
+    title: 'Cybersecurity & Ethical Hacking',
+    category: 'Tech',
+    shortDesc: 'Learn penetration testing, vulnerability assessment, network security protocols, and ethical hacking methodologies.',
+    iconName: 'ShieldAlert',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'BCA', 'B.Sc', 'Diploma'],
+    targetBranches: ['CSE', 'IT', 'ECE'],
+    skills: ['Penetration Testing', 'Network Security', 'Vulnerability Assessment', 'Cryptography Protocols'],
+    toolsAndTech: ['Kali Linux', 'Wireshark', 'Metasploit', 'Burp Suite', 'Nmap', 'OWASP ZAP'],
+    gradient: 'from-red-600 via-rose-700 to-pink-800',
+    phases: [
+      { title: 'Network Security Fundamentals', description: 'Understand TCP/IP, firewalls, IDS/IPS systems, and secure network design.', deliverables: ['Network topology security audit', 'Firewall configuration report'] },
+      { title: 'Penetration Testing & Exploitation', description: 'Conduct ethical hacking exercises on controlled environments.', deliverables: ['Vulnerability assessment report', 'Penetration test findings document'] },
+      { title: 'Capstone Security Audit', description: 'Perform comprehensive security audit of a web application with remediation plan.', deliverables: ['Full security audit report', 'Remediation roadmap document'] }
+    ]
+  },
+  {
+    id: 'cloud_devops',
+    title: 'Cloud Computing & DevOps',
+    category: 'Tech',
+    shortDesc: 'Master AWS/Azure services, Docker containerization, Kubernetes orchestration, and CI/CD pipeline automation.',
+    iconName: 'Cpu',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'BCA', 'B.Sc', 'Diploma'],
+    targetBranches: ['CSE', 'IT'],
+    skills: ['AWS Cloud Services', 'Docker & Kubernetes', 'CI/CD Pipelines', 'Infrastructure as Code'],
+    toolsAndTech: ['AWS', 'Docker', 'Kubernetes', 'Jenkins', 'Terraform', 'GitHub Actions'],
+    gradient: 'from-sky-500 via-cyan-600 to-blue-700',
+    phases: [
+      { title: 'Cloud Infrastructure Setup', description: 'Deploy EC2 instances, S3 buckets, RDS databases and configure IAM security.', deliverables: ['Multi-tier cloud architecture', 'IAM policy configuration document'] },
+      { title: 'Containerization & Orchestration', description: 'Dockerize applications, build Kubernetes clusters, and manage service meshes.', deliverables: ['Docker compose multi-service setup', 'Kubernetes deployment manifest'] },
+      { title: 'Capstone DevOps Pipeline', description: 'Build end-to-end CI/CD pipeline with automated testing and deployment.', deliverables: ['Automated CI/CD pipeline', 'Infrastructure monitoring dashboard'] }
+    ]
+  },
+  {
+    id: 'mobile_app_dev',
+    title: 'Mobile App Development',
+    category: 'Tech',
+    shortDesc: 'Build cross-platform mobile applications using Flutter and React Native with native device integrations.',
+    iconName: 'Smartphone',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'BCA', 'B.Sc', 'Diploma'],
+    targetBranches: ['CSE', 'IT', 'ECE'],
+    skills: ['Flutter/Dart Programming', 'React Native Framework', 'REST API Integration', 'State Management Patterns'],
+    toolsAndTech: ['Flutter', 'React Native', 'Firebase', 'Android Studio', 'Xcode', 'Figma'],
+    gradient: 'from-green-400 via-emerald-500 to-teal-600',
+    phases: [
+      { title: 'UI Components & Navigation', description: 'Design responsive mobile layouts, implement navigation stacks, and build reusable widgets.', deliverables: ['Multi-screen mobile app prototype', 'Custom widget library'] },
+      { title: 'Backend Integration & State', description: 'Connect to REST APIs, implement state management, and handle offline data.', deliverables: ['Data-driven mobile app with API', 'Offline-first data sync module'] },
+      { title: 'Capstone Published App', description: 'Build, test, and prepare a production-ready mobile application for store publishing.', deliverables: ['Production mobile application APK', 'App store listing documentation'] }
+    ]
+  },
+  {
+    id: 'iot_embedded',
+    title: 'IoT & Embedded Systems',
+    category: 'Hardware',
+    shortDesc: 'Design smart connected devices using Arduino, ESP32, Raspberry Pi with sensor networks and cloud dashboards.',
+    iconName: 'Radio',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'Diploma'],
+    targetBranches: ['ECE', 'Electrical', 'CSE', 'Mechatronics'],
+    skills: ['Microcontroller Programming', 'Sensor Network Design', 'MQTT Protocol', 'Cloud IoT Integration'],
+    toolsAndTech: ['Arduino', 'ESP32', 'Raspberry Pi', 'MQTT', 'Node-RED', 'ThingSpeak'],
+    gradient: 'from-teal-500 via-cyan-600 to-sky-700',
+    phases: [
+      { title: 'Sensor & Actuator Interfacing', description: 'Connect temperature, humidity, motion sensors with microcontrollers and actuators.', deliverables: ['Multi-sensor data acquisition system', 'Actuator control interface'] },
+      { title: 'Communication & Cloud Sync', description: 'Implement MQTT, WiFi, Bluetooth protocols and push sensor data to cloud dashboards.', deliverables: ['IoT cloud dashboard application', 'Real-time data streaming pipeline'] },
+      { title: 'Capstone Smart System', description: 'Build a complete smart home/agriculture/industrial monitoring system.', deliverables: ['End-to-end IoT monitoring system', 'System architecture documentation'] }
+    ]
+  },
+  {
+    id: 'blockchain',
+    title: 'Blockchain Development',
+    category: 'Tech',
+    shortDesc: 'Develop decentralized applications, smart contracts, and tokenized systems using Ethereum and Solidity.',
+    iconName: 'Blocks',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'BCA', 'B.Sc'],
+    targetBranches: ['CSE', 'IT'],
+    skills: ['Smart Contract Development', 'DApp Architecture', 'Token Standards (ERC-20/721)', 'Web3 Integration'],
+    toolsAndTech: ['Solidity', 'Ethereum', 'Hardhat', 'Web3.js', 'MetaMask', 'IPFS'],
+    gradient: 'from-indigo-500 via-violet-600 to-purple-700',
+    phases: [
+      { title: 'Blockchain Fundamentals', description: 'Understand consensus mechanisms, cryptographic hashing, and distributed ledger tech.', deliverables: ['Custom blockchain implementation', 'Consensus algorithm comparison report'] },
+      { title: 'Smart Contract Development', description: 'Write, test, and deploy Solidity smart contracts on Ethereum testnets.', deliverables: ['Deployed ERC-20 token contract', 'Smart contract audit report'] },
+      { title: 'Capstone DApp Project', description: 'Build a full decentralized application with frontend, smart contracts, and token economy.', deliverables: ['Production DApp with Web3 frontend', 'Token economics whitepaper'] }
+    ]
+  },
+  {
+    id: 'ui_ux_design',
+    title: 'UI/UX Design',
+    category: 'Design',
+    shortDesc: 'Master user experience research, wireframing, prototyping, and visual design using industry-standard tools.',
+    iconName: 'Sparkles',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'BCA', 'B.Sc', 'BA', 'Diploma'],
+    targetBranches: ['CSE', 'IT'],
+    skills: ['User Research Methods', 'Wireframing & Prototyping', 'Design Systems', 'Usability Testing'],
+    toolsAndTech: ['Figma', 'Adobe XD', 'Sketch', 'InVision', 'Maze', 'Hotjar'],
+    gradient: 'from-pink-400 via-rose-500 to-red-600',
+    phases: [
+      { title: 'UX Research & Information Architecture', description: 'Conduct user interviews, create personas, and map user journey flows.', deliverables: ['User persona documents', 'Information architecture sitemap'] },
+      { title: 'Visual Design & Prototyping', description: 'Design high-fidelity mockups, build interactive prototypes, and create design systems.', deliverables: ['High-fidelity UI mockup set', 'Interactive Figma prototype'] },
+      { title: 'Capstone Product Design', description: 'Design a complete product from research through to validated prototype.', deliverables: ['End-to-end product design case study', 'Usability test results report'] }
+    ]
+  },
+  {
+    id: 'robotics_automation',
+    title: 'Robotics & Automation',
+    category: 'Hardware',
+    shortDesc: 'Program industrial robots, design automated control systems, and build autonomous navigating machines.',
+    iconName: 'Cpu',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'Diploma'],
+    targetBranches: ['Robotics', 'Mechatronics', 'Mechanical', 'ECE', 'Electrical'],
+    skills: ['Robot Kinematics', 'PLC Programming', 'ROS Framework', 'Computer Vision for Robots'],
+    toolsAndTech: ['ROS', 'MATLAB Robotics', 'Arduino', 'Gazebo Sim', 'PLC Ladder Logic', 'OpenCV'],
+    gradient: 'from-slate-500 via-zinc-600 to-neutral-700',
+    phases: [
+      { title: 'Robot Mechanics & Kinematics', description: 'Study forward/inverse kinematics, joint dynamics, and trajectory planning.', deliverables: ['Kinematic analysis simulation', 'Joint trajectory planning algorithm'] },
+      { title: 'Sensors & Control Systems', description: 'Integrate vision sensors, implement PID controllers, and design feedback loops.', deliverables: ['Sensor-integrated robot controller', 'PID tuning performance report'] },
+      { title: 'Capstone Autonomous Robot', description: 'Build an autonomous robot capable of navigation and task execution.', deliverables: ['Autonomous robot prototype', 'System integration documentation'] }
+    ]
+  },
+  {
+    id: 'digital_marketing',
+    title: 'Digital Marketing & SEO',
+    category: 'Management',
+    shortDesc: 'Master search engine optimization, social media marketing, Google Ads campaigns, and content strategy frameworks.',
+    iconName: 'TrendingUp',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['MBA', 'BCA', 'B.Com', 'BA', 'B.Sc'],
+    skills: ['SEO & SEM Strategy', 'Social Media Marketing', 'Google Analytics', 'Content Marketing'],
+    toolsAndTech: ['Google Analytics', 'Google Ads', 'SEMrush', 'Hootsuite', 'Canva', 'Mailchimp'],
+    gradient: 'from-orange-400 via-amber-500 to-yellow-600',
+    phases: [
+      { title: 'SEO & Content Strategy', description: 'Optimize websites for search engines, create keyword strategies, and build content calendars.', deliverables: ['SEO audit report', 'Content marketing strategy document'] },
+      { title: 'Paid Ads & Social Media', description: 'Run Google Ads, Facebook campaigns, analyze ROI, and manage social media accounts.', deliverables: ['Paid ad campaign analysis', 'Social media performance dashboard'] },
+      { title: 'Capstone Digital Campaign', description: 'Execute a complete digital marketing campaign with measurable outcomes.', deliverables: ['End-to-end marketing campaign report', 'ROI analysis and optimization plan'] }
+    ]
+  },
+  {
+    id: 'business_analytics',
+    title: 'Business Analytics',
+    category: 'Management',
+    shortDesc: 'Transform raw business data into actionable insights using Excel, Power BI, SQL, and statistical modeling techniques.',
+    iconName: 'BarChart4',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['MBA', 'B.Com', 'BCA', 'B.Sc', 'BA'],
+    skills: ['Data Visualization', 'SQL Querying', 'Power BI Dashboards', 'Statistical Analysis'],
+    toolsAndTech: ['Microsoft Excel', 'Power BI', 'SQL', 'Tableau', 'Google Sheets', 'Python basics'],
+    gradient: 'from-blue-400 via-indigo-500 to-violet-600',
+    phases: [
+      { title: 'Data Collection & SQL', description: 'Write SQL queries, clean datasets, and build relational database models.', deliverables: ['SQL query portfolio', 'Database schema design document'] },
+      { title: 'Visualization & Reporting', description: 'Create Power BI/Tableau dashboards, pivot tables, and KPI tracking reports.', deliverables: ['Interactive BI dashboard', 'KPI tracking report template'] },
+      { title: 'Capstone Business Case Study', description: 'Solve a real business problem using data-driven analysis and present insights.', deliverables: ['Business analytics case study', 'Executive presentation deck'] }
+    ]
+  },
+  {
+    id: 'financial_accounting',
+    title: 'Financial Accounting & Tally',
+    category: 'Management',
+    shortDesc: 'Master GST filing, Tally ERP, balance sheet preparation, ledger management, and tax compliance frameworks.',
+    iconName: 'DollarSign',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Com', 'MBA', 'BA'],
+    skills: ['Tally ERP 9/Prime', 'GST Filing & Returns', 'Balance Sheet Preparation', 'Ledger Management'],
+    toolsAndTech: ['Tally ERP 9', 'Tally Prime', 'MS Excel', 'GST Portal', 'Income Tax Portal', 'QuickBooks'],
+    gradient: 'from-emerald-500 via-green-600 to-lime-700',
+    phases: [
+      { title: 'Bookkeeping & Ledger Setup', description: 'Create company books in Tally, set up ledger groups, and record daily transactions.', deliverables: ['Complete company ledger setup', 'Daily transaction journal'] },
+      { title: 'GST & Tax Compliance', description: 'File GST returns, calculate TDS, and prepare income tax computations.', deliverables: ['GST return filing samples', 'Tax computation worksheets'] },
+      { title: 'Capstone Financial Statement', description: 'Prepare complete financial statements including P&L, Balance Sheet, and Cash Flow.', deliverables: ['Complete financial statement set', 'Audit-ready report package'] }
+    ]
+  },
+  {
+    id: 'hr_management',
+    title: 'Human Resource Management',
+    category: 'Management',
+    shortDesc: 'Learn recruitment processes, employee engagement strategies, payroll systems, and HR analytics dashboards.',
+    iconName: 'Grid',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['MBA', 'BA', 'B.Com'],
+    skills: ['Recruitment & Onboarding', 'Payroll Processing', 'Employee Engagement', 'HR Analytics'],
+    toolsAndTech: ['Zoho People', 'LinkedIn Recruiter', 'MS Excel', 'Google Workspace', 'SAP HCM basics', 'Slack'],
+    gradient: 'from-amber-500 via-orange-600 to-red-700',
+    phases: [
+      { title: 'Recruitment & Talent Acquisition', description: 'Design job descriptions, screen candidates, conduct interviews, and manage onboarding.', deliverables: ['Recruitment pipeline tracker', 'Onboarding checklist document'] },
+      { title: 'Payroll & Compliance', description: 'Process payroll, manage leave systems, and ensure labor law compliance.', deliverables: ['Payroll processing simulation', 'HR compliance checklist'] },
+      { title: 'Capstone HR Strategy', description: 'Design an employee engagement program and build HR analytics dashboards.', deliverables: ['Employee engagement framework', 'HR analytics dashboard mockup'] }
+    ]
+  },
+  {
+    id: 'graphic_design',
+    title: 'Graphic Design',
+    category: 'Design',
+    shortDesc: 'Create stunning visual designs, brand identities, social media graphics, and print-ready marketing materials.',
+    iconName: 'Sparkles',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['BA', 'BCA', 'B.Sc', 'Diploma', 'B.Com'],
+    skills: ['Adobe Photoshop', 'Illustrator Vector Art', 'Brand Identity Design', 'Social Media Graphics'],
+    toolsAndTech: ['Adobe Photoshop', 'Adobe Illustrator', 'Canva Pro', 'CorelDRAW', 'Figma', 'InDesign'],
+    gradient: 'from-fuchsia-500 via-pink-600 to-rose-700',
+    phases: [
+      { title: 'Design Fundamentals & Tools', description: 'Master color theory, typography, composition, and Photoshop/Illustrator basics.', deliverables: ['Design fundamentals portfolio', 'Tool proficiency showcase'] },
+      { title: 'Brand Identity & Marketing', description: 'Create logos, brand guidelines, business cards, and social media post templates.', deliverables: ['Complete brand identity kit', 'Social media template set'] },
+      { title: 'Capstone Design Portfolio', description: 'Build a professional portfolio with diverse design projects across mediums.', deliverables: ['Professional design portfolio', 'Client project case study'] }
+    ]
+  },
+  {
+    id: 'content_writing',
+    title: 'Content Writing & Copywriting',
+    category: 'Management',
+    shortDesc: 'Master SEO content writing, blog creation, advertising copy, email campaigns, and technical documentation.',
+    iconName: 'Blocks',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['BA', 'B.Com', 'BCA', 'MBA', 'B.Sc'],
+    skills: ['SEO Content Writing', 'Ad Copywriting', 'Blog & Article Creation', 'Email Marketing Copy'],
+    toolsAndTech: ['WordPress', 'Grammarly', 'Hemingway Editor', 'Google Docs', 'Yoast SEO', 'Mailchimp'],
+    gradient: 'from-cyan-400 via-teal-500 to-emerald-600',
+    phases: [
+      { title: 'Content Foundations', description: 'Master grammar, tone, voice, and SEO writing principles for web content.', deliverables: ['SEO blog post samples', 'Style guide document'] },
+      { title: 'Copywriting & Campaigns', description: 'Write compelling ad copy, landing pages, email sequences, and social media captions.', deliverables: ['Ad copy portfolio', 'Email campaign sequence'] },
+      { title: 'Capstone Content Project', description: 'Create a complete content strategy with blog, social media, and email integration.', deliverables: ['Content strategy document', 'Multi-channel content calendar'] }
+    ]
+  },
+  {
+    id: 'video_editing',
+    title: 'Video Editing & Production',
+    category: 'Design',
+    shortDesc: 'Learn professional video editing, motion graphics, color grading, and YouTube content production workflows.',
+    iconName: 'Gamepad2',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['BA', 'BCA', 'B.Sc', 'Diploma', 'B.Com'],
+    skills: ['Adobe Premiere Pro', 'After Effects Motion', 'Color Grading', 'Sound Design'],
+    toolsAndTech: ['Adobe Premiere Pro', 'After Effects', 'DaVinci Resolve', 'Audacity', 'OBS Studio', 'Canva Video'],
+    gradient: 'from-red-500 via-orange-600 to-amber-700',
+    phases: [
+      { title: 'Editing Fundamentals', description: 'Master cutting, transitions, audio sync, and timeline management in Premiere Pro.', deliverables: ['Short film edit project', 'Transition techniques reel'] },
+      { title: 'Motion Graphics & Effects', description: 'Create title animations, lower thirds, and visual effects using After Effects.', deliverables: ['Motion graphics package', 'Visual effects showcase reel'] },
+      { title: 'Capstone Video Project', description: 'Produce a complete video from scripting through final color-graded export.', deliverables: ['Professional video production', 'Behind-the-scenes documentation'] }
+    ]
+  },
+  {
+    id: 'stock_market',
+    title: 'Stock Market & Trading',
+    category: 'Management',
+    shortDesc: 'Understand technical analysis, fundamental analysis, derivatives trading, and portfolio management strategies.',
+    iconName: 'TrendingUp',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Com', 'MBA', 'BA', 'BCA', 'B.Sc'],
+    skills: ['Technical Analysis', 'Fundamental Analysis', 'Options & Futures', 'Portfolio Management'],
+    toolsAndTech: ['TradingView', 'Zerodha Kite', 'MS Excel', 'Screener.in', 'MoneyControl', 'NSE India'],
+    gradient: 'from-green-600 via-emerald-700 to-teal-800',
+    phases: [
+      { title: 'Market Fundamentals', description: 'Learn equity markets, reading balance sheets, PE ratios, and sector analysis.', deliverables: ['Company fundamental analysis report', 'Sector comparison study'] },
+      { title: 'Technical Trading Strategies', description: 'Master candlestick patterns, indicators (RSI, MACD), and price action trading.', deliverables: ['Technical analysis chart portfolio', 'Trading strategy backtesting report'] },
+      { title: 'Capstone Portfolio Simulation', description: 'Build and manage a simulated portfolio with risk assessment and returns tracking.', deliverables: ['Portfolio management simulation', 'Risk-adjusted returns report'] }
+    ]
+  },
+  {
+    id: 'vlsi_design',
+    title: 'VLSI Design',
+    category: 'Hardware',
+    shortDesc: 'Design digital circuits using Verilog/VHDL, perform logic synthesis, timing analysis, and FPGA implementations.',
+    iconName: 'Cpu',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'Diploma'],
+    targetBranches: ['ECE', 'Electrical', 'CSE'],
+    skills: ['Verilog HDL Coding', 'Digital Circuit Design', 'FPGA Implementation', 'Timing Analysis'],
+    toolsAndTech: ['Xilinx Vivado', 'ModelSim', 'Verilog', 'VHDL', 'Cadence', 'Quartus Prime'],
+    gradient: 'from-indigo-600 via-blue-700 to-slate-800',
+    phases: [
+      { title: 'Digital Design Fundamentals', description: 'Design combinational and sequential circuits using Verilog HDL.', deliverables: ['ALU design in Verilog', 'Finite state machine implementation'] },
+      { title: 'FPGA Implementation', description: 'Synthesize designs on FPGA boards, perform timing analysis, and optimize paths.', deliverables: ['FPGA synthesis report', 'Timing constraint analysis'] },
+      { title: 'Capstone SoC Design', description: 'Design a simple System-on-Chip with processor, memory, and peripherals.', deliverables: ['SoC architecture design', 'Verification testbench suite'] }
+    ]
+  },
+  {
+    id: 'three_d_printing',
+    title: '3D Printing & Additive Manufacturing',
+    category: 'Hardware',
+    shortDesc: 'Learn FDM/SLA printing technologies, CAD model preparation, slicing optimization, and material science for additive manufacturing.',
+    iconName: 'Wrench',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'Diploma'],
+    targetBranches: ['Mechanical', 'Civil', 'Robotics', 'Mechatronics'],
+    skills: ['CAD Model Preparation', 'Slicer Optimization', 'Material Selection', 'Post-Processing Techniques'],
+    toolsAndTech: ['Cura Slicer', 'SolidWorks', 'Fusion 360', 'PrusaSlicer', 'Meshmixer', 'Tinkercad'],
+    gradient: 'from-lime-500 via-green-600 to-emerald-700',
+    phases: [
+      { title: 'CAD & Slicer Setup', description: 'Prepare 3D models for printing, optimize slicer settings, and understand material properties.', deliverables: ['Print-ready CAD model collection', 'Slicer optimization parameter guide'] },
+      { title: 'Printing & Post-Processing', description: 'Execute FDM/SLA prints, apply post-processing, and evaluate mechanical properties.', deliverables: ['Multi-material print showcase', 'Mechanical testing results'] },
+      { title: 'Capstone Product Prototype', description: 'Design and 3D print a functional product prototype with documentation.', deliverables: ['Functional prototype design', 'Manufacturing process documentation'] }
+    ]
+  },
+  {
+    id: 'ecommerce',
+    title: 'E-Commerce & Shopify',
+    category: 'Management',
+    shortDesc: 'Build and manage online stores using Shopify, learn product listing optimization, payment gateway integration, and order fulfillment.',
+    iconName: 'DollarSign',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Com', 'MBA', 'BA', 'BCA'],
+    skills: ['Shopify Store Setup', 'Product Listing SEO', 'Payment Gateway Integration', 'Inventory Management'],
+    toolsAndTech: ['Shopify', 'WooCommerce', 'Razorpay', 'Google Merchant', 'Facebook Commerce', 'Canva'],
+    gradient: 'from-violet-400 via-purple-500 to-indigo-600',
+    phases: [
+      { title: 'Store Setup & Design', description: 'Build a professional Shopify store with custom themes, product pages, and checkout flow.', deliverables: ['Live Shopify store prototype', 'Product photography guide'] },
+      { title: 'Marketing & Payments', description: 'Integrate payment gateways, set up Google Shopping ads, and optimize for conversions.', deliverables: ['Payment integration documentation', 'Marketing funnel analysis'] },
+      { title: 'Capstone E-Commerce Business', description: 'Launch and manage a complete e-commerce business with analytics.', deliverables: ['E-commerce business plan', 'Sales analytics dashboard'] }
+    ]
+  },
+  {
+    id: 'supply_chain',
+    title: 'Supply Chain Management',
+    category: 'Management',
+    shortDesc: 'Optimize logistics, inventory planning, vendor management, warehouse operations, and demand forecasting systems.',
+    iconName: 'Grid',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['MBA', 'B.Com', 'BA', 'B.Tech'],
+    targetBranches: ['Mechanical', 'Industrial'],
+    skills: ['Inventory Optimization', 'Logistics Planning', 'Demand Forecasting', 'Vendor Management'],
+    toolsAndTech: ['SAP MM basics', 'MS Excel', 'Power BI', 'Zoho Inventory', 'Google Sheets', 'Tableau'],
+    gradient: 'from-stone-500 via-neutral-600 to-zinc-700',
+    phases: [
+      { title: 'Logistics & Inventory', description: 'Design inventory models (EOQ, JIT), optimize warehouse layouts, and manage stock levels.', deliverables: ['Inventory optimization model', 'Warehouse layout design'] },
+      { title: 'Vendor & Procurement', description: 'Evaluate suppliers, negotiate contracts, and build procurement workflows.', deliverables: ['Vendor evaluation scorecard', 'Procurement process flowchart'] },
+      { title: 'Capstone SCM Strategy', description: 'Build an end-to-end supply chain strategy with forecasting and KPI tracking.', deliverables: ['Supply chain strategy document', 'KPI tracking dashboard'] }
+    ]
+  },
 ];
 
 export const FAQS: FAQItem[] = [
   {
     question: 'How do college credentials tie into the selection matrix?',
-    answer: 'Invigo Infotech aligns every applicant with their respective tier structure. B.Tech, Diploma, BCA, B.Sc, and MBA students are sorted automatically into domain clusters that optimize practical learning. We coordinate with colleges for direct academic credits upon verification.'
+    answer: 'Invigo Infotech aligns every applicant with their respective tier structure. B.Tech, Diploma, BCA, B.Sc, MBA, BA, and B.Com students are sorted automatically into domain clusters that optimize practical learning. We coordinate with colleges for direct academic credits upon verification.'
   },
   {
     question: 'Are these internships virtual (remote) or hybrid?',
