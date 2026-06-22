@@ -87,15 +87,7 @@ export default function HomeView({
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 pt-10 sm:px-6 lg:px-8">
 
-        {/* BULK CERTIFICATE BANNER */}
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-center py-2.5 px-4 rounded-xl text-sm font-bold shadow-md shadow-emerald-500/20 mb-6 max-w-2xl mx-auto flex items-center justify-center gap-2 cursor-pointer hover:scale-105 transition-transform"
-        >
-          <Phone className="w-4 h-4 text-emerald-100" />
-          <span>Contact for bulk certificate <a href="tel:+916204266080" className="underline decoration-emerald-200 underline-offset-2 ml-1 text-white font-extrabold">+91 62042 66080</a></span>
-        </motion.div>
-        
+
         {/* HERO SECTION */}
         <div className="text-center space-y-6 sm:space-y-8 max-w-4xl mx-auto py-8 sm:py-12 md:py-24">
           
@@ -303,22 +295,22 @@ export default function HomeView({
         </div>
 
         {/* METRIC TICKER BLOCKS */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 border border-slate-200 bg-white py-6 my-8 rounded-[1.8rem] shadow-sm">
-          <div className="text-center space-y-1 border-r border-slate-100 last:border-0">
-            <span className="block font-display text-2xl md:text-4xl font-extrabold text-blue-600">30+</span>
-            <span className="block text-[10px] font-mono uppercase text-slate-500 tracking-wider">Dynamic Domains</span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-6 sm:gap-4 border border-slate-200 bg-white py-6 sm:py-8 my-6 sm:my-8 rounded-[1.5rem] sm:rounded-[1.8rem] shadow-sm">
+          <div className="text-center space-y-1 border-r border-slate-100 px-2">
+            <span className="block font-display text-3xl md:text-4xl font-extrabold text-blue-600">30+</span>
+            <span className="block text-[9px] sm:text-[10px] font-mono uppercase text-slate-500 tracking-wider">Dynamic Domains</span>
           </div>
-          <div className="text-center space-y-1 border-r border-slate-100 last:border-0 md:block">
-            <span className="block font-display text-2xl md:text-4xl font-extrabold text-emerald-600">15,000+</span>
-            <span className="block text-[10px] font-mono uppercase text-slate-500 tracking-wider">Quantum Scholars</span>
+          <div className="text-center space-y-1 md:border-r border-slate-100 px-2">
+            <span className="block font-display text-3xl md:text-4xl font-extrabold text-emerald-600">15,000+</span>
+            <span className="block text-[9px] sm:text-[10px] font-mono uppercase text-slate-500 tracking-wider">Quantum Scholars</span>
           </div>
-          <div className="text-center space-y-1 border-r border-slate-100 last:border-0">
-            <span className="block font-display text-2xl md:text-4xl font-extrabold text-indigo-600">120+</span>
-            <span className="block text-[10px] font-mono uppercase text-slate-500 tracking-wider">University Alliances</span>
+          <div className="text-center space-y-1 border-r border-slate-100 px-2 mt-2 md:mt-0 pt-6 md:pt-0 border-t md:border-t-0 col-span-1">
+            <span className="block font-display text-3xl md:text-4xl font-extrabold text-indigo-600">120+</span>
+            <span className="block text-[9px] sm:text-[10px] font-mono uppercase text-slate-500 tracking-wider">University Alliances</span>
           </div>
-          <div className="text-center space-y-1">
-            <span className="block font-display text-2xl md:text-4xl font-extrabold text-purple-600">98.4%</span>
-            <span className="block text-[10px] font-mono uppercase text-slate-500 tracking-wider">Placement Vector</span>
+          <div className="text-center space-y-1 px-2 mt-2 md:mt-0 pt-6 md:pt-0 border-t md:border-t-0 border-slate-100 col-span-1">
+            <span className="block font-display text-3xl md:text-4xl font-extrabold text-purple-600">98.4%</span>
+            <span className="block text-[9px] sm:text-[10px] font-mono uppercase text-slate-500 tracking-wider">Placement Vector</span>
           </div>
         </div>
 
@@ -334,7 +326,7 @@ export default function HomeView({
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6">
             {INTERNSHIP_DOMAINS.slice(0, 5).map((domain, idx) => (
-                <div key={domain.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col group h-64 sm:h-72 cursor-pointer" onClick={() => { setCurrentTab('internships'); setSelectedCategoryFilter('All'); setSelectedDegreeFilter('All'); }}>
+                <div key={domain.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col group h-full sm:h-72 min-h-[16rem] cursor-pointer" onClick={() => { setCurrentTab('internships'); setSelectedCategoryFilter('All'); setSelectedDegreeFilter('All'); }}>
                   
                   {/* Domain Image Banner */}
                   <div className="relative h-24 sm:h-32 overflow-hidden shrink-0">
@@ -373,8 +365,8 @@ export default function HomeView({
                 </div>
               ))}
           </div>
-          <div className="mt-8 text-center">
-            <button onClick={() => setCurrentTab('internships')} className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700">
+          <div className="mt-6 sm:mt-8 text-center">
+            <button onClick={() => setCurrentTab('internships')} className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700 bg-blue-50 px-6 py-3 rounded-xl sm:bg-transparent sm:p-0">
               View all {INTERNSHIP_DOMAINS.length} courses <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -396,7 +388,7 @@ export default function HomeView({
                 <div
                   key={node.degree}
                   onClick={() => handleDegreeFocus(node.degree)}
-                  className={`cursor-pointer border p-3 sm:p-5 transition-all duration-350 relative overflow-hidden group flex flex-col justify-between h-auto sm:h-72 ${node.color}`}
+                  className={`cursor-pointer border p-3.5 sm:p-5 transition-all duration-350 relative overflow-hidden group flex flex-col justify-between h-full sm:h-72 ${node.color}`}
                 >
                   <div className="absolute top-0 right-0 h-16 w-16 -translate-y-4 translate-x-4 rounded-full bg-slate-100 group-hover:scale-130 transition-transform duration-300 pointer-events-none" />
                   
@@ -411,7 +403,7 @@ export default function HomeView({
                     </div>
                   </div>
 
-                  <p className="text-[10px] sm:text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-2 sm:pt-3 mt-3 sm:mt-0 line-clamp-3 sm:line-clamp-none">
+                  <p className="text-[10px] sm:text-xs text-slate-600 leading-snug sm:leading-relaxed border-t border-slate-100 pt-2 sm:pt-3 mt-3 sm:mt-0 line-clamp-4 sm:line-clamp-none">
                     {node.desc}
                   </p>
 
@@ -425,101 +417,14 @@ export default function HomeView({
           </div>
         </div>
 
-        {/* CORE VALUES / THE CORE MATRIX */}
-        <div className="py-16 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center border-t border-slate-150">
-          <div className="lg:col-span-5 space-y-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-750">
-              <Milestone className="h-4 w-4 text-indigo-650" />
-              <span>THE INVIGO BLUEPRINT</span>
-            </div>
-            <h2 className="font-display text-3xl sm:text-4xl font-extrabold leading-tight text-slate-900">
-              A Quantum Leap from <br />
-              Traditional Learning.
-            </h2>
-            <p className="text-slate-650 text-sm leading-relaxed">
-              Durable learning is built through actual construction. At Invigo Infotech, we have replaced textbook review loops with highly kinetic virtual/on-site project structures, guided by live subject-matter experts.
-            </p>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-blue-50 text-blue-600 border border-blue-105">
-                  <span className="text-xs font-bold font-mono">01</span>
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold uppercase text-slate-800">Cybernetic Simulation Models</h4>
-                  <p className="text-[11px] text-slate-600">Engage in 3 distinct program phases—from system initialization up to capstone compile.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-indigo-50 text-indigo-600 border border-indigo-105">
-                  <span className="text-xs font-bold font-mono">02</span>
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold uppercase text-slate-800">Personal Synapse Counsel</h4>
-                  <p className="text-[11px] text-slate-600">Direct feedback logs and architectural review sessions with qualified engineers.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded bg-emerald-50 text-emerald-600 border border-emerald-105">
-                  <span className="text-xs font-bold font-mono">03</span>
-                </div>
-                <div>
-                  <h4 className="text-xs font-bold uppercase text-slate-800">Verifiable Block Credentials</h4>
-                  <p className="text-[11px] text-slate-600">Certificates compiled in unique blockchain addresses with verifiable signature matrices.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Interactive Bento Graphic */}
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4 h-full">
-            <div className="rounded-[1.8rem] border border-slate-200 bg-white p-6 flex flex-col justify-between space-y-4 shadow-sm">
-              <Brain className="h-8 w-8 text-blue-600" />
-              <div className="space-y-2">
-                <h3 className="font-display font-bold text-base text-slate-805">Real-World Sandbox</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Avoid sterile mock code. Integrate sensory hardware ESP8266 units, compile Solidity contracts, and deploy AWS DevOps monitoring nodes.
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-[1.8rem] border border-slate-200 bg-white p-6 flex flex-col justify-between space-y-4 shadow-sm">
-              <Award className="h-8 w-8 text-purple-600" />
-              <div className="space-y-2">
-                <h3 className="font-display font-bold text-base text-slate-805">Academic Alignment</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Specially coded curriculum pathways mapped directly onto college credits for B.Tech, Diploma, BCA, B.Sc, MBA, BA, and B.Com degrees.
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-[1.8rem] border border-slate-200 bg-white p-6 flex flex-col justify-between space-y-4 shadow-sm">
-              <ShieldCheck className="h-8 w-8 text-emerald-600" />
-              <div className="space-y-2">
-                <h3 className="font-display font-bold text-base text-slate-850">Automated Verification</h3>
-                <p className="text-xs text-slate-600 leading-relaxed">
-                  Your admission letter, candidate profile, score cards, and graduate certificates are stored cryptographically for secure sharing.
-                </p>
-              </div>
-            </div>
-
-            <div className="rounded-[1.8rem] border border-slate-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 flex flex-col justify-between relative overflow-hidden shadow-sm">
-              <div className="absolute top-0 right-0 p-3 text-[10px] font-mono text-indigo-600 font-bold">STAGE // ADM_SYSTEM</div>
-              <div className="space-y-4 pt-4">
-                <span className="inline-block px-2.5 py-1 text-[8px] font-mono bg-blue-600 text-white font-extrabold rounded-full uppercase tracking-wider">LIVE PORTAL</span>
-                <p className="font-display text-lg font-bold text-slate-900 leading-tight">
-                  Instant Synthesis of Offer Letter
-                </p>
-                <p className="text-[11px] text-slate-600">Apply, check your diagnostic criteria, and compile an admission slip in 5 seconds.</p>
-              </div>
-              <button 
-                onClick={() => setCurrentTab('enroll')}
-                className="mt-6 w-full py-2.5 rounded-full bg-blue-600 hover:bg-blue-700 text-white border border-transparent font-semibold text-xs transition-all duration-200 text-center uppercase tracking-widest shadow-sm hover:shadow-md cursor-pointer"
-              >
-                Launch Enrollment Matrix
-              </button>
-            </div>
-          </div>
-        </div>
+        {/* COLLABORATION BANNER */}
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-center py-3 px-4 rounded-xl text-sm font-bold shadow-md shadow-emerald-500/20 my-8 max-w-2xl mx-auto flex items-center justify-center gap-2 cursor-pointer hover:scale-105 transition-transform"
+        >
+          <Phone className="w-4 h-4 text-emerald-100" />
+          <span>Contact on <a href="tel:+916204266080" className="underline decoration-emerald-200 underline-offset-2 mx-1 text-white font-extrabold">+91 6204266080</a> for Colabration and special offer.</span>
+        </motion.div>
 
         {/* TESTIMONIALS */}
         <div className="py-16 border-t border-slate-150 space-y-12">
@@ -534,18 +439,18 @@ export default function HomeView({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {TESTIMONIALS.map((test, index) => (
-              <div key={index} className="rounded-[1.5rem] border border-slate-200 bg-white p-6 flex flex-col justify-between space-y-5 hover:border-blue-300 hover:shadow-md transition-all duration-250 shadow-sm">
-                <p className="text-xs text-slate-650 italic leading-relaxed">
+              <div key={index} className="rounded-[1.5rem] border border-slate-200 bg-white p-5 sm:p-6 flex flex-col justify-between space-y-4 sm:space-y-5 hover:border-blue-300 hover:shadow-md transition-all duration-250 shadow-sm">
+                <p className="text-[11px] sm:text-xs text-slate-650 italic leading-relaxed">
                   "{test.content}"
                 </p>
                 <div className="flex items-center gap-3">
                   <img src={test.avatar} alt={test.name} referrerPolicy="no-referrer" className="h-10 w-10 rounded-full border border-slate-200 bg-slate-50" />
                   <div>
                     <h4 className="text-xs font-extrabold text-slate-800">{test.name}</h4>
-                    <p className="text-[10px] text-slate-550 font-mono tracking-wider">{test.degree}</p>
-                    <p className="text-[10px] text-blue-600 font-bold font-sans mt-0.5">{test.domain}</p>
+                    <p className="text-[9px] sm:text-[10px] text-slate-550 font-mono tracking-wider">{test.degree}</p>
+                    <p className="text-[9px] sm:text-[10px] text-blue-600 font-bold font-sans mt-0.5">{test.domain}</p>
                   </div>
                 </div>
               </div>
