@@ -97,15 +97,15 @@ export default function HomeView({
         </motion.div>
         
         {/* HERO SECTION */}
-        <div className="text-center space-y-8 max-w-4xl mx-auto py-12 md:py-24">
+        <div className="text-center space-y-6 sm:space-y-8 max-w-4xl mx-auto py-8 sm:py-12 md:py-24">
           
           {/* Headline Pill */}
           <motion.div 
             initial={{ opacity: 0, y: -20 }} 
             animate={{ opacity: 1, y: 0 }}
-            className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-550/5 px-4 py-1.5 text-xs font-semibold text-blue-600 tracking-wide"
+            className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-blue-200 bg-blue-550/5 px-3 sm:px-4 py-1 sm:py-1.5 text-[10px] sm:text-xs font-semibold text-blue-600 tracking-wide"
           >
-            <Sparkles className="h-4 w-4 text-blue-600" />
+            <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />
             <span>INTERNSHIP BATCH 2026 GENERAL ACCESS INITIATED</span>
           </motion.div>
 
@@ -114,7 +114,7 @@ export default function HomeView({
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="font-display text-4xl sm:text-6xl font-extrabold tracking-tight leading-none text-slate-900"
+            className="font-display text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight leading-none text-slate-900 px-2"
           >
             ARCHITECT YOUR FUTURE. <br />
             <span className="bg-gradient-to-r from-blue-600 via-indigo-650 to-purple-600 bg-clip-text text-transparent">
@@ -122,26 +122,26 @@ export default function HomeView({
             </span>
           </motion.h1>
 
-          <p className="text-slate-650 text-sm md:text-lg leading-relaxed max-w-2xl mx-auto">
+          <p className="text-slate-650 text-xs sm:text-sm md:text-lg leading-relaxed max-w-2xl mx-auto px-4">
             Welcome to <strong className="text-blue-600 font-bold">Invigo Infotech</strong>, the elite offline & virtual internship sandbox. Build, test, and host practical industry-accredited systems engineered for ambitious scholars.
           </p>
 
           {/* Clickable CTA Container */}
-          <div className="flex flex-wrap justify-center items-center gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 pt-2 sm:pt-4 px-4">
             <button
               onClick={() => setCurrentTab('internships')}
-              className="px-6 py-3.5 rounded-2xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-95 shadow-md shadow-blue-500/10 transition-all flex items-center gap-2 group hover:-translate-y-0.5 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-3 sm:py-3.5 rounded-2xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-95 shadow-md shadow-blue-500/10 transition-all flex items-center justify-center gap-2 group hover:-translate-y-0.5 cursor-pointer"
             >
               <span>Explore 30+ Domains</span>
-              <ArrowRight className="h-5 w-5 text-white transition-transform duration-200 group-hover:translate-x-1" />
+              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 text-white transition-transform duration-200 group-hover:translate-x-1" />
             </button>
             
             <button
               onClick={() => setCurrentTab('enroll')}
-              className="px-6 py-3.5 rounded-2xl font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-705 transition-all flex items-center gap-2 group hover:-translate-y-0.5 cursor-pointer shadow-sm"
+              className="w-full sm:w-auto px-6 py-3 sm:py-3.5 rounded-2xl font-semibold border border-slate-200 bg-white hover:bg-slate-50 text-slate-705 transition-all flex items-center justify-center gap-2 group hover:-translate-y-0.5 cursor-pointer shadow-sm"
             >
               <span>Enroll Portal</span>
-              <span className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+              <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-blue-500 animate-pulse" />
             </button>
           </div>
         </div>
@@ -322,67 +322,22 @@ export default function HomeView({
           </div>
         </div>
 
-        {/* DEGREE ACADEMIC NEXUS (IMPORTANT SPECIFIC PATHWAYS) */}
-        <div className="py-16 space-y-12">
-          <div className="text-center space-y-3">
-            <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-slate-900">The Academic Path Matrix</h2>
-            <p className="text-slate-600 text-xs sm:text-sm max-w-xl mx-auto">
-              Select your academic alignment below to filter internships directly configured for your specific educational constraints.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-            {academicNodes.map((node) => {
-              const Icon = node.icon;
-              return (
-                <div
-                  key={node.degree}
-                  onClick={() => handleDegreeFocus(node.degree)}
-                  className={`cursor-pointer border p-5 transition-all duration-350 relative overflow-hidden group flex flex-col justify-between h-72 ${node.color}`}
-                >
-                  <div className="absolute top-0 right-0 h-16 w-16 -translate-y-4 translate-x-4 rounded-full bg-slate-100 group-hover:scale-130 transition-transform duration-300 pointer-events-none" />
-                  
-                  <div className="space-y-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 border border-slate-150 shadow-inner group-hover:scale-110 transition-transform">
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] font-bold tracking-widest block uppercase text-slate-400">Degree Focus</span>
-                      <h3 className="text-xl font-extrabold font-display text-slate-900">{node.degree}</h3>
-                      <p className="text-slate-500 text-[10px] uppercase font-mono tracking-wider">{node.label}</p>
-                    </div>
-                  </div>
-
-                  <p className="text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
-                    {node.desc}
-                  </p>
-
-                  <div className="pt-2 flex items-center gap-1.5 text-xs font-bold text-slate-800 group-hover:text-blue-600 group-hover:translate-x-1 transition-transform mt-2">
-                    <span>Initialize Hub</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
         {/* TOP 5 SELLING COURSES */}
-        <div className="py-16 border-t border-slate-150">
-          <div className="text-center space-y-4 mb-12">
-            <h2 className="font-display text-3xl font-extrabold text-slate-900 flex items-center justify-center gap-3">
-              <Star className="h-8 w-8 text-amber-500 fill-amber-500" />
+        <div className="py-12 sm:py-16">
+          <div className="text-center space-y-3 sm:space-y-4 mb-8 sm:mb-12 px-2">
+            <h2 className="font-display text-2xl sm:text-3xl font-extrabold text-slate-900 flex items-center justify-center gap-2 sm:gap-3">
+              <Star className="h-6 w-6 sm:h-8 sm:w-8 text-amber-500 fill-amber-500" />
               Top Selling Courses
-              <Star className="h-8 w-8 text-amber-500 fill-amber-500" />
+              <Star className="h-6 w-6 sm:h-8 sm:w-8 text-amber-500 fill-amber-500" />
             </h2>
-            <p className="text-slate-600">The most popular, highly-rated offline and virtual internship programs.</p>
+            <p className="text-slate-600 text-[11px] sm:text-base">The most popular, highly-rated offline and virtual internship programs.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6">
             {INTERNSHIP_DOMAINS.slice(0, 5).map((domain, idx) => (
-                <div key={domain.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col group h-72 cursor-pointer" onClick={() => { setCurrentTab('internships'); setSelectedCategoryFilter('All'); setSelectedDegreeFilter('All'); }}>
+                <div key={domain.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col group h-64 sm:h-72 cursor-pointer" onClick={() => { setCurrentTab('internships'); setSelectedCategoryFilter('All'); setSelectedDegreeFilter('All'); }}>
                   
                   {/* Domain Image Banner */}
-                  <div className="relative h-32 overflow-hidden shrink-0">
+                  <div className="relative h-24 sm:h-32 overflow-hidden shrink-0">
                     {domain.imageUrl ? (
                       <img 
                         src={domain.imageUrl} 
@@ -393,25 +348,25 @@ export default function HomeView({
                       <div className={`w-full h-full bg-gradient-to-br ${domain.gradient} opacity-80`} />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <div className="absolute bottom-2 right-2 bg-amber-400 text-amber-950 px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-sm">
-                      <Award className="h-3 w-3" /> BESTSELLER
+                    <div className="absolute bottom-2 right-2 bg-amber-400 text-amber-950 px-1.5 sm:px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-bold tracking-wider uppercase flex items-center gap-1 shadow-sm">
+                      <Award className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> BESTSELLER
                     </div>
                   </div>
 
-                  <div className="p-4 flex flex-col flex-1 justify-between">
+                  <div className="p-3 sm:p-4 flex flex-col flex-1 justify-between">
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-[10px] font-bold font-mono px-2 py-0.5 bg-slate-100 text-slate-500 rounded">#{idx + 1}</span>
+                      <div className="flex items-center justify-between mb-1 sm:mb-2">
+                        <span className="text-[9px] sm:text-[10px] font-bold font-mono px-1.5 sm:px-2 py-0.5 bg-slate-100 text-slate-500 rounded">#{idx + 1}</span>
                       </div>
-                      <h3 className="font-display font-extrabold text-slate-800 text-base leading-tight group-hover:text-blue-600 transition-colors line-clamp-2">{domain.title}</h3>
+                      <h3 className="font-display font-extrabold text-slate-800 text-sm sm:text-base leading-tight group-hover:text-blue-600 transition-colors line-clamp-2">{domain.title}</h3>
                     </div>
-                    <div className="mt-3">
-                      <span className="text-[9px] uppercase font-bold text-slate-400 block mb-1">Target Audience</span>
+                    <div className="mt-2 sm:mt-3">
+                      <span className="text-[8px] sm:text-[9px] uppercase font-bold text-slate-400 block mb-1">Target Audience</span>
                       <div className="flex gap-1 flex-wrap">
                         {domain.targetDegrees.slice(0, 2).map((deg) => (
-                          <span key={deg} className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[9px] font-bold">{deg}</span>
+                          <span key={deg} className="px-1 sm:px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-[8px] sm:text-[9px] font-bold">{deg}</span>
                         ))}
-                        {domain.targetDegrees.length > 2 && <span className="px-1.5 py-0.5 rounded bg-slate-50 text-slate-500 text-[9px] font-bold">+{domain.targetDegrees.length - 2}</span>}
+                        {domain.targetDegrees.length > 2 && <span className="px-1 sm:px-1.5 py-0.5 rounded bg-slate-50 text-slate-500 text-[8px] sm:text-[9px] font-bold">+{domain.targetDegrees.length - 2}</span>}
                       </div>
                     </div>
                   </div>
@@ -422,6 +377,51 @@ export default function HomeView({
             <button onClick={() => setCurrentTab('internships')} className="inline-flex items-center gap-2 text-sm font-bold text-blue-600 hover:text-blue-700">
               View all {INTERNSHIP_DOMAINS.length} courses <ArrowRight className="h-4 w-4" />
             </button>
+          </div>
+        </div>
+
+        {/* DEGREE ACADEMIC NEXUS (IMPORTANT SPECIFIC PATHWAYS) */}
+        <div className="py-12 sm:py-16 space-y-8 sm:space-y-12 border-t border-slate-150">
+          <div className="text-center space-y-3 px-2">
+            <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-slate-900">The Academic Path Matrix</h2>
+            <p className="text-slate-600 text-[11px] sm:text-sm max-w-xl mx-auto">
+              Select your academic alignment below to filter internships directly configured for your specific educational constraints.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+            {academicNodes.map((node) => {
+              const Icon = node.icon;
+              return (
+                <div
+                  key={node.degree}
+                  onClick={() => handleDegreeFocus(node.degree)}
+                  className={`cursor-pointer border p-3 sm:p-5 transition-all duration-350 relative overflow-hidden group flex flex-col justify-between h-auto sm:h-72 ${node.color}`}
+                >
+                  <div className="absolute top-0 right-0 h-16 w-16 -translate-y-4 translate-x-4 rounded-full bg-slate-100 group-hover:scale-130 transition-transform duration-300 pointer-events-none" />
+                  
+                  <div className="space-y-3 sm:space-y-4">
+                    <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-50 border border-slate-150 shadow-inner group-hover:scale-110 transition-transform">
+                      <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </div>
+                    <div>
+                      <span className="text-[8px] sm:text-[10px] font-bold tracking-widest block uppercase text-slate-400">Degree Focus</span>
+                      <h3 className="text-lg sm:text-xl font-extrabold font-display text-slate-900">{node.degree}</h3>
+                      <p className="text-slate-500 text-[8px] sm:text-[10px] uppercase font-mono tracking-wider line-clamp-1 sm:line-clamp-none">{node.label}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-[10px] sm:text-xs text-slate-600 leading-relaxed border-t border-slate-100 pt-2 sm:pt-3 mt-3 sm:mt-0 line-clamp-3 sm:line-clamp-none">
+                    {node.desc}
+                  </p>
+
+                  <div className="pt-2 flex items-center gap-1 sm:gap-1.5 text-[10px] sm:text-xs font-bold text-slate-800 group-hover:text-blue-600 group-hover:translate-x-1 transition-transform mt-2">
+                    <span>Initialize Hub</span>
+                    <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 
