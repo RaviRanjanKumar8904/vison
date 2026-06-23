@@ -663,17 +663,7 @@ export default function StudentNexus({
               <span>Homework</span>
             </button>
 
-            <button
-              onClick={() => setActiveSubTab('mentor')}
-              className={`py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                activeSubTab === 'mentor'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
-              }`}
-            >
-              <Video className="h-4.5 w-4.5" />
-              <span>Book Mentor</span>
-            </button>
+
 
             <button
               onClick={() => setActiveSubTab('certificate')}
