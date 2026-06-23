@@ -1,9 +1,9 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 
-const ADMIN_EMAILS = [
-  (import.meta.env.VITE_ADMIN_EMAIL || '').toLowerCase(),
-  'sahpriyanshu71@gmail.com'
-];
+const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAIL || '')
+  .toLowerCase()
+  .split(',')
+  .map((e: string) => e.trim());
 import Header from './components/Header';
 // Admin email from env
 import Footer from './components/Footer';
