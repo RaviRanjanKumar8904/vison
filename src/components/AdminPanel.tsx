@@ -8,7 +8,7 @@ import {
   Bell, Mail, ChevronLeft, ChevronRight, Download,
   Clock, Zap, Eye, EyeOff, Send, AlertCircle, CheckCircle,
   XCircle, Info, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown, Calendar,
-  Plus, BookOpen, FileQuestion, Globe, Video, FileType, Layers
+  Plus, BookOpen, FileQuestion, Globe, Video, FileType, Layers, User
 } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, onSnapshot, doc, updateDoc, deleteDoc, setDoc, getDocs, addDoc, query, where } from 'firebase/firestore';
@@ -91,6 +91,9 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
   const [editPhone, setEditPhone] = useState('');
   const [editStartDate, setEditStartDate] = useState('');
   const [editTrainingMode, setEditTrainingMode] = useState('');
+
+  // View Profile modal
+  const [viewingStudent, setViewingStudent] = useState<EnrollmentState | null>(null);
 
   // Enroll Student modal
   const [showEnrollModal, setShowEnrollModal] = useState(false);
@@ -442,6 +445,25 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
   };
 
   // ─── Bulk Actions ───
+  const handleExportCSV = () => {
+    let csv = "Candidate ID,Full Name,Email,Phone,Domain,Registration No,College,Degree,Year,Status,Payment Status,Amount Paid\n";
+    filteredEnrollments.forEach(e => {
+      csv += `"${e.candidateId}","${e.fullName}","${e.email}","${e.phone || ''}","${e.domainId}","${e.registrationNo || ''}","${e.collegeName}","${e.degree}","${e.currentYear}","${e.status}","${e.paymentStatus}","${e.amountPaid || 0}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `invigo_enrollments_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    addLog(`Exported ${filteredEnrollments.length} enrollments to CSV`, 'user');
+  };
+
+  const handleGenerateBulkEmail = () => {
+    const emails = filteredEnrollments.map(e => e.email).filter(Boolean).join(',');
+    window.open(`mailto:?bcc=${emails}`);
+    addLog(`Opened email client for ${filteredEnrollments.length} recipients`, 'communication');
+  };
   const handleBulkVerifyPayments = async () => {
     if (selectedIds.length === 0) return;
     let count = 0;
@@ -1058,55 +1080,64 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
               transition={{ duration: 0.3 }}
               className="space-y-6"
             >
-              {/* Bulk Action Bar */}
-              <div className="flex flex-wrap gap-2.5">
+              {/* Header Actions */}
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={() => setShowEnrollModal(true)}
+                    className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 cursor-pointer bg-blue-600 border-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-md shadow-blue-500/20"
+                  >
+                    <Users className="h-3.5 w-3.5" />
+                    Enroll Student
+                  </button>
+                  <div className="w-px h-6 bg-slate-200 self-center mx-1" />
+                  <button
+                    onClick={handleBulkVerifyPayments}
+                    disabled={selectedIds.length === 0}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 cursor-pointer ${
+                      selectedIds.length > 0
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 active:scale-95 shadow-sm'
+                        : 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <CheckSquare className="h-3.5 w-3.5" />
+                    Bulk Verify ({selectedIds.length})
+                  </button>
+                  <button
+                    onClick={handleBulkIssueCertificates}
+                    disabled={selectedIds.length === 0}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 cursor-pointer ${
+                      selectedIds.length > 0
+                        ? 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 active:scale-95 shadow-sm'
+                        : 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <Award className="h-3.5 w-3.5" />
+                    Bulk Issue Certs
+                  </button>
+                  <button
+                    onClick={handleBulkDelete}
+                    disabled={selectedIds.length === 0}
+                    className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 cursor-pointer ${
+                      selectedIds.length > 0
+                        ? 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100 active:scale-95 shadow-sm'
+                        : 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed'
+                    }`}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Bulk Delete
+                  </button>
+                  {selectedIds.length > 0 && (
+                    <span className="self-center text-[10px] text-slate-500 font-mono ml-2">{selectedIds.length} selected</span>
+                  )}
+                </div>
                 <button
-                  onClick={() => setShowEnrollModal(true)}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 cursor-pointer bg-blue-600 border-blue-600 text-white hover:bg-blue-700 active:scale-95 shadow-md shadow-blue-500/20"
+                  onClick={handleExportCSV}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 active:scale-95 shadow-sm flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Users className="h-3.5 w-3.5" />
-                  Enroll Student
+                  <Download className="h-3.5 w-3.5" />
+                  Export CSV
                 </button>
-                <div className="w-px h-6 bg-slate-200 self-center mx-1" />
-                <button
-                  onClick={handleBulkVerifyPayments}
-                  disabled={selectedIds.length === 0}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 cursor-pointer ${
-                    selectedIds.length > 0
-                      ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 active:scale-95 shadow-sm'
-                      : 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed'
-                  }`}
-                >
-                  <CheckSquare className="h-3.5 w-3.5" />
-                  Bulk Verify ({selectedIds.length})
-                </button>
-                <button
-                  onClick={handleBulkIssueCertificates}
-                  disabled={selectedIds.length === 0}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 cursor-pointer ${
-                    selectedIds.length > 0
-                      ? 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 active:scale-95 shadow-sm'
-                      : 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed'
-                  }`}
-                >
-                  <Award className="h-3.5 w-3.5" />
-                  Bulk Issue Certs
-                </button>
-                <button
-                  onClick={handleBulkDelete}
-                  disabled={selectedIds.length === 0}
-                  className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all border flex items-center gap-1.5 cursor-pointer ${
-                    selectedIds.length > 0
-                      ? 'bg-red-50 border-red-200 text-red-700 hover:bg-red-100 active:scale-95 shadow-sm'
-                      : 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed'
-                  }`}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                  Bulk Delete
-                </button>
-                {selectedIds.length > 0 && (
-                  <span className="self-center text-[10px] text-slate-500 font-mono">{selectedIds.length} selected</span>
-                )}
               </div>
 
               {/* Search & Filters */}
@@ -1362,6 +1393,13 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                             {/* Actions */}
                             <td className="py-3.5 px-4">
                               <div className="flex items-center justify-center gap-1">
+                                <button
+                                  title="View"
+                                  onClick={() => setViewingStudent(enr)}
+                                  className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer"
+                                >
+                                  <Eye className="h-3.5 w-3.5" />
+                                </button>
                                 <button
                                   title="Edit"
                                   onClick={() => {
@@ -1776,6 +1814,30 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                         placeholder="Write your announcement message here..."
                         className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3.5 text-xs outline-none focus:ring-2 focus:ring-blue-200 transition-all leading-relaxed"
                       />
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      <button
+                        onClick={() => {
+                          addLog(`Broadcast announcement: "${commSubject}"`, 'communication');
+                          setCommSubject('');
+                          setCommMessage('');
+                          alert('Message broadcasted to selected segment!');
+                        }}
+                        disabled={!commSubject || !commMessage}
+                        className="w-full sm:w-auto px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <Send className="h-4 w-4" />
+                        Broadcast Message
+                      </button>
+                      <button
+                        onClick={handleGenerateBulkEmail}
+                        className="w-full sm:w-auto px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                        title="Generates an email with all filtered users BCC'd"
+                      >
+                        <Mail className="h-4 w-4" />
+                        Open Email Client (BCC All)
+                      </button>
                     </div>
 
                     <div className="p-3 rounded-xl bg-blue-50 border border-blue-200">
@@ -2432,6 +2494,72 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
               <div className="p-5 border-t border-slate-100 flex justify-end gap-3 sticky bottom-0 bg-white"><button onClick={() => setShowAddQuestionModal(false)} className="px-4 py-2 border rounded-xl font-bold text-xs">Cancel</button><button onClick={handleAddQuestion} className="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-xs">Save Question</button></div>
             </motion.div>
           </div>
+        )}
+      </AnimatePresence>
+
+      {/* View Student Modal */}
+      <AnimatePresence>
+        {viewingStudent && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm overflow-y-auto"
+            onClick={() => setViewingStudent(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+              className="bg-white rounded-[2rem] shadow-2xl w-full max-w-2xl overflow-hidden border border-slate-200 my-8"
+            >
+              <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                    <User className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-800 leading-tight">{viewingStudent.fullName}</h3>
+                    <p className="text-xs text-slate-500 font-mono">{viewingStudent.candidateId}</p>
+                  </div>
+                </div>
+                <button onClick={() => setViewingStudent(null)} className="h-8 w-8 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Email</span>
+                    <p className="text-sm font-medium text-slate-800">{viewingStudent.email}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Phone</span>
+                    <p className="text-sm font-medium text-slate-800">{viewingStudent.phone || 'N/A'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">College</span>
+                    <p className="text-sm font-medium text-slate-800">{viewingStudent.collegeName || 'N/A'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Domain</span>
+                    <p className="text-sm font-medium text-slate-800">{getDomainTitle(viewingStudent.domainId)}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Payment Status</span>
+                    <p className="text-sm font-medium text-slate-800 capitalize">{viewingStudent.paymentStatus || 'Pending'}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</span>
+                    <p className="text-sm font-medium text-slate-800 capitalize">{viewingStudent.status || 'Pending'}</p>
+                  </div>
+                </div>
+              </div>
+              <div className="p-6 border-t border-slate-100 bg-slate-50 flex justify-end">
+                <button onClick={() => setViewingStudent(null)} className="px-6 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-sm transition-colors cursor-pointer">
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>
