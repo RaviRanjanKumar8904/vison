@@ -111,17 +111,27 @@ export default function EnrollmentWizard({
         }
       });
       if (found) {
-        // Enforce one-time use per account
+        // Fetch all past enrollments for this user
         const enrollmentsRef = collection(db, 'enrollments');
-        const q = query(enrollmentsRef, where('email', '==', formData.email.toLowerCase()), where('appliedCouponCode', '==', found.code));
-        const pastEnrollments = await getDocs(q);
+        const q = query(enrollmentsRef, where('email', '==', formData.email.toLowerCase()));
+        const userEnrollmentsSnap = await getDocs(q);
         
-        if (!pastEnrollments.empty) {
+        const hasAnyEnrollment = !userEnrollmentsSnap.empty;
+        const usedThisCoupon = userEnrollmentsSnap.docs.some(d => d.data().appliedCouponCode === found!.code);
+
+        if (usedThisCoupon) {
           setCouponError('You have already used this coupon code. It can only be used once per account.');
           setAppliedCoupon(null);
-        } else {
-          setAppliedCoupon(found);
+          return;
         }
+
+        if (found.code === 'IAMNEW' && hasAnyEnrollment) {
+          setCouponError('The IAMNEW coupon is only valid for new users on their first enrollment.');
+          setAppliedCoupon(null);
+          return;
+        }
+
+        setAppliedCoupon(found);
       } else {
         setCouponError('Invalid or inactive coupon code.');
         setAppliedCoupon(null);
