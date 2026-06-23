@@ -57,7 +57,7 @@ export default function Footer({ setCurrentTab }: FooterProps) {
               <li>
                 <button
                   onClick={() => setCurrentTab('enroll')}
-                  className="text-blue-650 hover:text-blue-700 transition-colors duration-150 flex items-center gap-1 font-extrabold cursor-pointer"
+                  className="text-blue-600 hover:text-blue-700 transition-colors duration-150 flex items-center gap-1 font-extrabold cursor-pointer"
                 >
                   Apply Matrix
                 </button>

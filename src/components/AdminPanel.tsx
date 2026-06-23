@@ -878,7 +878,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                         </div>
                       </div>
                       <h3 className={`text-3xl font-mono font-extrabold mt-3 ${valueColor[card.color]}`}>{card.value}</h3>
-                      <span className="text-[10px] text-slate-450 block mt-1">{card.sub}</span>
+                      <span className="text-[10px] text-slate-400 block mt-1">{card.sub}</span>
                     </motion.div>
                   );
                 })}

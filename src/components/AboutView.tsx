@@ -82,27 +82,6 @@ export default function AboutView() {
     }
   ];
 
-  const executiveTeam = [
-    {
-      name: 'Dr. Devendra R. Mathur',
-      role: 'Head of Engineering',
-      bio: 'Former IIT researcher with 18+ years optimizing automation systems, web architectures, and hardware modules.',
-      avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?fit=crop&w=300&h=300'
-    },
-    {
-      name: 'Malini Krishnaswamy',
-      role: 'Head of Business Admin',
-      bio: 'Ex-strategy leader at top Fintech systems. Architect of our active finance, business management, and marketing syllabus courses.',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?fit=crop&w=300&h=300'
-    },
-    {
-      name: 'Samarpreet Singh',
-      role: 'Lead DevOps Advisor',
-      bio: 'AWS Certified Solutions Architect. Handles global secure cloud pipelines, Docker/Kubernetes container systems, and code reviews.',
-      avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?fit=crop&w=300&h=300'
-    }
-  ];
-
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -241,57 +220,6 @@ export default function AboutView() {
                 );
               })}
             </div>
-          </div>
-        </motion.div>
-
-        {/* LEADERSHIP TEAM */}
-        <motion.div 
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={containerVariants}
-          className="mb-32"
-        >
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-4 tracking-tight">Academic Leadership</h2>
-            <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-              The qualified engineers and operations directors steering our curriculum maps and evaluating Capstone portfolios.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {executiveTeam.map((leader, i) => (
-              <motion.div 
-                key={i} 
-                variants={itemVariants}
-                className="group bg-white rounded-3xl border border-slate-200/60 overflow-hidden shadow-xl shadow-slate-200/40 hover:shadow-2xl hover:-translate-y-2 transition-all duration-300"
-              >
-                <div className="h-48 overflow-hidden relative">
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent z-10" />
-                  <img 
-                    src={leader.avatar} 
-                    alt={leader.name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute bottom-4 left-6 z-20">
-                    <h3 className="text-xl font-bold text-white mb-1">{leader.name}</h3>
-                    <p className="text-sm font-semibold text-blue-300 font-mono tracking-wide">{leader.role}</p>
-                  </div>
-                </div>
-                <div className="p-6 relative">
-                  <p className="text-sm text-slate-600 leading-relaxed mb-6">
-                    {leader.bio}
-                  </p>
-                  <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-                    <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">Profile Verified</span>
-                    <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full border border-emerald-100">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span className="text-[10px] font-bold">ACTIVE</span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
           </div>
         </motion.div>
 

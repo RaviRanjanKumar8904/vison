@@ -457,7 +457,7 @@ export default function StudentNexus({
         {/* Header - Samsung One UI style: Giant comfortable text left, profile details right */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200">
           <div className="space-y-1">
-            <span className="text-xs font-bold text-blue-650 uppercase tracking-wider block">Student Dashboard</span>
+            <span className="text-xs font-bold text-blue-600 uppercase tracking-wider block">Student Dashboard</span>
             <h1 className="font-display text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
               My Learning Space
             </h1>
@@ -531,7 +531,7 @@ export default function StudentNexus({
 
             {/* Micro stats */}
             <div className="w-full grid grid-cols-2 gap-3 pt-4 border-t border-slate-100">
-              <div className="bg-slate-50 border border-slate-150 p-4 rounded-[1.4rem]">
+              <div className="bg-slate-50 border border-slate-200 p-4 rounded-[1.4rem]">
                 <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Materials Complete</span>
                 <span className="text-sm font-bold text-slate-800 mt-0.5 block">
                   {Math.min(unlockedMaterials.length - 1, materials.length)} / {materials.length}
@@ -593,8 +593,8 @@ export default function StudentNexus({
               {/* Specs Rows */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 border border-slate-150 overflow-hidden">
-                    <User className="h-4.5 w-4.5 text-blue-650" />
+                  <div className="h-9 w-9 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 border border-slate-200 overflow-hidden">
+                    <User className="h-4.5 w-4.5 text-blue-600" />
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 block uppercase font-bold">Student Name / ID</span>
@@ -603,7 +603,7 @@ export default function StudentNexus({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 border border-slate-150">
+                  <div className="h-9 w-9 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 border border-slate-200">
                     <GraduationCap className="h-4.5 w-4.5 text-blue-655" />
                   </div>
                   <div>
@@ -613,7 +613,7 @@ export default function StudentNexus({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 border border-slate-150">
+                  <div className="h-9 w-9 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 border border-slate-200">
                     <Calendar className="h-4.5 w-4.5 text-blue-655" />
                   </div>
                   <div>
@@ -623,7 +623,7 @@ export default function StudentNexus({
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="h-9 w-9 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 border border-slate-150">
+                  <div className="h-9 w-9 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 border border-slate-200">
                     <BookOpen className="h-4.5 w-4.5 text-blue-655" />
                   </div>
                   <div>
@@ -637,7 +637,7 @@ export default function StudentNexus({
             {/* Quick Helper Button Row */}
             <div className="flex flex-wrap gap-2 pt-4 mt-6 border-t border-slate-100">
               {matchedDomain.toolsAndTech.map((tool) => (
-                <span key={tool} className="text-[10px] font-mono bg-slate-50 text-slate-650 px-2.5 py-1 rounded-full border border-slate-200">
+                <span key={tool} className="text-[10px] font-mono bg-slate-50 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200">
                   {tool}
                 </span>
               ))}
@@ -655,7 +655,7 @@ export default function StudentNexus({
               onClick={() => setActiveSubTab('homework')}
               className={`py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeSubTab === 'homework'
-                  ? 'bg-blue-650 text-white shadow-sm'
+                  ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
               }`}
             >
@@ -667,7 +667,7 @@ export default function StudentNexus({
               onClick={() => setActiveSubTab('mentor')}
               className={`py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeSubTab === 'mentor'
-                  ? 'bg-blue-650 text-white shadow-sm'
+                  ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
               }`}
             >
@@ -679,7 +679,7 @@ export default function StudentNexus({
               onClick={() => setActiveSubTab('certificate')}
               className={`py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeSubTab === 'certificate'
-                  ? 'bg-blue-650 text-white shadow-sm'
+                  ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
               }`}
             >
@@ -691,7 +691,7 @@ export default function StudentNexus({
               onClick={() => setActiveSubTab('roadmap')}
               className={`py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
                 activeSubTab === 'roadmap'
-                  ? 'bg-blue-650 text-white shadow-sm'
+                  ? 'bg-blue-600 text-white shadow-sm'
                   : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
               }`}
             >
@@ -914,12 +914,12 @@ export default function StudentNexus({
               </div>
 
               {bookingSuccess ? (
-                <div className="rounded-2xl bg-emerald-50 border border-emerald-150 p-5 space-y-4">
+                <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-5 space-y-4">
                   <div className="flex items-center gap-2.5 text-emerald-700 font-bold text-sm">
                     <CheckCircle className="h-5 w-5" />
                     <span>Zoom Calling Slot Confirmed Successfully! 📅</span>
                   </div>
-                  <div className="text-slate-650 text-xs grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <div className="text-slate-600 text-xs grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
                     <p><span className="text-slate-500 text-[10px] block uppercase font-bold">Scheduled Mentor:</span> <strong className="text-slate-800">{bookingSuccess.trainer}</strong></p>
                     <p><span className="text-slate-500 text-[10px] block uppercase font-bold">Scheduled Date:</span> <strong className="text-slate-800">{bookingSuccess.date}</strong></p>
                     <p><span className="text-slate-500 text-[10px] block uppercase font-bold">Scheduled Time:</span> <strong className="text-slate-800">{bookingSuccess.time}</strong></p>
@@ -979,7 +979,7 @@ export default function StudentNexus({
                   <div className="pt-2">
                     <button
                       type="submit"
-                      className="w-full sm:w-auto px-6 py-3 bg-blue-650 hover:bg-blue-700 text-white font-bold rounded-2xl text-xs transition-all shadow-xs active:scale-98 cursor-pointer"
+                      className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-2xl text-xs transition-all shadow-xs active:scale-98 cursor-pointer"
                     >
                       Process Zoom Appointment Slot
                     </button>
@@ -1015,7 +1015,7 @@ export default function StudentNexus({
                   {/* Lock Screen / Progress Needed layout */}
                   <div className="space-y-3.5">
                     
-                    <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-150 text-xs">
+                    <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
                       <div className="flex items-center gap-2.5 text-slate-700 font-bold">
                         <Check className="h-4.5 w-4.5 text-emerald-600" />
                         <span>Sign up Registration Complete</span>
@@ -1023,7 +1023,7 @@ export default function StudentNexus({
                       <span className="text-emerald-600 font-bold">• VERIFIED</span>
                     </div>
 
-                    <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-150 text-xs">
+                    <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
                       <div className="flex items-center gap-2.5 text-slate-505 font-semibold">
                         <Clock className="h-4.5 w-4.5 text-amber-500 animate-pulse" />
                         <span>Study Materials Completed ({Math.min(unlockedMaterials.length - 1, materials.length)} / {materials.length})</span>
@@ -1031,7 +1031,7 @@ export default function StudentNexus({
                       <span className="text-amber-500 font-semibold uppercase">{Math.min(95, Math.round((unlockedMaterials.length / Math.max(1, materials.length)) * 100))}% DONE</span>
                     </div>
 
-                    <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-150 text-xs">
+                    <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
                       <div className="flex items-center gap-2.5 text-slate-505 font-semibold">
                         <AlertTriangle className="h-4.5 w-4.5 text-slate-400" />
                         <span>Final Capstone Code Assessment</span>
@@ -1113,7 +1113,7 @@ export default function StudentNexus({
                           onClick={() => {
                             setCurrentTab('verify');
                           }}
-                          className="py-3 px-4 bg-blue-650 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex justify-center items-center gap-1 active:scale-98 transition-all cursor-pointer shadow-xs"
+                          className="py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs flex justify-center items-center gap-1 active:scale-98 transition-all cursor-pointer shadow-xs"
                         >
                           <span>Verify Live</span>
                           <ArrowRight className="h-3.5 w-3.5" />
@@ -1128,7 +1128,7 @@ export default function StudentNexus({
                     {/* Status checklist showing 100% */}
                     <div className="space-y-3.5">
                       
-                      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-150 text-xs">
+                      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
                         <div className="flex items-center gap-2.5 text-slate-700 font-bold">
                           <Check className="h-4.5 w-4.5 text-emerald-600" />
                           <span>Sign up Registration Complete</span>
@@ -1136,7 +1136,7 @@ export default function StudentNexus({
                         <span className="text-emerald-600 font-bold">• VERIFIED</span>
                       </div>
 
-                      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-150 text-xs">
+                      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
                         <div className="flex items-center gap-2.5 text-slate-700 font-bold">
                           <Check className="h-4.5 w-4.5 text-emerald-600" />
                           <span>All Weekly Assignments Submissions (Passed)</span>
@@ -1144,7 +1144,7 @@ export default function StudentNexus({
                         <span className="text-emerald-600 font-bold">• VERIFIED</span>
                       </div>
 
-                      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-150 text-xs">
+                      <div className="flex items-center justify-between p-3.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs">
                         <div className="flex items-center gap-2.5 text-slate-700 font-bold">
                           <Check className="h-4.5 w-4.5 text-emerald-600" />
                           <span>Final Capstone Code Approved</span>
@@ -1273,7 +1273,7 @@ export default function StudentNexus({
                     >
                       <div className={`h-12 w-12 rounded-full flex items-center justify-center transition-all ${
                         selectedRoadmapNode === 'current'
-                          ? 'bg-blue-650 text-white shadow-xs border-2 border-white font-bold'
+                          ? 'bg-blue-600 text-white shadow-xs border-2 border-white font-bold'
                           : 'bg-white text-slate-500 border border-slate-200 hover:text-slate-800 hover:border-slate-400'
                       }`}>
                         <CheckCircle className="h-5 w-5" />
@@ -1330,7 +1330,7 @@ export default function StudentNexus({
                       </div>
                       <div>
                         <span className="text-[10px] font-mono uppercase tracking-wider text-purple-600 block font-bold">Stage 3: Advanced Specialty</span>
-                        <p className={`text-xs font-bold mt-0.5 truncate max-w-[150px] ${selectedRoadmapNode === 'specialty' ? 'text-slate-905' : 'text-slate-500 group-hover:text-slate-700'}`}>
+                        <p className={`text-xs font-bold mt-0.5 truncate max-w-[150px] ${selectedRoadmapNode === 'specialty' ? 'text-slate-900' : 'text-slate-500 group-hover:text-slate-700'}`}>
                           {specialtyDomainObj.title.split('&')[0].split('and')[0]}
                         </p>
                       </div>
@@ -1402,7 +1402,7 @@ export default function StudentNexus({
                               <TrendingUp className="h-5 w-5" />
                               <span>{activeShowcaseConfig.salary}</span>
                             </p>
-                            <span className="text-[10px] text-slate-450 block mt-0.5">Estimated on active premium alumni placements</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">Estimated on active premium alumni placements</span>
                           </div>
 
                           <div className="pt-4 border-t border-slate-205 space-y-2">
@@ -1421,7 +1421,7 @@ export default function StudentNexus({
                           {selectedRoadmapNode === 'current' ? (
                             <button
                               onClick={() => setActiveSubTab('homework')}
-                              className="w-full py-3.5 bg-blue-650 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-all active:scale-98 cursor-pointer shadow-xs"
+                              className="w-full py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-all active:scale-98 cursor-pointer shadow-xs"
                             >
                               Continue Current Lab Homework
                             </button>

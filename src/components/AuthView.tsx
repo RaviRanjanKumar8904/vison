@@ -415,7 +415,7 @@ export default function AuthView({ onLoginSuccess, setCurrentTab, preselectedDom
               }}
               className={`flex-1 py-2 px-4 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 isLoginTab
-                  ? 'bg-blue-650 text-white shadow-xs'
+                  ? 'bg-blue-600 text-white shadow-xs'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
             >
@@ -431,7 +431,7 @@ export default function AuthView({ onLoginSuccess, setCurrentTab, preselectedDom
               }}
               className={`flex-1 py-2 px-4 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 !isLoginTab
-                  ? 'bg-blue-650 text-white shadow-xs'
+                  ? 'bg-blue-600 text-white shadow-xs'
                   : 'text-slate-500 hover:text-slate-800'
               }`}
             >
@@ -453,11 +453,11 @@ export default function AuthView({ onLoginSuccess, setCurrentTab, preselectedDom
               {isAuthNotAllowed && (
                 <div className="border border-slate-200 bg-slate-50 p-4 rounded-2xl space-y-3 text-slate-705 text-xs shadow-xs">
                   <div className="font-extrabold text-slate-800 flex items-center gap-1.5">
-                    <span className="inline-block h-2 w-2 rounded-full bg-blue-650 animate-pulse" />
+                    <span className="inline-block h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
                     <span>How to enable Authentication Providers:</span>
                   </div>
                   <ol className="list-decimal list-inside space-y-1 ml-1 leading-relaxed text-slate-600">
-                    <li>Go to your <a href={`https://console.firebase.google.com/project/${auth.app.options.projectId || 'your-firebase-project'}/authentication/providers`} target="_blank" rel="noopener noreferrer" className="text-blue-650 underline font-extrabold hover:text-blue-800">Firebase console</a>.</li>
+                    <li>Go to your <a href={`https://console.firebase.google.com/project/${auth.app.options.projectId || 'your-firebase-project'}/authentication/providers`} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-extrabold hover:text-blue-800">Firebase console</a>.</li>
                     <li>Select <strong>Authentication</strong> &rarr; click <strong>Sign-in method</strong> tab.</li>
                     <li>Click <strong>Add new provider</strong> (or edit <strong>Email/Password</strong> and <strong>Google</strong>).</li>
                     <li>Toggle the <strong>Enable</strong> switch to ON, then click <strong>Save</strong>.</li>
@@ -467,7 +467,7 @@ export default function AuthView({ onLoginSuccess, setCurrentTab, preselectedDom
                     href={`https://console.firebase.google.com/project/${auth.app.options.projectId || 'your-firebase-project'}/authentication/providers`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex w-full items-center justify-center p-2.5 bg-blue-650 hover:bg-blue-700 text-white font-bold text-center text-xs rounded-xl shadow-xs transition-colors"
+                    className="inline-flex w-full items-center justify-center p-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-center text-xs rounded-xl shadow-xs transition-colors"
                   >
                     Open Sign-in Providers Console &rarr;
                   </a>
@@ -477,7 +477,7 @@ export default function AuthView({ onLoginSuccess, setCurrentTab, preselectedDom
           )}
 
           {successMsg && (
-            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-150 text-xs text-emerald-800 font-bold flex items-start gap-2">
+            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-bold flex items-start gap-2">
               <CheckCircle className="h-4 w-4 text-emerald-650 shrink-0 mt-0.5 animate-pulse" />
               <span>{successMsg}</span>
             </div>

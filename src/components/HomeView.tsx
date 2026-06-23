@@ -116,7 +116,7 @@ export default function HomeView({
             </span>
           </motion.h1>
 
-          <p className="text-slate-650 text-xs sm:text-sm md:text-lg leading-relaxed max-w-2xl mx-auto px-4">
+          <p className="text-slate-600 text-xs sm:text-sm md:text-lg leading-relaxed max-w-2xl mx-auto px-4">
             Welcome to <strong className="text-blue-600 font-bold">Invigo Infotech</strong>, the elite offline & virtual internship sandbox. Build, test, and host practical industry-accredited systems engineered for ambitious scholars.
           </p>
 
@@ -357,7 +357,7 @@ export default function HomeView({
         </div>
 
         {/* DEGREE ACADEMIC NEXUS (IMPORTANT SPECIFIC PATHWAYS) */}
-        <div className="py-12 sm:py-16 space-y-8 sm:space-y-12 border-t border-slate-150">
+        <div className="py-12 sm:py-16 space-y-8 sm:space-y-12 border-t border-slate-200">
           <div className="text-center space-y-3 px-2">
             <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-slate-900">The Academic Path Matrix</h2>
             <p className="text-slate-600 text-[11px] sm:text-sm max-w-xl mx-auto">
@@ -377,7 +377,7 @@ export default function HomeView({
                   <div className="absolute top-0 right-0 h-16 w-16 -translate-y-4 translate-x-4 rounded-full bg-slate-100 group-hover:scale-130 transition-transform duration-300 pointer-events-none" />
                   
                   <div className="space-y-3 sm:space-y-4">
-                    <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-50 border border-slate-150 shadow-inner group-hover:scale-110 transition-transform">
+                    <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-xl bg-slate-50 border border-slate-200 shadow-inner group-hover:scale-110 transition-transform">
                       <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
                     <div>
@@ -411,7 +411,7 @@ export default function HomeView({
         </motion.div>
 
         {/* TESTIMONIALS */}
-        <div className="py-16 border-t border-slate-150 space-y-12">
+        <div className="py-16 border-t border-slate-200 space-y-12">
           <div className="text-center space-y-3">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-750">
               <Users className="h-4 w-4 text-emerald-650" />
@@ -426,7 +426,7 @@ export default function HomeView({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {TESTIMONIALS.map((test, index) => (
               <div key={index} className="rounded-[1.5rem] border border-slate-200 bg-white p-5 sm:p-6 flex flex-col justify-between space-y-4 sm:space-y-5 hover:border-blue-300 hover:shadow-md transition-all duration-250 shadow-sm">
-                <p className="text-[11px] sm:text-xs text-slate-650 italic leading-relaxed">
+                <p className="text-[11px] sm:text-xs text-slate-600 italic leading-relaxed">
                   "{test.content}"
                 </p>
                 <div className="flex items-center gap-3">

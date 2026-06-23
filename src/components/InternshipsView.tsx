@@ -137,7 +137,7 @@ export default function InternshipsView({
                 placeholder="Search tools, skills (e.g. PyTorch, Spring, Solidity)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-905 text-xs sm:text-sm placeholder-slate-450 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-650/30 transition-colors"
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-900 text-xs sm:text-sm placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition-colors"
               />
               {searchQuery && (
                 <button
@@ -172,7 +172,7 @@ export default function InternshipsView({
                     onClick={() => setSelectedCategoryFilter(cat)}
                     className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-all duration-200 cursor-pointer ${
                       selectedCategoryFilter === cat
-                        ? 'border-blue-600 text-blue-750 bg-blue-50/50 font-bold'
+                        ? 'border-blue-600 text-blue-800 bg-blue-50/50 font-bold'
                         : 'border-slate-200 bg-slate-50 text-slate-600 hover:text-slate-800 hover:bg-slate-100'
                     }`}
                   >
@@ -287,7 +287,7 @@ export default function InternshipsView({
                       <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block font-sans">Compilers / Tools learned:</span>
                       <div className="flex flex-wrap gap-1 leading-none">
                         {domain.toolsAndTech.slice(0, 4).map((tech) => (
-                          <span key={tech} className="text-[9px] font-bold font-mono bg-slate-50 text-slate-600 px-2 py-0.5 rounded border border-slate-150 hover:bg-slate-100">
+                          <span key={tech} className="text-[9px] font-bold font-mono bg-slate-50 text-slate-600 px-2 py-0.5 rounded border border-slate-200 hover:bg-slate-100">
                             {tech}
                           </span>
                         ))}
@@ -385,7 +385,7 @@ export default function InternshipsView({
                   })()}
                 </div>
                 <div>
-                  <span className="text-[10px] bg-blue-50 text-blue-750 px-2.5 py-1 rounded-sm border border-blue-150 uppercase tracking-widest font-bold">
+                  <span className="text-[10px] bg-blue-50 text-blue-800 px-2.5 py-1 rounded-sm border border-blue-150 uppercase tracking-widest font-bold">
                     {selectedDomain.category}
                   </span>
                   <h2 className="text-xl sm:text-2xl font-extrabold font-display text-slate-900 mt-1">
@@ -402,7 +402,7 @@ export default function InternshipsView({
                     {selectedDomain.durationWeeks.map(d => `${d} Weeks`).join(' / ')} Courses
                   </p>
                 </div>
-                <div className="space-y-1 sm:border-l sm:border-slate-150 sm:pl-4">
+                <div className="space-y-1 sm:border-l sm:border-slate-200 sm:pl-4">
                   <span className="block text-slate-400 uppercase text-[9px] tracking-wider font-bold">Target Academic Cohorts</span>
                   <p className="font-extrabold text-slate-800 leading-relaxed">
                     {selectedDomain.targetDegrees.join(', ')} Students Eligible
@@ -412,7 +412,7 @@ export default function InternshipsView({
 
               {/* About short summary */}
               <div className="space-y-2">
-                <h4 className="text-xs uppercase font-bold tracking-widest text-slate-450">Program Intent Overview</h4>
+                <h4 className="text-xs uppercase font-bold tracking-widest text-slate-400">Program Intent Overview</h4>
                 <p className="text-sm text-slate-600 leading-relaxed font-sans">
                   {selectedDomain.shortDesc}
                 </p>
@@ -423,7 +423,7 @@ export default function InternshipsView({
                 <h4 className="text-xs uppercase font-bold tracking-widest text-slate-500">Core Platforms & Key Compilers</h4>
                 <div className="flex flex-wrap gap-2">
                   {selectedDomain.toolsAndTech.map((tool) => (
-                    <span key={tool} className="text-xs font-bold font-mono px-3 py-1 bg-slate-50 text-blue-750 border border-slate-150 rounded">
+                    <span key={tool} className="text-xs font-bold font-mono px-3 py-1 bg-slate-50 text-blue-800 border border-slate-200 rounded">
                       {tool}
                     </span>
                   ))}
@@ -437,7 +437,7 @@ export default function InternshipsView({
                 <div className="space-y-3">
                   {selectedDomain.phases.map((phase, idx) => (
                     <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-3">
-                      <div className="flex justify-between items-center bg-white px-3 py-1 rounded border border-slate-150">
+                      <div className="flex justify-between items-center bg-white px-3 py-1 rounded border border-slate-200">
                         <span className="text-xs font-extrabold text-slate-900">PHASE 0{idx+1}: {phase.title}</span>
                         <span className="text-[9px] font-bold font-mono text-blue-600 uppercase">WEEK {idx*4 + 1} - {idx*4 + 4}</span>
                       </div>
@@ -445,7 +445,7 @@ export default function InternshipsView({
                         {phase.description}
                       </p>
 
-                      <div className="space-y-1.5 pt-2 border-t border-slate-150">
+                      <div className="space-y-1.5 pt-2 border-t border-slate-200">
                         <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest block font-sans">Deliverable Submissions Checklist:</span>
                         <ul className="space-y-1">
                           {phase.deliverables.map((del, dIdx) => (
@@ -466,7 +466,7 @@ export default function InternshipsView({
                 <h4 className="text-xs uppercase font-bold tracking-widest text-slate-500">Skills Acquired Upon Graduate Verification</h4>
                 <div className="flex flex-wrap gap-1.5">
                   {selectedDomain.skills.map((skill) => (
-                    <span key={skill} className="text-[11px] bg-slate-50 border border-slate-150 text-slate-700 px-2.5 py-1 rounded font-medium">
+                    <span key={skill} className="text-[11px] bg-slate-50 border border-slate-200 text-slate-700 px-2.5 py-1 rounded font-medium">
                       ✔ {skill}
                     </span>
                   ))}

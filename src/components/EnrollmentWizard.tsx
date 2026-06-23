@@ -229,7 +229,7 @@ export default function EnrollmentWizard({
                     {currentStep > item.step ? '✔' : item.step}
                   </div>
                   <span className={`text-[10px] font-mono tracking-wider font-semibold ${
-                    currentStep === item.step ? 'text-blue-600 font-bold' : 'text-slate-450'
+                    currentStep === item.step ? 'text-blue-600 font-bold' : 'text-slate-400'
                   }`}>
                     {item.label}
                   </span>
@@ -608,7 +608,7 @@ export default function EnrollmentWizard({
               </div>
 
               {/* Checkout Bill Split Box */}
-              <div className="rounded-2xl bg-slate-50 p-5 border border-slate-200 space-y-3 font-mono text-xs text-slate-650">
+              <div className="rounded-2xl bg-slate-50 p-5 border border-slate-200 space-y-3 font-mono text-xs text-slate-600">
                 <h4 className="text-[10px] text-blue-600 font-extrabold uppercase tracking-widest border-b border-slate-200 pb-2">
                   Unified Admission Account Summary
                 </h4>
@@ -670,7 +670,7 @@ export default function EnrollmentWizard({
                     
                     {/* Brand header from Image: Circular Logo + Text */}
                     <div className="flex items-center gap-2.5 pb-1 justify-center">
-                      <div className="h-10 w-10 rounded-full bg-white border border-slate-150 flex items-center justify-center shadow-xs p-1 relative overflow-hidden shrink-0">
+                      <div className="h-10 w-10 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-xs p-1 relative overflow-hidden shrink-0">
                         {/* Invigo tech abstract logo replicating image's concentric spiral and florals */}
                         <svg className="h-7 w-7 text-sky-500" viewBox="0 0 100 100" fill="none">
                           {/* Concentric swirling orbits */}
@@ -779,7 +779,7 @@ export default function EnrollmentWizard({
                         setTransactionId(e.target.value.toUpperCase());
                         setPaymentError('');
                       }}
-                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 font-mono text-sm placeholder-slate-450 uppercase tracking-widest focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-200"
+                      className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-800 font-mono text-sm placeholder-slate-400 uppercase tracking-widest focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-200"
                     />
                     <div className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-350">
                       <CheckCircle className={`h-4.5 w-4.5 ${transactionId.trim().length >= 8 ? "text-emerald-500" : "text-slate-300"}`} />
@@ -791,7 +791,7 @@ export default function EnrollmentWizard({
                   <p className="text-[11px] font-mono font-medium text-red-500 text-left">{paymentError}</p>
                 )}
 
-                <span className="block text-[10px] text-slate-450 leading-relaxed text-left font-medium">
+                <span className="block text-[10px] text-slate-400 leading-relaxed text-left font-medium">
                   Please pay through the QR Code above first, then input the exact Amount Paid and copy & paste the 12-digit UTR Ref / Transaction ID from your UPI app receipt.
                 </span>
               </div>
@@ -851,7 +851,7 @@ export default function EnrollmentWizard({
               </div>
 
               {/* Trust Signal Seals */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-150 font-mono text-[9px] text-slate-450 text-center">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-slate-200 font-mono text-[9px] text-slate-400 text-center">
                 <div className="flex items-center justify-center gap-1">
                   <span>🛡 PCI-DSS Level 1</span>
                 </div>

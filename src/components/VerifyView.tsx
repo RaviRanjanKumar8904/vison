@@ -254,7 +254,7 @@ export default function VerifyView({ enrollments, setCurrentTab }: VerifyViewPro
                     <div className="space-y-1">
                       <span className="text-[10px] uppercase font-semibold text-slate-400 block tracking-wider">Candidate Name</span>
                       <p className="text-lg font-extrabold text-slate-900">{searchResult.fullName}</p>
-                      <p className="text-xs text-slate-650 flex items-center gap-1">
+                      <p className="text-xs text-slate-600 flex items-center gap-1">
                         <GraduationCap className="h-3.5 w-3.5 text-slate-400" />
                         <span>{searchResult.degree} • {searchResult.collegeName}</span>
                       </p>
@@ -290,13 +290,13 @@ export default function VerifyView({ enrollments, setCurrentTab }: VerifyViewPro
 
                     <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100 space-y-1">
                       <span className="text-[10px] uppercase text-slate-400 block font-bold">Performance Score</span>
-                      <p className="text-xs font-black text-blue-650">{searchResult.grade}</p>
+                      <p className="text-xs font-black text-blue-600">{searchResult.grade}</p>
                     </div>
 
                   </div>
 
                   {/* Verification statement & Seal block */}
-                  <div className="rounded-2xl bg-slate-50 p-4 border border-slate-150 text-xs text-slate-650 flex items-center gap-3">
+                  <div className="rounded-2xl bg-slate-50 p-4 border border-slate-200 text-xs text-slate-600 flex items-center gap-3">
                     <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0" />
                     <div>
                       <p className="font-bold text-slate-800">Official Verification Log:</p>
