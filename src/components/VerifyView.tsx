@@ -20,7 +20,7 @@ export default function VerifyView({ enrollments, setCurrentTab }: VerifyViewPro
   // Ready-to-verify demo certificates so the screen is interactive immediately
   const demoCertificates = [
     {
-      id: 'INV-2026-X8AC39',
+      id: '2026IN25UG010748',
       fullName: 'Priyanshu Ranjan',
       degree: 'B.Tech',
       collegeName: 'Delhi Technological University (DTU)',
@@ -33,7 +33,7 @@ export default function VerifyView({ enrollments, setCurrentTab }: VerifyViewPro
       verificationStatus: 'Active enrollment verified'
     },
     {
-      id: 'INV-2025-S49K20',
+      id: '2025IN124578',
       fullName: 'Ananya Sharma',
       degree: 'B.Sc Computer Science',
       collegeName: 'Miranda House, Delhi University',
@@ -46,7 +46,7 @@ export default function VerifyView({ enrollments, setCurrentTab }: VerifyViewPro
       verificationStatus: 'Verified ID matching original academic logs'
     },
     {
-      id: 'INV-2025-M92B71',
+      id: '2025IN987654',
       fullName: 'Rahul Verma',
       degree: 'Diploma in IT',
       collegeName: 'Government Polytechnic',
@@ -181,7 +181,7 @@ export default function VerifyView({ enrollments, setCurrentTab }: VerifyViewPro
             <div className="relative">
               <input
                 type="text"
-                placeholder="e.g. INV-2026-X8AC39"
+                placeholder="e.g. 2026IN25UG010748"
                 value={certId}
                 onChange={(e) => setCertId(e.target.value)}
                 className="w-full px-5 py-4 pl-12 rounded-2xl border border-slate-200 bg-slate-50 text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600/30 transition-all font-sans"
@@ -204,26 +204,7 @@ export default function VerifyView({ enrollments, setCurrentTab }: VerifyViewPro
             </div>
           </form>
 
-          {/* Quick links for demo checks */}
-          <div className="pt-2">
-            <span className="text-xs text-slate-500 font-semibold font-sans">Try testing with these real sample IDs:</span>
-            <div className="flex flex-wrap gap-2.5 mt-2">
-              {demoCertificates.map((c) => (
-                <button
-                  key={c.id}
-                  onClick={() => handleQuickMatch(c.id)}
-                  className={`px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-                    certId === c.id 
-                      ? 'bg-blue-50 border-blue-200 text-blue-700 shadow-xs font-bold' 
-                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100 hover:border-slate-300'
-                  }`}
-                >
-                  <Award className="h-3.5 w-3.5 text-blue-600" />
-                  <span>{c.fullName} ({c.id})</span>
-                </button>
-              ))}
-            </div>
-          </div>
+
 
         </div>
 

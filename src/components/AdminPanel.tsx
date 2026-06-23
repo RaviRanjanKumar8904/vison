@@ -8,12 +8,12 @@ import {
   Bell, Mail, ChevronLeft, ChevronRight, Download,
   Clock, Zap, Eye, EyeOff, Send, AlertCircle, CheckCircle,
   XCircle, Info, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown, Calendar,
-  Plus, BookOpen, FileQuestion, Globe, Video, FileType, Layers, Laptop, ExternalLink
+  Plus, BookOpen, FileQuestion, Globe, Video, FileType, Layers
 } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, onSnapshot, doc, updateDoc, deleteDoc, setDoc, getDocs, addDoc, query, where } from 'firebase/firestore';
-import { EnrollmentState, ActivityLog, PortalSettings, ErrorReport, StudyMaterial, MCQQuestion, InternshipDomain, ProjectSubmission, WeeklyProjectDef } from '../types';
-import { INTERNSHIP_DOMAINS, DEFAULT_MCQ_QUESTIONS, DEFAULT_WEEKLY_PROJECTS } from '../data';
+import { EnrollmentState, ActivityLog, PortalSettings, ErrorReport, StudyMaterial, MCQQuestion, InternshipDomain } from '../types';
+import { INTERNSHIP_DOMAINS, DEFAULT_MCQ_QUESTIONS } from '../data';
 import { downloadCertificatePDF, downloadOfferLetterPDF, downloadAcceptanceLetterPDF } from '../utils/pdfGenerator';
 
 interface AdminPanelProps {
@@ -21,7 +21,7 @@ interface AdminPanelProps {
   setCurrentTab: (tab: string) => void;
 }
 
-type AdminSection = 'dashboard' | 'users' | 'certificates' | 'settings' | 'logs' | 'errors' | 'communication' | 'domains' | 'materials' | 'mcqTests' | 'projectSubmissions' | 'projectSpecs';
+type AdminSection = 'dashboard' | 'users' | 'certificates' | 'settings' | 'logs' | 'errors' | 'communication' | 'domains' | 'materials' | 'mcqTests';
 
 // ─── Helper: resolve domain title from domainId ───
 function getDomainTitle(domainId: string): string {
@@ -80,12 +80,17 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
   // Edit modal
   const [editingEnrollment, setEditingEnrollment] = useState<EnrollmentState | null>(null);
   const [editName, setEditName] = useState('');
+  const [editEmail, setEditEmail] = useState('');
   const [editCollege, setEditCollege] = useState('');
+  const [editRegistrationNo, setEditRegistrationNo] = useState('');
   const [editDegree, setEditDegree] = useState('');
+  const [editFieldOfStudy, setEditFieldOfStudy] = useState('');
+  const [editCurrentYear, setEditCurrentYear] = useState('');
+  const [editPassingYear, setEditPassingYear] = useState('');
   const [editDuration, setEditDuration] = useState(8);
   const [editPhone, setEditPhone] = useState('');
-  const [editFieldOfStudy, setEditFieldOfStudy] = useState('');
   const [editStartDate, setEditStartDate] = useState('');
+  const [editTrainingMode, setEditTrainingMode] = useState('');
 
   // Enroll Student modal
   const [showEnrollModal, setShowEnrollModal] = useState(false);
@@ -161,27 +166,31 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
   const [questionDomainFilter, setQuestionDomainFilter] = useState('All');
   const [testResults, setTestResults] = useState<any[]>([]);
 
-  // Project Submissions
-  const [projectSubmissions, setProjectSubmissions] = useState<ProjectSubmission[]>([]);
-
-  // Project Specs
-  const [allProjectSpecs, setAllProjectSpecs] = useState<WeeklyProjectDef[]>([]);
-  const [showAddSpecModal, setShowAddSpecModal] = useState(false);
-  const [specForm, setSpecForm] = useState({
-    domainId: '', weekNumber: 1, title: '', description: ''
-  });
-  const [specDomainFilter, setSpecDomainFilter] = useState('All');
-
   // ─── Load enrollments from Firestore ───
   useEffect(() => {
     const enrollmentsCol = collection(db, 'enrollments');
     const unsubscribe = onSnapshot(enrollmentsCol, (snapshot) => {
       const fetched: EnrollmentState[] = [];
       snapshot.forEach((docSnap) => {
-        fetched.push({
-          candidateId: docSnap.id,
-          ...docSnap.data()
-        } as EnrollmentState);
+        const data = docSnap.data() as EnrollmentState;
+        const candidateId = docSnap.id;
+        
+        if (candidateId.startsWith('INV-')) {
+          const year = new Date().getFullYear();
+          let regNo = data.registrationNo ? data.registrationNo.replace(/\\s+/g, '').toUpperCase() : '';
+          if (!regNo) regNo = candidateId.includes('ADM') ? `ADM${Date.now().toString(36).toUpperCase()}` : Math.floor(100000 + Math.random() * 900000).toString(16).toUpperCase();
+          const newId = `${year}IN${regNo}`;
+          
+          setTimeout(async () => {
+             try {
+               const newEnrollment = { ...data, candidateId: newId };
+               await setDoc(doc(db, 'enrollments', newId), newEnrollment);
+               await deleteDoc(doc(db, 'enrollments', candidateId));
+             } catch (e) { console.error("Admin migration failed", e); }
+          }, 0);
+        } else {
+          fetched.push({ candidateId, ...data });
+        }
       });
       fetched.sort((a, b) => new Date(b.enrollmentDate || '').getTime() - new Date(a.enrollmentDate || '').getTime());
       setAllEnrollments(fetched);
@@ -243,25 +252,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
       setTestResults(results);
     }, () => {});
 
-    // Load project submissions
-    const submissionsCol = collection(db, 'projectSubmissions');
-    const unsubSubmissions = onSnapshot(submissionsCol, (snap) => {
-      const subs: ProjectSubmission[] = [];
-      snap.forEach(d => subs.push({ id: d.id, ...d.data() } as ProjectSubmission));
-      subs.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
-      setProjectSubmissions(subs);
-    }, () => {});
-
-    // Load project specs
-    const specsCol = collection(db, 'weeklyProjectDefs');
-    const unsubSpecs = onSnapshot(specsCol, (snap) => {
-      const specs: WeeklyProjectDef[] = [];
-      snap.forEach(d => specs.push({ id: d.id, ...d.data() } as WeeklyProjectDef));
-      specs.sort((a, b) => a.weekNumber - b.weekNumber);
-      setAllProjectSpecs(specs);
-    }, () => {});
-
-    return () => { unsubscribe(); unsubDomains(); unsubMaterials(); unsubQuestions(); unsubResults(); unsubSubmissions(); unsubSpecs(); };
+    return () => { unsubscribe(); unsubDomains(); unsubMaterials(); unsubQuestions(); unsubResults(); };
   }, []);
 
   // ─── Helpers ───
@@ -295,12 +286,17 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
       const docRef = doc(db, 'enrollments', editingEnrollment.candidateId);
       await updateDoc(docRef, {
         fullName: editName,
+        email: editEmail,
         collegeName: editCollege,
+        registrationNo: editRegistrationNo,
         degree: editDegree,
+        fieldOfStudy: editFieldOfStudy,
+        currentYear: editCurrentYear,
+        passingYear: editPassingYear,
         durationWeeks: editDuration,
         phone: editPhone,
-        fieldOfStudy: editFieldOfStudy,
-        startDate: editStartDate
+        startDate: editStartDate,
+        trainingMode: editTrainingMode
       });
       addLog(`Updated profile for ${editName} (${editingEnrollment.candidateId})`, 'user');
       setEditingEnrollment(null);
@@ -318,7 +314,8 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
     }
     setEnrollLoading(true);
     try {
-      const candidateId = `INV-ADM-${Date.now().toString(36).toUpperCase()}`;
+      const year = new Date().getFullYear();
+      const candidateId = `${year}INADM${Date.now().toString(36).toUpperCase()}`;
       const newEnrollment: EnrollmentState = {
         ...enrollForm,
         candidateId,
@@ -687,58 +684,6 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
     } catch (err) { console.error(err); }
   };
 
-  // ─── PROJECT SPECS CRUD ───
-  const handleAddProjectSpec = async () => {
-    if (!specForm.domainId || !specForm.title || !specForm.description) return;
-    try {
-      await addDoc(collection(db, 'weeklyProjectDefs'), {
-        domainId: specForm.domainId,
-        weekNumber: specForm.weekNumber,
-        title: specForm.title,
-        description: specForm.description
-      });
-      addLog(`Added project spec for week ${specForm.weekNumber} in ${specForm.domainId}`, 'setting');
-      setShowAddSpecModal(false);
-      setSpecForm({ domainId: '', weekNumber: 1, title: '', description: '' });
-    } catch (err) { console.error(err); }
-  };
-
-  const handleRemoveProjectSpec = async (specId: string) => {
-    try {
-      await deleteDoc(doc(db, 'weeklyProjectDefs', specId));
-      addLog(`Removed project spec: ${specId}`, 'setting');
-    } catch (err) { console.error(err); }
-  };
-
-  const handleSeedProjectSpecs = async (domainId: string) => {
-    const defaults = DEFAULT_WEEKLY_PROJECTS[domainId];
-    if (!defaults) return;
-    try {
-      for (const p of defaults) {
-        await addDoc(collection(db, 'weeklyProjectDefs'), { domainId, ...p });
-      }
-      addLog(`Seeded ${defaults.length} default project specs for ${domainId}`, 'setting');
-    } catch (err) { console.error(err); }
-  };
-
-  const handleSeedAllProjectSpecs = async () => {
-    if (!confirm('Are you sure you want to seed default weekly projects for ALL 31 domains?')) return;
-    let totalSeeded = 0;
-    try {
-      for (const domain of allDomains) {
-        const defaults = DEFAULT_WEEKLY_PROJECTS[domain.id];
-        if (defaults) {
-          for (const p of defaults) {
-            await addDoc(collection(db, 'weeklyProjectDefs'), { domainId: domain.id, ...p });
-            totalSeeded++;
-          }
-        }
-      }
-      addLog(`Bulk seeded ${totalSeeded} default project specs across all domains`, 'setting');
-      alert(`Successfully seeded ${totalSeeded} project specs!`);
-    } catch (err) { console.error(err); }
-  };
-
   // Get all domains (Firestore + hardcoded merged)
   const allDomains = useMemo(() => {
     const fsIds = firestoreDomains.map(d => d.id);
@@ -752,9 +697,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
     { id: 'certificates', label: 'Certificates', icon: Award, badge: certifiedCount },
     { id: 'domains', label: 'Domain Management', icon: Globe },
     { id: 'materials', label: 'Study Materials', icon: BookOpen, badge: allMaterials.length },
-    { id: 'projectSpecs', label: 'Weekly Projects', icon: Layers, badge: allProjectSpecs.length },
     { id: 'mcqTests', label: 'MCQ Tests', icon: FileQuestion, badge: allQuestions.length },
-    { id: 'projectSubmissions', label: 'Project Submissions', icon: Laptop, badge: projectSubmissions.length },
     { id: 'settings', label: 'Settings', icon: Settings2 },
     { id: 'logs', label: 'Activity Logs', icon: Activity, badge: logs.length },
     { id: 'errors', label: 'Error Reports', icon: AlertTriangle, badge: activeErrors },
@@ -1425,12 +1368,17 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                                   onClick={() => {
                                     setEditingEnrollment(enr);
                                     setEditName(enr.fullName);
+                                    setEditEmail(enr.email || '');
                                     setEditCollege(enr.collegeName || '');
+                                    setEditRegistrationNo(enr.registrationNo || '');
                                     setEditDegree(enr.degree || 'B.Tech');
+                                    setEditFieldOfStudy(enr.fieldOfStudy || '');
+                                    setEditCurrentYear(enr.currentYear || '3rd Year');
+                                    setEditPassingYear(enr.passingYear || '2027');
                                     setEditDuration(enr.durationWeeks);
                                     setEditPhone(enr.phone || '');
-                                    setEditFieldOfStudy(enr.fieldOfStudy || '');
                                     setEditStartDate(enr.startDate || '');
+                                    setEditTrainingMode(enr.trainingMode || 'online');
                                   }}
                                   className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer"
                                 >
@@ -2048,159 +1996,6 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
             </motion.div>
           )}
 
-          {/* ═══════════════════════ PROJECT SUBMISSIONS SECTION ═══════════════════════ */}
-          {activeSection === 'projectSubmissions' && (
-            <motion.div
-              key="projectSubmissions"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="space-y-6"
-            >
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-[2rem] border border-slate-200 shadow-sm">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
-                    <Laptop className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900">Project Submissions</h2>
-                    <p className="text-xs text-slate-500 font-medium mt-0.5">
-                      Review weekly GitHub project submissions from students
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        <th className="p-4 pl-6">Student</th>
-                        <th className="p-4">Domain</th>
-                        <th className="p-4">Week</th>
-                        <th className="p-4">Submission Link</th>
-                        <th className="p-4 text-right pr-6">Date</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {projectSubmissions.length === 0 ? (
-                        <tr>
-                          <td colSpan={5} className="p-10 text-center text-slate-500 text-sm">
-                            <Laptop className="h-10 w-10 mx-auto text-slate-300 mb-3" />
-                            No project submissions found.
-                          </td>
-                        </tr>
-                      ) : (
-                        projectSubmissions.map(sub => (
-                          <tr key={sub.id} className="hover:bg-slate-50/50 transition-colors">
-                            <td className="p-4 pl-6">
-                              <div className="flex items-center gap-3">
-                                <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-xs">
-                                  {sub.studentName.charAt(0)}
-                                </div>
-                                <span className="text-sm font-bold text-slate-800">{sub.studentName}</span>
-                              </div>
-                            </td>
-                            <td className="p-4">
-                              <span className="text-xs font-semibold text-slate-600 px-2 py-1 bg-slate-100 rounded-md">
-                                {getDomainTitle(sub.domainId)}
-                              </span>
-                            </td>
-                            <td className="p-4">
-                              <span className="text-xs font-bold text-indigo-700 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100">
-                                Week {sub.weekNumber}
-                              </span>
-                            </td>
-                            <td className="p-4">
-                              <a href={sub.githubLink} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg border border-blue-200 transition-colors w-fit">
-                                <ExternalLink className="h-3 w-3" /> View Repository
-                              </a>
-                            </td>
-                            <td className="p-4 text-right pr-6 text-xs text-slate-500 font-mono">
-                              {new Date(sub.submittedAt).toLocaleDateString()}
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </motion.div>
-          )}
-
-          {/* ═══ PROJECT SPECS SECTION ═══ */}
-          {activeSection === 'projectSpecs' && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-800">Weekly Project Definitions</h2>
-                  <p className="text-xs text-slate-500 mt-1">Define project prompts per week for each domain.</p>
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => setShowAddSpecModal(true)} className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl flex items-center gap-2 cursor-pointer shadow-sm">
-                    <Plus className="h-4 w-4" /> Add Project Spec
-                  </button>
-                </div>
-              </div>
-
-              {/* Quick seed buttons */}
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
-                <div className="flex justify-between items-center">
-                  <h4 className="text-xs font-bold text-amber-800">Quick Seed Default Project Specs</h4>
-                  <button onClick={handleSeedAllProjectSpecs} className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold rounded-lg cursor-pointer transition-all shadow-sm">
-                    Seed ALL Domains
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {Object.keys(DEFAULT_WEEKLY_PROJECTS).map(domainId => {
-                    const existing = allProjectSpecs.filter(p => p.domainId === domainId).length;
-                    return (
-                      <button key={domainId} onClick={() => handleSeedProjectSpecs(domainId)} disabled={existing > 0} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border cursor-pointer ${existing > 0 ? 'bg-slate-100 text-slate-400 border-slate-200' : 'bg-white text-amber-700 border-amber-300 hover:bg-amber-100'}`}>
-                        {getDomainTitle(domainId)} ({existing} specs)
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Filter */}
-              <div className="flex gap-2 flex-wrap">
-                <button onClick={() => setSpecDomainFilter('All')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border cursor-pointer ${specDomainFilter === 'All' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200'}`}>All ({allProjectSpecs.length})</button>
-                {allDomains.slice(0, 8).map(d => {
-                  const count = allProjectSpecs.filter(p => p.domainId === d.id).length;
-                  return (
-                    <button key={d.id} onClick={() => setSpecDomainFilter(d.id)} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border cursor-pointer ${specDomainFilter === d.id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200'}`}>{d.title} ({count})</button>
-                  );
-                })}
-              </div>
-
-              {/* Specs list */}
-              <div className="space-y-3">
-                {(specDomainFilter === 'All' ? allProjectSpecs : allProjectSpecs.filter(p => p.domainId === specDomainFilter)).map((p) => (
-                  <div key={p.id} className="bg-white border border-slate-200 rounded-xl p-4 space-y-2">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <span className="text-[10px] text-slate-500 font-mono">{getDomainTitle(p.domainId)} • Week {p.weekNumber}</span>
-                        <p className="text-sm font-bold text-slate-800 mt-1">{p.title}</p>
-                        <p className="text-xs text-slate-600 mt-1">{p.description}</p>
-                      </div>
-                      <button onClick={() => handleRemoveProjectSpec(p.id!)} className="p-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 cursor-pointer">
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {allProjectSpecs.length === 0 && (
-                  <div className="text-center py-12 text-slate-400 text-sm">
-                    <Layers className="h-10 w-10 mx-auto mb-3 text-slate-300" />
-                    No project specs added yet. Use the seed buttons above or add manually.
-                  </div>
-                )}
-              </div>
-            </motion.div>
-          )}
-
           {/* ═══ DOMAINS MANAGEMENT SECTION ═══ */}
           {activeSection === 'domains' && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -2568,45 +2363,30 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
               </div>
 
               <div className="space-y-3.5 text-xs">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 max-h-[60vh] overflow-y-auto px-1 py-1">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Full Name</label>
-                    <input
-                      type="text"
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm"
-                    />
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Full Name</label>
+                    <input type="text" value={editName} onChange={(e) => setEditName(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Start Date</label>
-                    <input
-                      type="date"
-                      value={editStartDate}
-                      onChange={(e) => setEditStartDate(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm"
-                    />
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Email</label>
+                    <input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Contact Number</label>
-                    <input
-                      type="text"
-                      value={editPhone}
-                      onChange={(e) => setEditPhone(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm"
-                    />
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Contact Number</label>
+                    <input type="text" value={editPhone} onChange={(e) => setEditPhone(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
                   </div>
                   <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Field of Study</label>
-                    <input type="text" value={editFieldOfStudy} onChange={(e) => setEditFieldOfStudy(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 focus:ring-2 focus:ring-blue-200 outline-none" />
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">College Name</label>
+                    <input type="text" value={editCollege} onChange={(e) => setEditCollege(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
                   </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Degree</label>
-                    <select value={editDegree} onChange={(e) => setEditDegree(e.target.value)}
-                      className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 focus:ring-2 focus:ring-blue-200 outline-none">
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Registration No</label>
+                    <input type="text" value={editRegistrationNo} onChange={(e) => setEditRegistrationNo(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Degree</label>
+                    <select value={editDegree} onChange={(e) => setEditDegree(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm">
                       <option value="B.Tech">B.Tech</option>
                       <option value="Diploma">Diploma</option>
                       <option value="BCA">BCA</option>
@@ -2617,12 +2397,39 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                     </select>
                   </div>
                   <div className="space-y-1">
-                    <label className="font-bold text-slate-700">Duration (Weeks)</label>
-                    <select value={editDuration} onChange={(e) => setEditDuration(Number(e.target.value))}
-                      className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-3 focus:ring-2 focus:ring-blue-200 outline-none">
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Field of Study</label>
+                    <input type="text" value={editFieldOfStudy} onChange={(e) => setEditFieldOfStudy(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Current Year</label>
+                    <select value={editCurrentYear} onChange={(e) => setEditCurrentYear(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm">
+                      <option value="1st Year">1st Year</option>
+                      <option value="2nd Year">2nd Year</option>
+                      <option value="3rd Year">3rd Year</option>
+                      <option value="4th Year">4th Year</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Passing Year</label>
+                    <input type="text" value={editPassingYear} onChange={(e) => setEditPassingYear(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Start Date</label>
+                    <input type="date" value={editStartDate} onChange={(e) => setEditStartDate(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm" />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Duration (Weeks)</label>
+                    <select value={editDuration} onChange={(e) => setEditDuration(Number(e.target.value))} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm">
                       <option value={4}>4 Weeks</option>
                       <option value={8}>8 Weeks</option>
                       <option value={12}>12 Weeks</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Training Mode</label>
+                    <select value={editTrainingMode} onChange={(e) => setEditTrainingMode(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium outline-none focus:border-blue-500 focus:bg-white transition-all shadow-sm">
+                      <option value="online">Online</option>
+                      <option value="offline">Offline</option>
                     </select>
                   </div>
                 </div>
@@ -2759,24 +2566,6 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                 <div><label className="text-xs font-bold">Correct Option</label><select value={questionForm.correctIndex} onChange={e => setQuestionForm({...questionForm, correctIndex: Number(e.target.value)})} className="w-full px-3 py-2 border rounded-lg text-sm"><option value={0}>Option A</option><option value={1}>Option B</option><option value={2}>Option C</option><option value={3}>Option D</option></select></div>
               </div>
               <div className="p-5 border-t border-slate-100 flex justify-end gap-3 sticky bottom-0 bg-white"><button onClick={() => setShowAddQuestionModal(false)} className="px-4 py-2 border rounded-xl font-bold text-xs">Cancel</button><button onClick={handleAddQuestion} className="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-xs">Save Question</button></div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* ─── ADD PROJECT SPEC MODAL ─── */}
-      <AnimatePresence>
-        {showAddSpecModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-              <div className="p-5 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white"><h3 className="font-bold">Add Project Spec</h3><button onClick={() => setShowAddSpecModal(false)} className="p-2 bg-slate-50 rounded-full"><X className="h-4 w-4" /></button></div>
-              <div className="p-5 space-y-3">
-                <div><label className="text-xs font-bold">Domain</label><select value={specForm.domainId} onChange={e => setSpecForm({...specForm, domainId: e.target.value})} className="w-full px-3 py-2 border rounded-lg text-sm"><option value="">Select Domain...</option>{allDomains.map(d => <option key={d.id} value={d.id}>{d.title}</option>)}</select></div>
-                <div><label className="text-xs font-bold">Week Number</label><input type="number" value={specForm.weekNumber} onChange={e => setSpecForm({...specForm, weekNumber: parseInt(e.target.value) || 1})} className="w-full px-3 py-2 border rounded-lg text-sm" min={1} max={52} /></div>
-                <div><label className="text-xs font-bold">Title</label><input type="text" value={specForm.title} onChange={e => setSpecForm({...specForm, title: e.target.value})} className="w-full px-3 py-2 border rounded-lg text-sm" /></div>
-                <div><label className="text-xs font-bold">Description</label><textarea value={specForm.description} onChange={e => setSpecForm({...specForm, description: e.target.value})} className="w-full px-3 py-2 border rounded-lg text-sm" rows={4} /></div>
-              </div>
-              <div className="p-5 border-t border-slate-100 flex justify-end gap-3 sticky bottom-0 bg-white"><button onClick={() => setShowAddSpecModal(false)} className="px-4 py-2 border rounded-xl font-bold text-xs">Cancel</button><button onClick={handleAddProjectSpec} className="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold text-xs">Save Spec</button></div>
             </motion.div>
           </div>
         )}

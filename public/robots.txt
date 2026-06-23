@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /nexus
+
+Sitemap: https://invigoinfotech.in/sitemap.xml

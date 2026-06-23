@@ -135,21 +135,3 @@ export interface MaterialProgress {
   domainId: string;
   completedMaterialIds: string[];
 }
-
-export interface ProjectSubmission {
-  id?: string;
-  candidateId: string;
-  domainId: string;
-  studentName: string;
-  weekNumber: number;
-  githubLink: string;
-  submittedAt: string;
-}
-
-export interface WeeklyProjectDef {
-  id?: string;
-  domainId: string;
-  weekNumber: number;
-  title: string;
-  description: string;
-}

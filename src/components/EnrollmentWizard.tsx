@@ -132,8 +132,9 @@ export default function EnrollmentWizard({
   };
 
   const generateCandidateId = () => {
-    const randomHex = Math.floor(100000 + Math.random() * 900000).toString(16).toUpperCase();
-    return `INV-2026-X${randomHex}`;
+    const year = new Date().getFullYear();
+    const regNo = formData.registrationNo ? formData.registrationNo.replace(/\s+/g, '').toUpperCase() : Math.floor(100000 + Math.random() * 900000).toString(16).toUpperCase();
+    return `${year}IN${regNo}`;
   };
 
   const handleFormSubmit = (e: FormEvent) => {

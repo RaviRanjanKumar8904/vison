@@ -156,19 +156,7 @@ export default function HomeView({
                   </p>
                 </div>
                 
-                {onClearEnrollments && (
-                  <button
-                    onClick={() => {
-                      if (window.confirm("Are you sure you want to clear your current enrollment to try a different domain? This will reset your progress.")) {
-                        onClearEnrollments();
-                      }
-                    }}
-                    className="self-start md:self-center px-4 py-2.5 text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 rounded-xl transition-all flex items-center gap-1.5 bg-white cursor-pointer shadow-xs"
-                  >
-                    <Trash2 className="h-4 w-4 text-rose-500" />
-                    <span>Reset & Choose Different Domain</span>
-                  </button>
-                )}
+
               </div>
 
               {/* Grid of Friendly Quick Shortcuts */}

@@ -628,7 +628,7 @@ export const FAQS: FAQItem[] = [
   },
   {
     question: 'What happens immediately after we complete the enrollment wizard?',
-    answer: 'An automated offer matrix evaluates your academic inputs. In 5-10 seconds, a futuristic digital offer with a unique candidate ID (e.g. INV-2026-X8A4D) is synthesized. You can download this admission letter and access your student dashboard immediately.'
+    answer: 'An automated offer matrix evaluates your academic inputs. In 5-10 seconds, a futuristic digital offer with a unique candidate ID (e.g. 2026IN123456) is synthesized. You can download this admission letter and access your student dashboard immediately.'
   },
   {
     question: 'Can I switch my domain halfway through the internship?',
@@ -1051,70 +1051,3 @@ export const DEFAULT_MCQ_QUESTIONS: Record<string, { question: string; options: 
     { question: 'What is the ultimate goal of Supply Chain?', options: ['To waste time', 'To deliver value and solve problems', 'To confuse people', 'To break things'], correctIndex: 1 },
   ],
 };
-
-export const DEFAULT_WEEKLY_PROJECTS: Record<string, { weekNumber: number; title: string; description: string }[]> = {};
-
-INTERNSHIP_DOMAINS.forEach(domain => {
-  DEFAULT_WEEKLY_PROJECTS[domain.id] = [
-    { 
-      weekNumber: 1, 
-      title: 'Environment Setup & Research', 
-      description: 'Step 1: Install the necessary software and tools required for your domain (e.g., VS Code, Python, AutoCAD, or specific design tools).\nStep 2: Create a dedicated project folder on your local machine.\nStep 3: Initialize a version control repository (like Git) in your project folder.\nStep 4: Review the introductory study materials provided in your dashboard to understand the fundamental concepts.\nStep 5: Create a basic "Hello World" or starter file to verify your environment is working correctly.\nStep 6: Push your initial setup to a public GitHub/GitLab repository and submit the link.' 
-    },
-    { 
-      weekNumber: 2, 
-      title: 'Core Architecture & Planning', 
-      description: 'Step 1: Define the core problem your project is solving and write a brief requirements document.\nStep 2: Sketch out the architecture, wireframes, or blueprints of your project.\nStep 3: Break down the main features into smaller, manageable tasks.\nStep 4: Set up the foundational structure of your project (e.g., routing, database schema, base CAD layers, or initial model parameters).\nStep 5: Document your planned architecture in a README.md file and commit the changes.' 
-    },
-    { 
-      weekNumber: 3, 
-      title: 'Initial Implementation', 
-      description: 'Step 1: Begin building the primary functionality based on your Week 2 architecture.\nStep 2: Focus on creating the "Happy Path" – the basic, error-free workflow of your project.\nStep 3: Use the concepts learned from this week\'s study materials to implement core algorithms or designs.\nStep 4: Conduct a self-review of your code/design to ensure it aligns with standard best practices.\nStep 5: Push your progress to your repository.' 
-    },
-    { 
-      weekNumber: 4, 
-      title: 'Advanced Features Integration', 
-      description: 'Step 1: Identify areas where advanced logic, complex styling, or intricate designs are needed.\nStep 2: Integrate secondary features that complement the core functionality.\nStep 3: If coding, connect your frontend to a backend API or mock database. If designing, add realistic materials and lighting.\nStep 4: Refactor any messy code or disorganized project files from the previous week.\nStep 5: Commit your advanced feature implementations with descriptive commit messages.' 
-    },
-    { 
-      weekNumber: 5, 
-      title: 'Testing and Debugging', 
-      description: 'Step 1: Create a list of test cases covering all edge cases and potential user inputs.\nStep 2: Execute these test cases manually (or write automated tests if applicable to your domain).\nStep 3: Log any bugs, glitches, or design flaws you discover during testing.\nStep 4: Systematically fix the issues you logged, starting from the most critical.\nStep 5: Document the bugs fixed in a changelog and update your repository.' 
-    },
-    { 
-      weekNumber: 6, 
-      title: 'Optimization & Best Practices', 
-      description: 'Step 1: Audit your project for performance bottlenecks (e.g., slow load times, high memory usage, heavy render times).\nStep 2: Implement optimization techniques such as code splitting, asset compression, or reducing polygon counts.\nStep 3: Ensure your project adheres to industry security and accessibility standards.\nStep 4: Review your project against the provided domain study materials to ensure no best practices were missed.\nStep 5: Push the optimized version of your project.' 
-    },
-    { 
-      weekNumber: 7, 
-      title: 'Peer Review & Refinement', 
-      description: 'Step 1: Show your current project state to a peer, mentor, or use a static analysis tool to get feedback.\nStep 2: Analyze the feedback received and prioritize actionable changes.\nStep 3: Implement UI/UX refinements to make the project more intuitive and visually appealing.\nStep 4: Clean up any commented-out code, unused variables, or redundant design files.\nStep 5: Commit the refined project state.' 
-    },
-    { 
-      weekNumber: 8, 
-      title: 'Deployment & Presentation', 
-      description: 'Step 1: Prepare your project for a production environment or final export.\nStep 2: Deploy your project to a live server (e.g., Vercel, Netlify) or export it to a standard, shareable format (e.g., PDF, MP4).\nStep 3: Write a comprehensive final report or create a presentation deck summarizing your work.\nStep 4: Record a short 2-3 minute demo video showcasing your project\'s features.\nStep 5: Submit the final repository link, ensuring your README contains the live deployment link and demo video.' 
-    },
-    { 
-      weekNumber: 9, 
-      title: 'Post-Launch Analytics & Feedback', 
-      description: 'Step 1: If applicable, integrate basic analytics tools to track usage.\nStep 2: Share your deployed project with external users and collect feedback.\nStep 3: Analyze the feedback to identify areas for future improvement.\nStep 4: Document the user feedback in your repository\'s issue tracker.\nStep 5: Plan a small patch or update based on the most critical feedback received.' 
-    },
-    { 
-      weekNumber: 10, 
-      title: 'Scaling & Architecture Review', 
-      description: 'Step 1: Review your project\'s architecture to determine how it would handle 10x the traffic or data.\nStep 2: Identify single points of failure or bottlenecks in your current design.\nStep 3: Draft a scaling proposal document outlining how you would upgrade the database, servers, or design pipeline.\nStep 4: Implement one minor scaling improvement (e.g., adding database indexing or optimizing API calls).\nStep 5: Push your scaling proposal and code changes to your repository.' 
-    },
-    { 
-      weekNumber: 11, 
-      title: 'Open Source Preparation', 
-      description: 'Step 1: Ensure your repository is clean and all sensitive data (like API keys) is removed.\nStep 2: Add an open-source license (e.g., MIT or GPL) to your repository.\nStep 3: Write a CONTRIBUTING.md file outlining how others can contribute to your project.\nStep 4: Create a set of "good first issues" in your repository\'s issue tracker.\nStep 5: Finalize your documentation to make the project fully accessible to outside developers.' 
-    },
-    { 
-      weekNumber: 12, 
-      title: 'Final Capstone Portfolio Integration', 
-      description: 'Step 1: Polish every aspect of your project to professional, portfolio-ready standards.\nStep 2: Take high-quality screenshots or generate final renders of your work.\nStep 3: Write a detailed case study explaining the problem, your solution, and the technologies used.\nStep 4: Add the project to your personal portfolio website or LinkedIn profile.\nStep 5: Submit the final, polished repository link as your ultimate Capstone submission.' 
-    }
-  ];
-});

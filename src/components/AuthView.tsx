@@ -559,16 +559,7 @@ export default function AuthView({ onLoginSuccess, setCurrentTab, preselectedDom
                 )}
               </button>
 
-              {/* Convenience Quick Fill Button */}
-              <div className="pt-3 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={handleQuickDemoFill}
-                  className="w-full py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-[11px] text-blue-600 hover:text-blue-700 font-bold border border-slate-200 transition-all cursor-pointer shadow-xs"
-                >
-                  ⚡ One-click Demo Student Login
-                </button>
-              </div>
+
 
             </form>
           ) : (

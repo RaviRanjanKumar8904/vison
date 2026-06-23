@@ -1,5 +1,8 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
+
+const ADMIN_EMAIL = (import.meta.env.VITE_ADMIN_EMAIL || '').toLowerCase();
 import Header from './components/Header';
+// Admin email from env
 import Footer from './components/Footer';
 import { EnrollmentState, StudentUser } from './types';
 import { auth, db, handleFirestoreError, OperationType } from './firebase';
@@ -111,7 +114,7 @@ export default function App() {
             const userData = docSnap.data() as StudentUser;
             setCurrentUser(userData);
             // Only redirect admin to admin panel on auth state change
-            if (userData.email.toLowerCase() === 'raviranjan8904@gmail.com') {
+            if (userData.email.toLowerCase() === ADMIN_EMAIL) {
               setCurrentTab('admin');
             }
           } else {
@@ -123,7 +126,7 @@ export default function App() {
               phone: '',
             };
             setCurrentUser(basicUser);
-            if (basicUser.email.toLowerCase() === 'raviranjan8904@gmail.com') {
+            if (basicUser.email.toLowerCase() === ADMIN_EMAIL) {
               setCurrentTab('admin');
             }
           }
@@ -156,7 +159,27 @@ export default function App() {
       (snapshot) => {
         const fetchedEnrollments: EnrollmentState[] = [];
         snapshot.forEach((docSnap) => {
-          fetchedEnrollments.push(docSnap.data() as EnrollmentState);
+          const data = docSnap.data() as EnrollmentState;
+          
+          // Auto-migrate old IDs
+          if (data.candidateId && data.candidateId.startsWith('INV-')) {
+             const year = new Date().getFullYear();
+             const regNo = data.registrationNo ? data.registrationNo.replace(/\\s+/g, '').toUpperCase() : Math.floor(100000 + Math.random() * 900000).toString(16).toUpperCase();
+             const newId = `${year}IN${regNo}`;
+             
+             // Run async migration without blocking
+             setTimeout(async () => {
+               try {
+                 const newEnrollment = { ...data, candidateId: newId };
+                 await setDoc(doc(db, 'enrollments', newId), newEnrollment);
+                 await deleteDoc(doc(db, 'enrollments', data.candidateId));
+               } catch (e) {
+                 console.error("Migration failed", e);
+               }
+             }, 0);
+          } else {
+            fetchedEnrollments.push(data);
+          }
         });
         // Sort chronologically desc
         fetchedEnrollments.sort(
@@ -174,7 +197,7 @@ export default function App() {
 
   const handleLoginSuccess = (user: StudentUser) => {
     setCurrentUser(user);
-    if (user.email.toLowerCase() === 'raviranjan8904@gmail.com') {
+    if (user.email.toLowerCase() === ADMIN_EMAIL) {
       setCurrentTab('admin');
     } else {
       // After login, redirect to HOME page instead of nexus
@@ -336,7 +359,7 @@ export default function App() {
           )}
 
           {currentTab === 'admin' && (
-            currentUser && currentUser.email.toLowerCase() === 'raviranjan8904@gmail.com' ? (
+            currentUser && currentUser.email.toLowerCase() === ADMIN_EMAIL ? (
               <AdminPanel 
                 currentUser={currentUser} 
                 setCurrentTab={setCurrentTab}

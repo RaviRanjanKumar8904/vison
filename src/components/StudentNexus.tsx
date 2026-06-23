@@ -7,7 +7,7 @@ import {
   Camera, Save, Lock, Unlock, FileType, XCircle, X
 } from 'lucide-react';
 import { INTERNSHIP_DOMAINS } from '../data';
-import { EnrollmentState, StudyMaterial, MCQQuestion, ProjectSubmission, WeeklyProjectDef } from '../types';
+import { EnrollmentState, StudyMaterial, MCQQuestion } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { downloadCertificatePDF, downloadOfferLetterPDF } from '../utils/pdfGenerator';
 import { db } from '../firebase';
@@ -175,12 +175,6 @@ export default function StudentNexus({
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [isSubmittingTest, setIsSubmittingTest] = useState(false);
 
-  // Project Submissions State
-  const [submissions, setSubmissions] = useState<ProjectSubmission[]>([]);
-  const [githubLinkInput, setGithubLinkInput] = useState('');
-  const [submittingWeek, setSubmittingWeek] = useState<number | null>(null);
-  const [projectSpecs, setProjectSpecs] = useState<WeeklyProjectDef[]>([]);
-
   const [retryUtr, setRetryUtr] = useState('');
   const [retryAmount, setRetryAmount] = useState('');
   const [isRetrying, setIsRetrying] = useState(false);
@@ -244,26 +238,7 @@ export default function StudentNexus({
           setTestResult(null);
         }
       });
-
-      // Fetch project submissions
-      const subQ = query(collection(db, 'projectSubmissions'), 
-        where('candidateId', '==', activeEnrollment.candidateId)
-      );
-      const unsubSub = onSnapshot(subQ, snap => {
-        const subs: ProjectSubmission[] = [];
-        snap.forEach(d => subs.push({ id: d.id, ...d.data() } as ProjectSubmission));
-        setSubmissions(subs);
-      });
-
-      // Fetch project specs
-      const specQ = query(collection(db, 'weeklyProjectDefs'), where('domainId', '==', activeEnrollment.domainId));
-      const unsubSpec = onSnapshot(specQ, snap => {
-        const specs: WeeklyProjectDef[] = [];
-        snap.forEach(d => specs.push({ id: d.id, ...d.data() } as WeeklyProjectDef));
-        setProjectSpecs(specs);
-      });
-
-      return () => { unsubMat(); unsubQ(); unsubRes(); unsubSub(); unsubSpec(); };
+      return () => { unsubMat(); unsubQ(); unsubRes(); };
     }
 
     return () => { unsubMat(); unsubQ(); };
@@ -397,29 +372,6 @@ export default function StudentNexus({
       console.error(e);
     }
     setIsSubmittingTest(false);
-  };
-
-  const handleProjectSubmit = async (week: number) => {
-    if (!githubLinkInput.trim() || (!githubLinkInput.includes('github.com') && !githubLinkInput.includes('gitlab.com'))) {
-      alert("Please enter a valid GitHub or GitLab repository link.");
-      return;
-    }
-    setSubmittingWeek(week);
-    try {
-      await addDoc(collection(db, 'projectSubmissions'), {
-        candidateId: activeEnrollment.candidateId,
-        domainId: activeEnrollment.domainId,
-        studentName: activeEnrollment.fullName,
-        weekNumber: week,
-        githubLink: githubLinkInput.trim(),
-        submittedAt: new Date().toISOString()
-      });
-      setGithubLinkInput('');
-    } catch (e) {
-      console.error(e);
-      alert("Failed to submit project. Please try again.");
-    }
-    setSubmittingWeek(null);
   };
 
   const handleMentorBooking = (e: FormEvent) => {
@@ -989,163 +941,95 @@ export default function StudentNexus({
                 </div>
               )}
 
-              {/* Weekly Projects Section */}
-              {activeEnrollment.paymentVerified && (
-                <div className="mt-8 pt-6 border-t border-slate-200 space-y-4">
-                  <h4 className="font-bold text-lg text-slate-900 flex items-center gap-2">
-                    <Laptop className="h-5 w-5 text-indigo-600" /> Weekly Project Submissions
-                  </h4>
-                  <div className="space-y-4">
-                    {Array.from({ length: activeEnrollment.durationWeeks }).map((_, i) => {
-                      const week = i + 1;
-                      const existingSub = submissions.find(s => s.weekNumber === week);
-                      const spec = projectSpecs.find(s => s.weekNumber === week);
-                      
-                      return (
-                        <div key={week} className="p-4 rounded-xl border border-slate-200 bg-white shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                          <div className="flex-1">
-                            <h5 className="font-bold text-sm text-slate-800">
-                              Week {week} Project{spec ? `: ${spec.title}` : ''}
-                            </h5>
-                            {spec && <p className="text-xs text-slate-600 mt-1 mb-2 max-w-2xl whitespace-pre-wrap">{spec.description}</p>}
-                            {existingSub ? (
-                              <p className="text-xs text-emerald-600 font-bold flex items-center gap-1 mt-1">
-                                <CheckCircle className="h-3.5 w-3.5" /> Submitted
-                              </p>
-                            ) : (
-                              <p className="text-xs text-slate-400 font-bold flex items-center gap-1 mt-1">
-                                <Clock className="h-3.5 w-3.5" /> Pending submission
-                              </p>
-                            )}
-                          </div>
-                          
-                          {existingSub ? (
-                            <a href={existingSub.githubLink} target="_blank" rel="noopener noreferrer" className="px-4 py-2 bg-slate-50 text-slate-600 text-xs font-bold rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors flex items-center gap-2">
-                              <ExternalLink className="h-3.5 w-3.5" /> View Submission
-                            </a>
-                          ) : submittingWeek === week ? (
-                            <div className="flex w-full sm:w-auto gap-2">
-                              <input
-                                type="url"
-                                placeholder="https://github.com/..."
-                                value={githubLinkInput}
-                                onChange={e => setGithubLinkInput(e.target.value)}
-                                className="flex-1 sm:w-64 px-3 py-1.5 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500"
-                              />
-                              <button onClick={() => handleProjectSubmit(week)} className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 cursor-pointer">
-                                Submit
-                              </button>
-                              <button onClick={() => { setSubmittingWeek(null); setGithubLinkInput(''); }} className="px-2 py-1.5 bg-slate-100 text-slate-500 text-xs font-bold rounded-lg hover:bg-slate-200 cursor-pointer">
-                                <X className="h-4 w-4" />
-                              </button>
-                            </div>
-                          ) : (
-                            <button onClick={() => setSubmittingWeek(week)} className="px-4 py-2 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-lg border border-indigo-200 hover:bg-indigo-100 transition-colors cursor-pointer">
-                              Submit Project Link
-                            </button>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
               {/* Assessment Section */}
-              {activeEnrollment.paymentVerified && materials.length > 0 && (
+              {activeEnrollment.paymentVerified && materials.length > 0 && unlockedMaterials.length >= materials.length && (
                 <div className="mt-8 pt-6 border-t border-slate-200 space-y-4">
                   <h4 className="font-bold text-lg text-slate-900 flex items-center gap-2">
                     <Trophy className="h-5 w-5 text-amber-500" /> Final Domain Assessment
                   </h4>
                   
-                  {unlockedMaterials.length >= materials.length && submissions.length >= activeEnrollment.durationWeeks ? (
-                    <>
-                      {testResult ? (
-                        <div className={`p-5 rounded-2xl border ${testResult.passed ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
-                          <div className="flex items-center gap-3 mb-2">
-                            {testResult.passed ? <CheckCircle className="h-6 w-6 text-emerald-600" /> : <XCircle className="h-6 w-6 text-red-600" />}
-                            <h5 className={`font-bold text-lg ${testResult.passed ? 'text-emerald-800' : 'text-red-800'}`}>
-                              {testResult.passed ? 'Assessment Passed!' : 'Assessment Failed'}
-                            </h5>
-                          </div>
-                          <p className={`text-sm ${testResult.passed ? 'text-emerald-700' : 'text-red-700'}`}>
-                            Your score: <strong>{testResult.score}%</strong> (Required: 60%)
-                          </p>
-                          {testResult.passed ? (
-                            <p className="text-xs text-emerald-600 mt-2 font-medium">You are now eligible to claim your completion certificate from the Certificate tab.</p>
-                          ) : (
-                            <button onClick={() => setTestResult(null)} className="mt-3 px-4 py-2 bg-white text-red-600 border border-red-200 rounded-xl text-xs font-bold hover:bg-red-50 cursor-pointer">
-                              Retake Assessment
-                            </button>
-                          )}
-                        </div>
-                      ) : activeTest ? (
-                        <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
-                          <div className="flex justify-between items-center mb-4">
-                            <h5 className="font-bold text-slate-800">Question {currentQIndex + 1} of {questions.length}</h5>
-                            <span className="text-xs font-mono bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-bold">Pass: 60%</span>
-                          </div>
-                          
-                          <div className="space-y-4">
-                            <p className="text-sm font-semibold text-slate-800">{questions[currentQIndex]?.question}</p>
-                            <div className="space-y-2">
-                              {questions[currentQIndex]?.options.map((opt, i) => (
-                                <button
-                                  key={i}
-                                  onClick={() => setAnswers({...answers, [currentQIndex]: i})}
-                                  className={`w-full text-left p-3 rounded-xl border text-sm transition-all cursor-pointer ${answers[currentQIndex] === i ? 'border-blue-500 bg-blue-50 text-blue-800 font-bold' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-600'}`}
-                                >
-                                  {String.fromCharCode(65 + i)}. {opt}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className="flex justify-between pt-4 border-t border-slate-100">
-                            <button 
-                              onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))}
-                              disabled={currentQIndex === 0}
-                              className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 disabled:opacity-50 cursor-pointer"
-                            >
-                              Previous
-                            </button>
-                            {currentQIndex < questions.length - 1 ? (
-                              <button 
-                                onClick={() => setCurrentQIndex(currentQIndex + 1)}
-                                disabled={answers[currentQIndex] === undefined}
-                                className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white disabled:opacity-50 cursor-pointer"
-                              >
-                                Next
-                              </button>
-                            ) : (
-                              <button 
-                                onClick={submitMCQTest}
-                                disabled={isSubmittingTest || Object.keys(answers).length < questions.length}
-                                className="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white disabled:opacity-50 cursor-pointer flex items-center gap-2"
-                              >
-                                {isSubmittingTest ? 'Submitting...' : 'Finish & Submit'} <Send className="h-3.5 w-3.5" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center space-y-4">
-                          <p className="text-sm text-blue-800">
-                            You have completed all materials. It's time to test your knowledge!
-                          </p>
-                          <button onClick={() => { setActiveTest(true); setCurrentQIndex(0); setAnswers({}); }} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md cursor-pointer inline-block">
-                            Start Assessment
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 text-center flex flex-col items-center justify-center space-y-2">
-                      <Lock className="h-8 w-8 text-slate-400" />
-                      <p className="text-sm font-bold text-slate-600">Assessment Locked</p>
-                      <p className="text-xs text-slate-500 max-w-sm">
-                        Please complete all study materials and submit all weekly projects to unlock your final domain assessment.
+                  {testResult ? (
+                    <div className={`p-5 rounded-2xl border ${testResult.passed ? 'bg-emerald-50 border-emerald-200' : 'bg-red-50 border-red-200'}`}>
+                      <div className="flex items-center gap-3 mb-2">
+                        {testResult.passed ? <CheckCircle className="h-6 w-6 text-emerald-600" /> : <XCircle className="h-6 w-6 text-red-600" />}
+                        <h5 className={`font-bold text-lg ${testResult.passed ? 'text-emerald-800' : 'text-red-800'}`}>
+                          {testResult.passed ? 'Assessment Passed!' : 'Assessment Failed'}
+                        </h5>
+                      </div>
+                      <p className={`text-sm ${testResult.passed ? 'text-emerald-700' : 'text-red-700'}`}>
+                        Your score: <strong>{testResult.score}%</strong> (Required: 60%)
                       </p>
+                      {testResult.passed ? (
+                        <p className="text-xs text-emerald-600 mt-2 font-medium">You are now eligible to claim your completion certificate from the Certificate tab.</p>
+                      ) : (
+                        <button onClick={() => setTestResult(null)} className="mt-3 px-4 py-2 bg-white text-red-600 border border-red-200 rounded-xl text-xs font-bold hover:bg-red-50 cursor-pointer">
+                          Retake Assessment
+                        </button>
+                      )}
+                    </div>
+                  ) : activeTest ? (
+                    <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+                      <div className="flex justify-between items-center mb-4">
+                        <h5 className="font-bold text-slate-800">Question {currentQIndex + 1} of {questions.length}</h5>
+                        <span className="text-xs font-mono bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full font-bold">Pass: 60%</span>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <p className="text-sm font-semibold text-slate-800">{questions[currentQIndex]?.question}</p>
+                        <div className="space-y-2">
+                          {questions[currentQIndex]?.options.map((opt, i) => (
+                            <button
+                              key={i}
+                              onClick={() => setAnswers({...answers, [currentQIndex]: i})}
+                              className={`w-full text-left p-3 rounded-xl border text-sm transition-all cursor-pointer ${answers[currentQIndex] === i ? 'border-blue-500 bg-blue-50 text-blue-800 font-bold' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-600'}`}
+                            >
+                              {String.fromCharCode(65 + i)}. {opt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between pt-4 border-t border-slate-100">
+                        <button 
+                          onClick={() => setCurrentQIndex(Math.max(0, currentQIndex - 1))}
+                          disabled={currentQIndex === 0}
+                          className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-600 disabled:opacity-50 cursor-pointer"
+                        >
+                          Previous
+                        </button>
+                        {currentQIndex < questions.length - 1 ? (
+                          <button 
+                            onClick={() => setCurrentQIndex(currentQIndex + 1)}
+                            disabled={answers[currentQIndex] === undefined}
+                            className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white disabled:opacity-50 cursor-pointer"
+                          >
+                            Next Question
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={submitMCQTest}
+                            disabled={Object.keys(answers).length < questions.length || isSubmittingTest}
+                            className="px-5 py-2 rounded-xl text-xs font-bold bg-emerald-600 text-white disabled:opacity-50 hover:bg-emerald-700 flex items-center gap-2 cursor-pointer shadow-sm"
+                          >
+                            {isSubmittingTest ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                            Submit Assessment
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl flex flex-col sm:flex-row justify-between items-center gap-4">
+                      <div>
+                        <h5 className="font-bold text-slate-800 text-sm">Ready for the test?</h5>
+                        <p className="text-xs text-slate-500 mt-1">10 multiple choice questions. Requires 60% to pass.</p>
+                      </div>
+                      <button 
+                        onClick={() => { setActiveTest(true); setCurrentQIndex(0); setAnswers({}); }} 
+                        disabled={questions.length === 0}
+                        className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-sm text-sm cursor-pointer disabled:opacity-50 w-full sm:w-auto text-center"
+                      >
+                        {questions.length === 0 ? 'No Questions Available' : 'Start Assessment'}
+                      </button>
                     </div>
                   )}
                 </div>
