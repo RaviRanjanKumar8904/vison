@@ -93,10 +93,27 @@ export default function HomeView({
         {/* HERO SECTION */}
         <div className="text-center space-y-6 sm:space-y-8 max-w-4xl mx-auto py-8 sm:py-12 md:py-24">
           
+          {/* Coupon Offer Banner */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="mx-auto"
+          >
+            <div className="inline-flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 p-1 rounded-full shadow-lg shadow-purple-500/25 border border-purple-400/30">
+              <span className="bg-white/20 text-white text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-md">
+                Special Offer
+              </span>
+              <span className="text-white text-xs sm:text-sm font-semibold pr-4">
+                New users use code <span className="font-mono font-extrabold bg-white text-purple-700 px-2 py-0.5 rounded shadow-sm">IAMNEW</span> to get <span className="text-yellow-300 font-bold">33% OFF!</span>
+              </span>
+            </div>
+          </motion.div>
+
           {/* Headline Pill */}
           <motion.div 
             initial={{ opacity: 0, y: -20 }} 
             animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
             className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-blue-200 bg-blue-550/5 px-3 sm:px-4 py-1 sm:py-1.5 text-[10px] sm:text-xs font-semibold text-blue-600 tracking-wide"
           >
             <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600" />

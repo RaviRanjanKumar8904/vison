@@ -121,23 +121,23 @@ export default function InternshipsView({
               <h2 className="text-lg sm:text-xl font-display font-extrabold text-slate-900 flex flex-wrap items-center justify-center md:justify-start gap-2">
                 <span>Unified Academic Scholarship:</span>
                 <span className="text-slate-400 line-through font-mono font-normal">₹5,000</span>
-                <span className="text-emerald-700 font-mono">₹99 onwards!</span>
+                <span className="text-emerald-700 font-mono">₹149 onwards!</span>
               </h2>
               <p className="text-xs text-slate-600 max-w-xl">
-                Invigo academic boards have waived the structural cost of all 16 domains! Lock in your verified node seat instantly. Pay only for the cohort period you choose with our 99 learning matrix:
+                Invigo academic boards have waived the structural cost of all 16 domains! Lock in your verified node seat instantly. Pay only for the cohort period you choose with our 149 learning matrix:
               </p>
             </div>
             
             <div className="grid grid-cols-2 gap-4 w-full md:w-auto shrink-0 font-mono">
               <div className="p-4 rounded-2xl bg-white border border-slate-205 text-center space-y-1 min-w-32 shadow-xs">
                 <span className="text-[10px] text-slate-400 uppercase font-sans font-bold block">Online Mode</span>
-                <p className="text-xl font-extrabold text-blue-600">₹99 <span className="text-xs font-normal text-slate-500">/ wk</span></p>
-                <span className="text-[9px] text-emerald-650 font-sans block font-bold">Save 98% off ₹5,000</span>
+                <p className="text-xl font-extrabold text-blue-600">₹149 <span className="text-xs font-normal text-slate-500">/ wk</span></p>
+                <span className="text-[9px] text-emerald-650 font-sans block font-bold">Save 97% off ₹5,000</span>
               </div>
               <div className="p-4 rounded-2xl bg-white border border-slate-205 text-center space-y-1 min-w-32 shadow-xs">
                 <span className="text-[10px] text-slate-400 uppercase font-sans font-bold block">Offline Mode</span>
-                <p className="text-xl font-extrabold text-indigo-600">₹149 <span className="text-xs font-normal text-slate-500">/ wk</span></p>
-                <span className="text-[9px] text-emerald-650 font-sans block font-bold">Save 97% off ₹5,000</span>
+                <p className="text-xl font-extrabold text-indigo-600">₹199 <span className="text-xs font-normal text-slate-500">/ wk</span></p>
+                <span className="text-[9px] text-emerald-650 font-sans block font-bold">Save 96% off ₹5,000</span>
               </div>
             </div>
           </div>
@@ -285,9 +285,9 @@ export default function InternshipsView({
                   <div className="flex justify-between items-center bg-slate-50 border border-slate-100 px-3 py-1.5 rounded-xl font-mono text-[10px]">
                     <span className="text-slate-400 font-bold line-through">₹5,000</span>
                     <div className="flex items-center gap-2">
-                      <span className="text-blue-600 font-extrabold font-mono">Online: ₹99<span className="text-[8px] font-normal text-slate-500">/wk</span></span>
+                      <span className="text-blue-600 font-extrabold font-mono">Online: ₹149<span className="text-[8px] font-normal text-slate-500">/wk</span></span>
                       <span className="text-slate-300">|</span>
-                      <span className="text-indigo-600 font-extrabold font-mono">Offline: ₹149<span className="text-[8px] font-normal text-slate-500">/wk</span></span>
+                      <span className="text-indigo-600 font-extrabold font-mono">Offline: ₹199<span className="text-[8px] font-normal text-slate-500">/wk</span></span>
                     </div>
                   </div>
 

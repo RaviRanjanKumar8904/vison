@@ -8,11 +8,11 @@ import {
   Bell, Mail, ChevronLeft, ChevronRight, Download,
   Clock, Zap, Eye, EyeOff, Send, AlertCircle, CheckCircle,
   XCircle, Info, ChevronDown, ArrowUpDown, ArrowUp, ArrowDown, Calendar,
-  Plus, BookOpen, FileQuestion, Globe, Video, FileType, Layers, User
+  Plus, BookOpen, FileQuestion, Globe, Video, FileType, Layers, User, Tag
 } from 'lucide-react';
 import { db } from '../firebase';
 import { collection, onSnapshot, doc, updateDoc, deleteDoc, setDoc, getDocs, addDoc, query, where } from 'firebase/firestore';
-import { EnrollmentState, ActivityLog, PortalSettings, ErrorReport, StudyMaterial, MCQQuestion, InternshipDomain } from '../types';
+import { EnrollmentState, ActivityLog, PortalSettings, ErrorReport, StudyMaterial, MCQQuestion, InternshipDomain, Coupon } from '../types';
 import { INTERNSHIP_DOMAINS, DEFAULT_MCQ_QUESTIONS } from '../data';
 import { downloadCertificatePDF, downloadOfferLetterPDF, downloadAcceptanceLetterPDF } from '../utils/pdfGenerator';
 
@@ -21,7 +21,7 @@ interface AdminPanelProps {
   setCurrentTab: (tab: string) => void;
 }
 
-type AdminSection = 'dashboard' | 'users' | 'certificates' | 'logs' | 'errors' | 'communication' | 'domains' | 'materials' | 'mcqTests' | 'testResultsView';
+type AdminSection = 'dashboard' | 'users' | 'certificates' | 'logs' | 'errors' | 'communication' | 'domains' | 'materials' | 'mcqTests' | 'testResultsView' | 'coupons';
 
 // ─── Helper: resolve domain title from domainId ───
 function getDomainTitle(domainId: string): string {
@@ -169,6 +169,11 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
   const [questionDomainFilter, setQuestionDomainFilter] = useState('All');
   const [testResults, setTestResults] = useState<any[]>([]);
 
+  // Coupons
+  const [allCoupons, setAllCoupons] = useState<Coupon[]>([]);
+  const [showAddCouponModal, setShowAddCouponModal] = useState(false);
+  const [newCoupon, setNewCoupon] = useState({ code: '', discountPercent: 33, active: true });
+
   // ─── Load enrollments from Firestore ───
   useEffect(() => {
     const enrollmentsCol = collection(db, 'enrollments');
@@ -255,7 +260,20 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
       setTestResults(results);
     }, () => {});
 
-    return () => { unsubscribe(); unsubDomains(); unsubMaterials(); unsubQuestions(); unsubResults(); };
+    // Load coupons
+    const couponsCol = collection(db, 'coupons');
+    const unsubCoupons = onSnapshot(couponsCol, async (snap) => {
+      const cps: Coupon[] = [];
+      snap.forEach(d => cps.push({ id: d.id, ...d.data() } as Coupon));
+      if (cps.length === 0) {
+        try {
+          await setDoc(doc(db, 'coupons', 'IAMNEW'), { code: 'IAMNEW', discountPercent: 33, active: true });
+        } catch (e) { console.error(e); }
+      }
+      setAllCoupons(cps);
+    }, () => {});
+
+    return () => { unsubscribe(); unsubDomains(); unsubMaterials(); unsubQuestions(); unsubResults(); unsubCoupons(); };
   }, []);
 
   // ─── Helpers ───
@@ -706,6 +724,36 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
     } catch (err) { console.error(err); }
   };
 
+  // ─── Coupons CRUD ───
+  const handleAddCoupon = async () => {
+    if (!newCoupon.code.trim()) return;
+    try {
+      const code = newCoupon.code.toUpperCase().trim();
+      await setDoc(doc(db, 'coupons', code), {
+        code,
+        discountPercent: newCoupon.discountPercent,
+        active: newCoupon.active
+      });
+      addLog(`Added new coupon: ${code} (${newCoupon.discountPercent}%)`, 'setting');
+      setShowAddCouponModal(false);
+      setNewCoupon({ code: '', discountPercent: 33, active: true });
+    } catch (err) { console.error(err); }
+  };
+
+  const handleToggleCoupon = async (coupon: Coupon) => {
+    try {
+      await updateDoc(doc(db, 'coupons', coupon.id), { active: !coupon.active });
+      addLog(`Toggled coupon ${coupon.code} to ${!coupon.active ? 'Active' : 'Inactive'}`, 'setting');
+    } catch (err) { console.error(err); }
+  };
+
+  const handleRemoveCoupon = async (couponId: string) => {
+    try {
+      await deleteDoc(doc(db, 'coupons', couponId));
+      addLog(`Removed coupon: ${couponId}`, 'setting');
+    } catch (err) { console.error(err); }
+  };
+
   // Get all domains (Firestore + hardcoded merged)
   const allDomains = useMemo(() => {
     const fsIds = firestoreDomains.map(d => d.id);
@@ -721,6 +769,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
     { id: 'materials', label: 'Study Materials', icon: BookOpen, badge: allMaterials.length },
     { id: 'mcqTests', label: 'MCQ Tests', icon: FileQuestion, badge: allQuestions.length },
     { id: 'testResultsView', label: 'Test Results', icon: CheckCircle, badge: testResults.length },
+    { id: 'coupons', label: 'Coupons', icon: Tag, badge: allCoupons.length },
     { id: 'logs', label: 'Activity Logs', icon: Activity, badge: logs.length },
     { id: 'errors', label: 'Error Reports', icon: AlertTriangle, badge: activeErrors },
     { id: 'communication', label: 'Communication', icon: MessageSquare },
@@ -2173,6 +2222,65 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
               </div>
             </motion.div>
           )}
+          {/* Coupons View */}
+          {activeSection === 'coupons' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">Coupons Management</h2>
+                  <p className="text-xs text-slate-500 mt-1">Create and manage discount coupons for student enrollments.</p>
+                </div>
+                <button
+                  onClick={() => setShowAddCouponModal(true)}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm shadow-blue-500/20 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus className="h-4 w-4" />
+                  New Coupon
+                </button>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                {allCoupons.length > 0 ? (
+                  <table className="w-full text-xs">
+                    <thead><tr className="bg-slate-50 border-b border-slate-200">
+                      <th className="text-left px-4 py-3 font-bold text-slate-600">Coupon Code</th>
+                      <th className="text-center px-4 py-3 font-bold text-slate-600">Discount (%)</th>
+                      <th className="text-center px-4 py-3 font-bold text-slate-600">Status</th>
+                      <th className="text-right px-4 py-3 font-bold text-slate-600">Actions</th>
+                    </tr></thead>
+                    <tbody>
+                      {allCoupons.map(coupon => (
+                        <tr key={coupon.id} className="border-b border-slate-100 hover:bg-slate-50">
+                          <td className="px-4 py-3 font-mono font-bold text-purple-700">{coupon.code}</td>
+                          <td className="px-4 py-3 text-center font-bold text-emerald-600">{coupon.discountPercent}%</td>
+                          <td className="px-4 py-3 text-center">
+                            <button
+                              onClick={() => handleToggleCoupon(coupon)}
+                              className={`px-3 py-1 rounded-full text-[10px] font-bold cursor-pointer transition-colors ${
+                                coupon.active ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                              }`}
+                            >
+                              {coupon.active ? 'Active' : 'Inactive'}
+                            </button>
+                          </td>
+                          <td className="px-4 py-3 flex justify-end gap-2">
+                            <button onClick={() => handleRemoveCoupon(coupon.id)} className="p-1.5 text-slate-400 hover:text-red-500 rounded bg-slate-50 hover:bg-red-50 transition-colors" title="Delete">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="text-center py-12 text-slate-400 text-sm">
+                    <Tag className="h-10 w-10 mx-auto mb-3 text-slate-300" />
+                    No coupons created yet.
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
 
         </div>
       </main>
@@ -2627,6 +2735,63 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
               </div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── ADD COUPON MODAL ─── */}
+      <AnimatePresence>
+        {showAddCouponModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200"
+            >
+              <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                <h3 className="font-bold text-slate-800">Add New Coupon</h3>
+                <button onClick={() => setShowAddCouponModal(false)} className="p-1.5 bg-white hover:bg-slate-100 rounded-full text-slate-500 cursor-pointer shadow-xs border border-slate-200">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="p-5 space-y-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Coupon Code</label>
+                  <input
+                    type="text"
+                    value={newCoupon.code}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
+                    placeholder="e.g. IAMNEW"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none uppercase font-mono text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Discount Percentage (%)</label>
+                  <input
+                    type="number"
+                    value={newCoupon.discountPercent}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, discountPercent: Number(e.target.value) })}
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm"
+                  />
+                </div>
+              </div>
+              <div className="p-5 border-t border-slate-100 flex justify-end gap-2 bg-slate-50">
+                <button
+                  onClick={() => setShowAddCouponModal(false)}
+                  className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl text-xs transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleAddCoupon}
+                  disabled={!newCoupon.code.trim()}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  Save Coupon
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

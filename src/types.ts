@@ -32,6 +32,13 @@ export interface InternshipDomain {
   }[];
 }
 
+export interface Coupon {
+  id: string;
+  code: string;
+  discountPercent: number;
+  active: boolean;
+}
+
 export interface EnrollmentState {
   fullName: string;
   email: string;
@@ -55,6 +62,11 @@ export interface EnrollmentState {
   paymentVerified?: boolean;
   paymentStatus?: 'pending' | 'verified' | 'rejected';
   rejectionReason?: string;
+
+  // Added Coupon fields
+  appliedCouponCode?: string;
+  discountAmount?: number;
+  
   certificateIssued?: boolean;
   certificateDate?: string;
   blocked?: boolean;

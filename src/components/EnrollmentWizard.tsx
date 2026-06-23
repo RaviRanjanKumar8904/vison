@@ -1,10 +1,12 @@
 import { useState, useEffect, FormEvent } from 'react';
 import { 
   Sparkles, CheckCircle, GraduationCap, ChevronRight, User, Mail, 
-  Phone, Calendar, BookOpen, Award, ArrowRight, Download, RefreshCw, BookmarkCheck
+  Phone, Calendar, BookOpen, Award, ArrowRight, Download, RefreshCw, BookmarkCheck, Tag
 } from 'lucide-react';
 import { INTERNSHIP_DOMAINS } from '../data';
-import { EnrollmentState } from '../types';
+import { EnrollmentState, Coupon } from '../types';
+import { db } from '../firebase';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 import { StudentUser } from '../types';
 import { downloadOfferLetterPDF, downloadAcceptanceLetterPDF } from '../utils/pdfGenerator';
@@ -56,6 +58,11 @@ export default function EnrollmentWizard({
   const [paymentError, setPaymentError] = useState('');
   const [copyStatus, setCopyStatus] = useState<'upi' | 'amount' | null>(null);
 
+  const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
+  const [couponError, setCouponError] = useState('');
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+
   useEffect(() => {
     if (currentUser) {
       setFormData((prev) => ({
@@ -82,9 +89,50 @@ export default function EnrollmentWizard({
 
   useEffect(() => {
     if (currentStep === 4) {
-      setAmountPaidInput((formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149)).toString());
+      let base = formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199);
+      if (appliedCoupon) {
+        base = base - (base * appliedCoupon.discountPercent / 100);
+      }
+      setAmountPaidInput(Math.round(base).toString());
     }
-  }, [currentStep, formData.durationWeeks, formData.trainingMode]);
+  }, [currentStep, formData.durationWeeks, formData.trainingMode, appliedCoupon]);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCodeInput.trim()) return;
+    setIsApplyingCoupon(true);
+    setCouponError('');
+    try {
+      const querySnapshot = await getDocs(collection(db, 'coupons'));
+      let found: Coupon | null = null;
+      querySnapshot.forEach((doc) => {
+        const c = doc.data() as Coupon;
+        if (c.code.toUpperCase() === couponCodeInput.trim().toUpperCase() && c.active) {
+          found = c;
+        }
+      });
+      if (found) {
+        // Enforce one-time use per account
+        const enrollmentsRef = collection(db, 'enrollments');
+        const q = query(enrollmentsRef, where('email', '==', formData.email.toLowerCase()), where('appliedCouponCode', '==', found.code));
+        const pastEnrollments = await getDocs(q);
+        
+        if (!pastEnrollments.empty) {
+          setCouponError('You have already used this coupon code. It can only be used once per account.');
+          setAppliedCoupon(null);
+        } else {
+          setAppliedCoupon(found);
+        }
+      } else {
+        setCouponError('Invalid or inactive coupon code.');
+        setAppliedCoupon(null);
+      }
+    } catch (err) {
+      console.error(err);
+      setCouponError('Failed to apply coupon.');
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
 
   const validateStep = (step: number) => {
     const tempErrors: Record<string, string> = {};
@@ -150,7 +198,13 @@ export default function EnrollmentWizard({
 
   const handlePaymentComplete = (txnId: string) => {
     setIsSynthesizing(true);
-    const finalAmount = parseFloat(amountPaidInput) || (formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149));
+    let base = formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199);
+    let discountAmt = 0;
+    if (appliedCoupon) {
+      discountAmt = Math.round(base * appliedCoupon.discountPercent / 100);
+      base = base - discountAmt;
+    }
+    const finalAmount = parseFloat(amountPaidInput) || Math.round(base);
     
     // Simulate futuristic quantum credentials synthesis
     setTimeout(() => {
@@ -165,7 +219,9 @@ export default function EnrollmentWizard({
         paymentTxnId: txnId,
         paymentVerified: false,
         paymentStatus: 'pending',
-        certificateIssued: false
+        certificateIssued: false,
+        appliedCouponCode: appliedCoupon?.code,
+        discountAmount: discountAmt
       };
       
       setSynthesizedOffer(compiledOffer);
@@ -474,8 +530,8 @@ export default function EnrollmentWizard({
                           onChange={(e) => setFormData({ ...formData, trainingMode: e.target.value as 'online' | 'offline' })}
                           className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-xs sm:text-sm focus:outline-none focus:border-blue-500"
                         >
-                          <option value="online">Online Virtual Lab Mode (₹99/week)</option>
-                          <option value="offline">Offline Centers Immersive Mode (₹149/week)</option>
+                          <option value="online">Online Virtual Lab Mode (₹149/week)</option>
+                          <option value="offline">Offline Centers Immersive Mode (₹199/week)</option>
                         </select>
                       </div>
 
@@ -487,13 +543,13 @@ export default function EnrollmentWizard({
                         <div className="flex justify-between items-center text-xs mt-1">
                           <span className="text-slate-600 font-medium">SUBSIDIZED RATE:</span>
                           <span className="text-emerald-600 font-bold">
-                            ₹{formData.trainingMode === 'online' ? 99 : 149} <span className="text-[10px] font-normal text-slate-500">/ week</span>
+                            ₹{formData.trainingMode === 'online' ? 149 : 199} <span className="text-[10px] font-normal text-slate-500">/ week</span>
                           </span>
                         </div>
                         <div className="border-t border-slate-200 pt-2 flex justify-between items-center text-xs mt-2 font-bold text-slate-800">
                           <span>TOTAL SECURE DUE:</span>
                           <span className="text-blue-600 text-sm font-extrabold">
-                            ₹{formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149)}
+                            ₹{formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199)}
                           </span>
                         </div>
                       </div>
@@ -631,17 +687,28 @@ export default function EnrollmentWizard({
                   </div>
                   <div className="flex justify-between gap-4 text-emerald-600 font-semibold">
                     <span>Subsidy Waiver Apply:</span>
-                    <span>-₹{5000 - formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149)}</span>
+                    <span>-₹{5000 - formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199)}</span>
                   </div>
+
+                  {appliedCoupon && (
+                    <div className="flex justify-between gap-4 text-purple-600 font-bold bg-purple-50 p-1.5 -mx-1.5 px-1.5 rounded">
+                      <span className="flex items-center gap-1"><Tag className="w-3 h-3"/> Coupon ({appliedCoupon.code}):</span>
+                      <span>-₹{Math.round((formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199)) * appliedCoupon.discountPercent / 100)}</span>
+                    </div>
+                  )}
+
                   <div className="border-t border-slate-200 pt-3 flex justify-between font-bold text-sm text-slate-900">
                     <span>TOTAL AMOUNT DUE:</span>
                     <span className="text-emerald-600 font-sans font-extrabold text-xl flex items-center gap-1">
-                      ₹{formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149)}
+                      ₹{appliedCoupon 
+                          ? Math.round((formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199)) * (1 - appliedCoupon.discountPercent / 100))
+                          : formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199)}
                       <button 
                         type="button" 
                         onClick={() => {
-                          const val = (formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149)).toString();
-                          navigator.clipboard.writeText(val);
+                          const base = formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199);
+                          const finalPrice = appliedCoupon ? Math.round(base * (1 - appliedCoupon.discountPercent / 100)) : base;
+                          navigator.clipboard.writeText(finalPrice.toString());
                           setCopyStatus('amount');
                           setTimeout(() => setCopyStatus(null), 2000);
                         }}
@@ -660,6 +727,42 @@ export default function EnrollmentWizard({
                   </div>
                 </div>
               </div>
+
+              {/* Coupon Code Section */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm flex flex-col sm:flex-row gap-3 items-center">
+                <div className="flex-1 w-full relative">
+                  <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <input
+                    type="text"
+                    placeholder="Have a coupon code?"
+                    value={couponCodeInput}
+                    onChange={(e) => { setCouponCodeInput(e.target.value); setCouponError(''); }}
+                    disabled={!!appliedCoupon || isApplyingCoupon}
+                    className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-purple-500 focus:bg-white uppercase disabled:opacity-70 disabled:cursor-not-allowed"
+                  />
+                </div>
+                {appliedCoupon ? (
+                  <button
+                    type="button"
+                    onClick={() => { setAppliedCoupon(null); setCouponCodeInput(''); }}
+                    className="w-full sm:w-auto px-4 py-2 bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 rounded-xl text-xs font-bold transition-all shrink-0"
+                  >
+                    Remove
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleApplyCoupon}
+                    disabled={!couponCodeInput.trim() || isApplyingCoupon}
+                    className="w-full sm:w-auto px-4 py-2 bg-slate-900 text-white hover:bg-slate-800 disabled:bg-slate-400 rounded-xl text-xs font-bold transition-all shrink-0 flex items-center justify-center gap-1"
+                  >
+                    {isApplyingCoupon ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : null}
+                    Apply
+                  </button>
+                )}
+              </div>
+              {couponError && <p className="text-[10px] text-rose-500 font-mono -mt-4 px-2">{couponError}</p>}
+              {appliedCoupon && <p className="text-[10px] text-emerald-600 font-mono -mt-4 px-2 font-bold flex items-center gap-1"><CheckCircle className="w-3 h-3"/> Coupon Applied! You saved {appliedCoupon.discountPercent}%</p>}
 
               {/* Payment Scanner & Verification Form (Submit Amount and UTR Only) */}
               <div className="p-6 rounded-[2.5rem] bg-[#f5f8fc] border border-slate-200/80 flex flex-col justify-center items-center shadow-xs">
