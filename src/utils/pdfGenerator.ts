@@ -1,16 +1,46 @@
 import { jsPDF } from 'jspdf';
 import { EnrollmentState } from '../types';
 
-// ─── Helper: Draw simple QR code pattern ───
+export interface ManualCertData {
+  studentName: string;
+  registrationNo: string;
+  collegeName: string;
+  domainTitle: string;
+  durationWeeks: number;
+  trainingMode: string;
+  startDate: string;
+  issuedDate: string;
+  grade: string;
+}
+
+// ─── Image Cache ───
+const imageCache: Record<string, string> = {};
+
+async function getBase64ImageFromUrl(url: string): Promise<string | null> {
+  if (imageCache[url]) return imageCache[url];
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        imageCache[url] = reader.result as string;
+        resolve(reader.result as string);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (err) {
+    console.error('Failed to load image', url, err);
+    return null;
+  }
+}
+
+// ─── Helper: Draw QR code pattern ───
 function drawQRCode(doc: jsPDF, x: number, y: number, size: number, data: string) {
-  // Simple visual QR code pattern (not scannable, but looks authentic)
   const cellSize = size / 25;
-  doc.setFillColor(0, 0, 0);
-  
-  // Generate pseudo-random pattern from data string
   const hash = data.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
-  
-  // Fixed finder patterns (top-left, top-right, bottom-left)
   const drawFinder = (fx: number, fy: number) => {
     doc.setFillColor(0, 0, 0);
     doc.rect(fx, fy, cellSize * 7, cellSize * 7, 'F');
@@ -19,18 +49,13 @@ function drawQRCode(doc: jsPDF, x: number, y: number, size: number, data: string
     doc.setFillColor(0, 0, 0);
     doc.rect(fx + cellSize * 2, fy + cellSize * 2, cellSize * 3, cellSize * 3, 'F');
   };
-  
   drawFinder(x, y);
   drawFinder(x + cellSize * 18, y);
   drawFinder(x, y + cellSize * 18);
-  
-  // Data modules (pseudo-random)
   doc.setFillColor(0, 0, 0);
   for (let row = 0; row < 25; row++) {
     for (let col = 0; col < 25; col++) {
-      // Skip finder pattern areas
       if ((row < 8 && col < 8) || (row < 8 && col > 16) || (row > 16 && col < 8)) continue;
-      
       const seed = (hash + row * 31 + col * 37) % 100;
       if (seed < 45) {
         doc.rect(x + col * cellSize, y + row * cellSize, cellSize, cellSize, 'F');
@@ -43,7 +68,6 @@ function drawQRCode(doc: jsPDF, x: number, y: number, size: number, data: string
 function formatDate(dateStr: string): string {
   try {
     const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
     return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
   } catch {
     return dateStr;
@@ -61,640 +85,483 @@ function getEndDate(startDate: string, durationWeeks: number): string {
   }
 }
 
-// ─── Helper: duration in months text ───
-function getDurationText(weeks: number): string {
-  if (weeks <= 4) return '1 Month';
-  if (weeks <= 8) return '2 Months';
-  return '3 Months';
-}
-
-// ═══════════════════════════════════════════════════════════
-// CERTIFICATE PDF - Matching reference image style
-// ═══════════════════════════════════════════════════════════
-export function downloadCertificatePDF(cert: EnrollmentState, domainTitle: string) {
-  const doc = new jsPDF({
-    orientation: 'landscape',
-    unit: 'mm',
-    format: 'a4'
+// ─── Core: render mixed bold/normal line centered ───
+function renderCenteredLine(
+  doc: jsPDF,
+  segments: Array<{ text: string; bold: boolean }>,
+  y: number,
+  centerX: number,
+  fontSize: number
+) {
+  doc.setFontSize(fontSize);
+  let totalWidth = 0;
+  segments.forEach(seg => {
+    doc.setFont('helvetica', seg.bold ? 'bold' : 'normal');
+    totalWidth += doc.getTextWidth(seg.text);
   });
 
-  const W = 297; // width
-  const H = 210; // height
+  let x = centerX - totalWidth / 2;
+  segments.forEach(seg => {
+    doc.setFont('helvetica', seg.bold ? 'bold' : 'normal');
+    doc.setTextColor(0, 0, 0);
+    doc.text(seg.text, x, y);
+    x += doc.getTextWidth(seg.text);
+  });
+}
 
-  // ─── White background ───
+function drawRotatedRect(doc: jsPDF, cx: number, cy: number, width: number, height: number, angleDeg: number, color: [number, number, number]) {
+  const rad = angleDeg * Math.PI / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  const hw = width / 2;
+  const hh = height / 2;
+  const pts = [
+    [-hw, -hh],
+    [hw, -hh],
+    [hw, hh],
+    [-hw, hh]
+  ].map(([vx, vy]) => [
+    cx + vx * cos - vy * sin,
+    cy + vx * sin + vy * cos
+  ]);
+  doc.setFillColor(...color);
+  doc.triangle(pts[0][0], pts[0][1], pts[1][0], pts[1][1], pts[2][0], pts[2][1], 'F');
+  doc.triangle(pts[0][0], pts[0][1], pts[2][0], pts[2][1], pts[3][0], pts[3][1], 'F');
+}
+
+// ─── Build Certificate function ───
+async function buildCertificate(
+  doc: jsPDF,
+  opts: {
+    studentName: string;
+    registrationNo: string;
+    collegeName: string;
+    domainTitle: string;
+    durationWeeks: number;
+    trainingMode: string;
+    startDate: string;
+    issuedDate: string;
+    grade: string;
+    certNo: string;
+  }
+) {
+  const W = 297;
+  const H = 210;
+  const CX = W / 2;
+
+  // White background
   doc.setFillColor(255, 255, 255);
   doc.rect(0, 0, W, H, 'F');
 
-  const drawPoly = (pts: [number, number][], color: [number, number, number]) => {
-    doc.setFillColor(...color);
-    if (pts.length === 3) {
-      doc.triangle(pts[0][0], pts[0][1], pts[1][0], pts[1][1], pts[2][0], pts[2][1], 'F');
-    } else if (pts.length === 4) {
-      doc.triangle(pts[0][0], pts[0][1], pts[1][0], pts[1][1], pts[2][0], pts[2][1], 'F');
+  // Single inner border matching the sample exactly
+  doc.setDrawColor(180, 180, 180);
+  doc.setLineWidth(0.6);
+  doc.roundedRect(12, 12, W - 24, H - 24, 15, 15, 'S');
+
+  const fillQuad = (pts: [number, number][], rgb: [number, number, number]) => {
+    doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+    doc.triangle(pts[0][0], pts[0][1], pts[1][0], pts[1][1], pts[2][0], pts[2][1], 'F');
+    if (pts.length === 4) {
       doc.triangle(pts[0][0], pts[0][1], pts[2][0], pts[2][1], pts[3][0], pts[3][1], 'F');
     }
   };
 
-  // ─── Diagonal Corner Ribbons ───
-  // Top-Left
-  drawPoly([[0, 0], [50, 0], [0, 50]], [90, 168, 62]); // Green
-  drawPoly([[55, 0], [70, 0], [0, 70], [0, 55]], [241, 188, 24]); // Yellow
-  drawPoly([[75, 0], [105, 0], [0, 105], [0, 75]], [228, 28, 25]); // Red
-  drawPoly([[10, 105], [40, 75], [85, 120], [55, 150]], [54, 115, 203]); // Blue
+  const green: [number, number, number]  = [109, 179, 63];
+  const yellow: [number, number, number] = [242, 193, 13];
+  const red: [number, number, number]    = [237, 28, 36];
+  const blue: [number, number, number]   = [59, 107, 198];
 
-  // Bottom-Right
-  drawPoly([[W, H], [W - 50, H], [W, H - 50]], [241, 188, 24]); // Yellow
-  drawPoly([[W - 55, H], [W - 70, H], [W, H - 70], [W, H - 55]], [90, 168, 62]); // Green
-  drawPoly([[W - 75, H], [W - 105, H], [W, H - 105], [W, H - 75]], [54, 115, 203]); // Blue
-  drawPoly([[W - 10, H - 105], [W - 40, H - 75], [W - 85, H - 120], [W - 55, H - 150]], [228, 28, 25]); // Red
+  // Top-Left corner ribbons (angle 135)
+  fillQuad([[0, 0], [35, 0], [0, 35]], green);
+  drawRotatedRect(doc, 25, 25, 100, 5, 135, yellow);
+  drawRotatedRect(doc, 50, 15, 60, 14, 135, red);
+  drawRotatedRect(doc, 15, 60, 80, 25, 135, blue);
 
-  // ─── Inner border frame ───
-  doc.setDrawColor(200, 200, 200);
-  doc.setLineWidth(0.5);
-  doc.roundedRect(15, 15, W - 30, H - 30, 15, 15, 'S');
+  // Bottom-Right corner ribbons (angle 135)
+  fillQuad([[W, H], [W - 35, H], [W, H - 35]], yellow);
+  drawRotatedRect(doc, W - 25, H - 25, 100, 5, 135, green);
+  drawRotatedRect(doc, W - 50, H - 15, 60, 14, 135, red);
+  drawRotatedRect(doc, W - 15, H - 60, 80, 25, 135, blue);
 
-  // ─── Verification URL at top ───
+  // Top URL
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(15, 23, 42);
-  doc.text('Certificate Verification: https://www.invigoinfotech.in/verification    INVIGO EDUCARE PVT. LTD', W / 2, 10, { align: 'center' });
-
-  // ─── Top logos row ───
-  const logoY = 32;
-  
-  // MSME
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
+  doc.setFontSize(7);
   doc.setTextColor(0, 0, 0);
-  doc.text('MSME', 65, logoY);
-  doc.setFontSize(5);
-  doc.text('MICRO, SMALL & MEDIUM ENTERPRISES', 65, logoY + 4, { align: 'center' });
+  doc.text('Certificate Verification: https://www.invigoinfotech.in/verification    INVIGO EDUCARE PVT. LTD', W / 2, 8, { align: 'center' });
 
-  // Ministry of Corporate Affairs
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
-  doc.setTextColor(0, 0, 0);
-  doc.text('MINISTRY OF', 115, logoY - 2, { align: 'center' });
-  doc.text('CORPORATE AFFAIRS', 115, logoY + 2, { align: 'center' });
+  // ─── Fetch and draw images (Bigger sizes) ───
+  const logoY = 24;
 
-  // ISO Certified badge
-  doc.setDrawColor(37, 99, 235);
-  doc.setLineWidth(0.8);
-  doc.circle(165, logoY, 10, 'S');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(5);
-  doc.setTextColor(37, 99, 235);
-  doc.text('CERTIFIED', 165, logoY - 3, { align: 'center' });
-  doc.setFontSize(11);
-  doc.text('ISO', 165, logoY + 2, { align: 'center' });
-  doc.setFontSize(5);
-  doc.text('9001:2015', 165, logoY + 6, { align: 'center' });
+  const msmeImg = await getBase64ImageFromUrl('/msme_logo.png');
+  if (msmeImg) doc.addImage(msmeImg, 'PNG', 45, logoY - 4, 40, 20);
 
-  // DPIIT #startupindia
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.setTextColor(0, 0, 0);
-  doc.text('DPIIT', 215, logoY - 1, { align: 'center' });
-  doc.setFontSize(9);
-  doc.setTextColor(234, 88, 12);
-  doc.text('#startupindia', 215, logoY + 4, { align: 'center' });
+  const mcaImg = await getBase64ImageFromUrl('/MInistory_of_corporate_affairs.jpeg');
+  if (mcaImg) doc.addImage(mcaImg, 'JPEG', 100, logoY - 7, 26, 26);
 
-  // Invigo Infotech
-  doc.setFillColor(30, 58, 138);
-  doc.circle(265, logoY - 3, 6, 'F');
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(30, 58, 138);
-  doc.text('INVIGO', 265, logoY + 5, { align: 'center' });
-  doc.setFontSize(6);
-  doc.text('INFOTECH', 265, logoY + 8, { align: 'center' });
+  const isoImg = await getBase64ImageFromUrl('/ISO_Logo.png');
+  if (isoImg) doc.addImage(isoImg, 'PNG', 145, logoY - 5, 24, 24);
+
+  const dpiitImg = await getBase64ImageFromUrl('/DPIIT_startup_india.png');
+  if (dpiitImg) doc.addImage(dpiitImg, 'PNG', 185, logoY - 2, 45, 16);
+
+  const invigoLogoImg = await getBase64ImageFromUrl('/logo.jpg');
+  if (invigoLogoImg) doc.addImage(invigoLogoImg, 'JPEG', 245, logoY - 5, 22, 22);
 
   // ─── Title ───
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(22);
-  doc.setTextColor(0, 0, 0);
-  doc.text('Certificate of Completion', W / 2, 70, { align: 'center' });
-
-  // ─── Certificate body text ───
-  let startY = 90;
-  const lineSpacing = 10;
-  doc.setFontSize(12);
-
-  const drawMixedText = (texts: {text: string, bold?: boolean}[], y: number) => {
-    let currentX = W / 2;
-    let totalWidth = 0;
-    texts.forEach(item => {
-      doc.setFont('helvetica', item.bold ? 'bold' : 'normal');
-      totalWidth += doc.getTextWidth(item.text);
-    });
-    
-    let xOffset = currentX - (totalWidth / 2);
-    texts.forEach(item => {
-      doc.setFont('helvetica', item.bold ? 'bold' : 'normal');
-      doc.text(item.text, xOffset, y);
-      xOffset += doc.getTextWidth(item.text);
-    });
-  };
-
-  const regNoStr = cert.registrationNo || cert.candidateId;
-  const startFormatted = formatDate(cert.startDate);
-  const endFormatted = getEndDate(cert.startDate, cert.durationWeeks);
-  const modeText = cert.trainingMode === 'offline' ? 'Offline' : 'Online';
-
-  // Body text based strictly on provided image
-  drawMixedText([
-    { text: 'This is Certify that ' },
-    { text: cert.fullName + ', ', bold: true },
-    { text: 'Reg no- ' },
-    { text: regNoStr + ' ', bold: true },
-    { text: 'of ' }
-  ], startY);
-  
-  startY += lineSpacing;
-  drawMixedText([
-    { text: cert.collegeName + ' ', bold: true },
-    { text: 'has' }
-  ], startY);
-
-  startY += lineSpacing;
-  drawMixedText([
-    { text: 'successfully completed a ' },
-    { text: `${cert.durationWeeks} Weeks ${modeText} Training `, bold: true },
-    { text: 'program on ' },
-    { text: `"${domainTitle}" `, bold: true },
-    { text: 'during ' },
-    { text: '( ', bold: true }
-  ], startY);
-
-  startY += lineSpacing;
-  drawMixedText([
-    { text: `${startFormatted}- ${endFormatted} ) `, bold: true },
-    { text: 'in ' },
-    { text: 'Invigo Infotech', bold: true },
-    { text: '. We found candidate sincere,' }
-  ], startY);
-
-  startY += lineSpacing;
-  const scoreText = cert.testScore && cert.testScore >= 80 ? 'Excellent' : cert.testScore && cert.testScore >= 60 ? 'Good' : 'Good';
-  drawMixedText([
-    { text: 'hardworking, technically sound & result oriented and Score ' },
-    { text: scoreText, bold: true },
-    { text: ' in Assessment test.' }
-  ], startY);
-
-  startY += lineSpacing;
-  drawMixedText([
-    { text: 'We wish all the best for future endeavors.' }
-  ], startY);
-
-  startY += 18;
-  // ─── Issue date & Seal ───
-  const certDate = cert.certificateDate || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(14);
-  doc.text(`Issued on ${certDate}`, W / 2 - 25, startY, { align: 'center' });
-
-  // Ribbon seal
-  const sealX = W / 2 + 35;
-  const sealY = startY - 3;
-  drawPoly([[sealX - 8, sealY + 8], [sealX - 15, sealY + 22], [sealX - 3, sealY + 18]], [234, 179, 8]);
-  drawPoly([[sealX + 8, sealY + 8], [sealX + 15, sealY + 22], [sealX + 3, sealY + 18]], [234, 179, 8]);
-  doc.setFillColor(220, 38, 38);
-  doc.circle(sealX, sealY, 9, 'F');
-  doc.setDrawColor(255, 255, 255);
-  doc.setLineWidth(0.6);
-  doc.circle(sealX, sealY, 7, 'S');
-
-  const bottomY = H - 25;
-
-  // ─── Founder signature ───
-  doc.setDrawColor(0, 0, 0);
-  doc.setLineWidth(0.3);
-  doc.line(30, bottomY, 90, bottomY);
-
-  doc.setFont('times', 'italic');
   doc.setFontSize(24);
   doc.setTextColor(0, 0, 0);
-  doc.text('Priyanshu kumar', 40, bottomY - 5);
+  doc.text('Certificate of Completion', W / 2, 65, { align: 'center' });
 
+  // ─── Auto-Wrapping Body Text ───
+  const FS = 13;
+  const LS = 11; 
+  let y = 85;
+
+  const startFmt  = formatDate(opts.startDate);
+  const endFmt    = getEndDate(opts.startDate, opts.durationWeeks);
+  const modeText  = opts.trainingMode.charAt(0).toUpperCase() + opts.trainingMode.slice(1);
+  const remDate = startFmt.split(' ').slice(1).join(' ') + '- ' + endFmt;
+
+  // Function to perfectly wrap and center mixed bold/normal text
+  const wrapAndCenterText = (textObjArr: Array<{ text: string, bold: boolean }>, yStart: number, lineH: number, maxW: number) => {
+    let lines: Array<Array<{ text: string, bold: boolean, w: number }>> = [[]];
+    let currentLineW = 0;
+
+    for (const seg of textObjArr) {
+      doc.setFont('helvetica', seg.bold ? 'bold' : 'normal');
+      doc.setFontSize(FS);
+      const words = seg.text.split(/( )/); // split by spaces but keep the spaces
+
+      for (const word of words) {
+        if (!word) continue;
+        doc.setFont('helvetica', seg.bold ? 'bold' : 'normal');
+        const w = doc.getTextWidth(word);
+        
+        // Wrap if line is too long
+        if (word !== ' ' && currentLineW + w > maxW && lines[lines.length - 1].length > 0) {
+          lines.push([]);
+          currentLineW = 0;
+        }
+
+        const curLine = lines[lines.length - 1];
+        if (curLine.length > 0 && curLine[curLine.length - 1].bold === seg.bold) {
+          curLine[curLine.length - 1].text += word;
+          curLine[curLine.length - 1].w += w;
+        } else {
+          if (word === ' ' && currentLineW === 0) continue; // skip leading spaces on new line
+          curLine.push({ text: word, bold: seg.bold, w: w });
+        }
+        currentLineW += w;
+      }
+    }
+
+    let curY = yStart;
+    for (const line of lines) {
+      let lw = line.reduce((acc, s) => acc + s.w, 0);
+      let x = CX - lw / 2;
+      for (const seg of line) {
+        doc.setFont('helvetica', seg.bold ? 'bold' : 'normal');
+        doc.text(seg.text, x, curY);
+        x += seg.w;
+      }
+      curY += lineH;
+    }
+    return curY;
+  };
+
+  const bodyParagraph = [
+    { text: 'This is to Certify that ', bold: false },
+    { text: opts.studentName, bold: true },
+    { text: ', Reg no- ', bold: false },
+    { text: opts.registrationNo, bold: true },
+    { text: ' of ', bold: false },
+    { text: opts.collegeName, bold: true },
+    { text: ' has successfully completed a ', bold: false },
+    { text: `${opts.durationWeeks} Weeks ${modeText} Training `, bold: true },
+    { text: 'program on ', bold: false },
+    { text: `"${opts.domainTitle}" `, bold: true },
+    { text: 'during ( ', bold: false },
+    { text: startFmt.split(' ')[0] + ' ' + remDate + ' ) ', bold: true },
+    { text: 'in ', bold: false },
+    { text: 'Invigo Infotech', bold: true },
+    { text: '. We found the candidate sincere, hardworking, technically sound & result oriented and Scored ', bold: false },
+    { text: opts.grade, bold: true },
+    { text: ' in the Assessment test. ', bold: false },
+    { text: 'We wish them all the best for future endeavors.', bold: false }
+  ];
+
+  y = wrapAndCenterText(bodyParagraph, y, LS, 210);
+
+  // ─── Footer ───
+  y += 20; // Margin before footer elements
+  const issuedFmt = formatDate(opts.issuedDate);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.text('Founder ( Invigo Infotech )', 60, bottomY + 6, { align: 'center' });
+  doc.setFontSize(14);
+  doc.setTextColor(0, 0, 0);
+  
+  // Position "Issued on" exactly in the center (moved more upper)
+  doc.text('Issued on ' + issuedFmt, CX, y - 18, { align: 'center' });
 
-  // ─── Company stamp ───
-  const stampX = 130;
-  const stampY = bottomY - 15;
-  doc.setDrawColor(30, 58, 138);
-  doc.setLineWidth(0.5);
-  doc.circle(stampX, stampY, 15, 'S');
-  doc.circle(stampX, stampY, 11, 'S');
+  // Seal (Congrat Batch) directly to the right of "Issued on" (moved more upper and smaller)
+  const sealImg = await getBase64ImageFromUrl('/Congrat_batch.png');
+  if (sealImg) {
+    doc.addImage(sealImg, 'PNG', CX + 45, y - 29, 18, 18);
+  }
+
+  const bottomY = H - 32;
+
+  // Signature (Left side)
+  const signImg = await getBase64ImageFromUrl('/Founder_Singnature.png');
+  if (signImg) {
+    doc.addImage(signImg, 'PNG', 35, bottomY - 22, 46, 20);
+  }
+  doc.setDrawColor(0, 0, 0);
+  doc.setLineWidth(0.35);
+  doc.line(20, bottomY + 2, 90, bottomY + 2);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(6);
-  doc.setTextColor(30, 58, 138);
-  doc.text('* INVIGO INFOTECH *', stampX, stampY - 12, { align: 'center' });
-  doc.text('* PURNEA *', stampX, stampY + 14, { align: 'center' });
-  doc.setFontSize(5);
-  doc.text('INVIGO', stampX, stampY, { align: 'center' });
-  doc.text('INFOTECH', stampX, stampY + 4, { align: 'center' });
+  doc.setFontSize(11);
+  doc.setTextColor(0, 0, 0);
+  doc.text('Founder ( Invigo Infotech )', 55, bottomY + 8, { align: 'center' });
 
-  // ─── QR Code ───
-  drawQRCode(doc, 190, bottomY - 26, 25, cert.candidateId);
+  // Purnea Stamp perfectly centered below the "Issued on" date
+  const stampImg = await getBase64ImageFromUrl('/Stamp.png');
+  if (stampImg) {
+    // 36x36 image at CX - 18 is perfectly centered
+    doc.addImage(stampImg, 'PNG', CX - 18, bottomY - 22, 36, 36);
+  }
 
-  // ─── Certificate number ───
-  const shortYear = certDate.match(/\d{4}/)?.[0]?.slice(2) || new Date().getFullYear().toString().slice(2);
-  const certNumber = `${shortYear}IN${regNoStr}`;
+  // QR Code (Moved more to the left to avoid bottom-right ribbons)
+  const qrX = W - 92;
+  const qrImg = await getBase64ImageFromUrl('/Certificate_Verification_qr.jpeg');
+  if (qrImg) {
+    doc.addImage(qrImg, 'JPEG', qrX, bottomY - 20, 24, 24);
+  } else {
+    drawQRCode(doc, qrX, bottomY - 20, 24, opts.certNo);
+  }
+
+  // Cert Number right below QR Code
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0);
-  doc.text(`Certificate no: ${certNumber}`, 180, bottomY + 6);
+  doc.text('Certificate no: ' + opts.certNo, qrX + 12, bottomY + 6, { align: 'center' });
+}
 
-  // Save
+// ═══════════════════════════════════════════════
+// MANUAL CERTIFICATE GENERATOR
+// ═══════════════════════════════════════════════
+export async function generateManualCertificatePDF(data: ManualCertData): Promise<void> {
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const year2 = new Date(data.issuedDate).getFullYear().toString().slice(-2);
+  const certNo = `${year2}IN${data.registrationNo}`;
+  
+  await buildCertificate(doc, {
+    studentName: data.studentName,
+    registrationNo: data.registrationNo,
+    collegeName: data.collegeName,
+    domainTitle: data.domainTitle,
+    durationWeeks: data.durationWeeks,
+    trainingMode: data.trainingMode,
+    startDate: data.startDate,
+    issuedDate: data.issuedDate,
+    grade: data.grade,
+    certNo,
+  });
+
+  doc.save(`Certificate_${data.studentName.replace(/\s+/g, '_')}.pdf`);
+}
+
+// ═══════════════════════════════════════════════
+// ENROLLMENT-BASED CERTIFICATE
+// ═══════════════════════════════════════════════
+export async function downloadCertificatePDF(cert: EnrollmentState, domainTitle: string): Promise<void> {
+  const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+  const regNo = cert.registrationNo || cert.candidateId;
+  const issuedDate = cert.certificateDate
+    ? (() => {
+      const d = new Date(cert.certificateDate);
+      return isNaN(d.getTime()) ? new Date().toISOString().split('T')[0] : d.toISOString().split('T')[0];
+    })()
+    : new Date().toISOString().split('T')[0];
+
+  const year2 = new Date(issuedDate).getFullYear().toString().slice(-2);
+  const certNo = `${year2}IN${regNo}`;
+  const scoreText = cert.testScore && cert.testScore >= 80 ? 'Excellent' : cert.testScore && cert.testScore >= 60 ? 'Good' : 'Good';
+
+  await buildCertificate(doc, {
+    studentName: cert.fullName,
+    registrationNo: regNo,
+    collegeName: cert.collegeName,
+    domainTitle,
+    durationWeeks: cert.durationWeeks,
+    trainingMode: cert.trainingMode || 'offline',
+    startDate: cert.startDate,
+    issuedDate,
+    grade: scoreText,
+    certNo,
+  });
+
   doc.save(`Certificate_InvigoInfotech_${cert.fullName.replace(/\s+/g, '_')}.pdf`);
 }
 
-// ═══════════════════════════════════════════════════════════
-// OFFER LETTER PDF - Redesigned to match certificate style
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// OFFER LETTER PDF (unchanged)
+// ═══════════════════════════════════════════════
 export function downloadOfferLetterPDF(offer: EnrollmentState, domainTitle: string) {
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4'
-  });
-
-  const W = 210;
-  const H = 297;
-  const marginX = 20;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = 210, H = 297, marginX = 20;
   let currentY = 12;
 
-  // ─── Top accent bar ───
-  doc.setFillColor(30, 58, 138);
-  doc.rect(0, 0, W, 4, 'F');
-  
-  // Colored side stripes (left)
-  doc.setFillColor(220, 38, 38);
-  doc.rect(0, 0, 3, 40, 'F');
-  doc.setFillColor(34, 197, 94);
-  doc.rect(4, 0, 3, 30, 'F');
-  doc.setFillColor(234, 179, 8);
-  doc.rect(8, 0, 3, 20, 'F');
-
+  doc.setFillColor(30, 58, 138); doc.rect(0, 0, W, 4, 'F');
+  doc.setFillColor(220, 38, 38); doc.rect(0, 0, 3, 40, 'F');
+  doc.setFillColor(34, 197, 94); doc.rect(4, 0, 3, 30, 'F');
+  doc.setFillColor(234, 179, 8); doc.rect(8, 0, 3, 20, 'F');
   currentY += 8;
 
-  // ─── Logo & Header ───
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
-  doc.setTextColor(30, 58, 138);
-  doc.text('INVIGO INFOTECH', marginX, currentY + 6);
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(100, 116, 139);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(20);
+  doc.setTextColor(30, 58, 138); doc.text('INVIGO INFOTECH', marginX, currentY + 6);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(100, 116, 139);
   doc.text('Internship & Skill Development Platform', marginX, currentY + 11);
   doc.text('Web: www.invigoinfotech.in | Email: info@invigoinfotech.in', marginX, currentY + 15);
-
-  // Right side: ISO + Logo text
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.setTextColor(37, 99, 235);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(37, 99, 235);
   doc.text('ISO 9001:2015 Certified', W - marginX - 35, currentY + 6);
   doc.text('MSME Registered', W - marginX - 28, currentY + 11);
-
   currentY += 22;
 
-  // Horizontal separator
-  doc.setDrawColor(226, 232, 240);
-  doc.setLineWidth(0.5);
-  doc.line(marginX, currentY, W - marginX, currentY);
-  currentY += 8;
+  doc.setDrawColor(226, 232, 240); doc.setLineWidth(0.5);
+  doc.line(marginX, currentY, W - marginX, currentY); currentY += 8;
 
-  // ─── Document Title ───
-  doc.setFont('times', 'bolditalic');
-  doc.setFontSize(18);
-  doc.setTextColor(30, 58, 138);
-  doc.text('Internship Offer Letter', W / 2, currentY, { align: 'center' });
+  doc.setFont('times', 'bolditalic'); doc.setFontSize(18);
+  doc.setTextColor(30, 58, 138); doc.text('Internship Offer Letter', W / 2, currentY, { align: 'center' });
   currentY += 4;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(71, 85, 105);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(71, 85, 105);
   doc.text(`Reference ID: ${offer.candidateId}`, marginX, currentY + 4);
   doc.text(`Date: ${offer.enrollmentDate}`, W - marginX, currentY + 4, { align: 'right' });
   currentY += 12;
 
-  // ─── Details Box ───
   doc.setFillColor(248, 250, 252);
   doc.roundedRect(marginX, currentY, W - marginX * 2, 50, 3, 3, 'F');
   doc.setDrawColor(226, 232, 240);
   doc.roundedRect(marginX, currentY, W - marginX * 2, 50, 3, 3, 'S');
-
-  const gx1 = marginX + 5;
-  const gx2 = 115;
+  const gx1 = marginX + 5, gx2 = 115;
   let gy = currentY + 6;
-
-  // Left column
   const addField = (label: string, value: string, x: number, y: number) => {
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7);
-    doc.setTextColor(100, 116, 139);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(100, 116, 139);
     doc.text(label, x, y);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(15, 23, 42);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(15, 23, 42);
     doc.text(value, x, y + 4);
   };
-
   addField('CANDIDATE NAME:', offer.fullName.toUpperCase(), gx1, gy);
   addField('EMAIL:', offer.email, gx1, gy + 12);
   addField('COLLEGE:', offer.collegeName.length > 35 ? offer.collegeName.slice(0, 32) + '...' : offer.collegeName, gx1, gy + 24);
   addField('PAYMENT:', `Rs. ${offer.amountPaid || '0'} Paid`, gx1, gy + 36);
-
   addField('DOMAIN:', domainTitle, gx2, gy);
   addField('DURATION:', `${offer.durationWeeks} Weeks from ${offer.startDate}`, gx2, gy + 12);
   addField('MODE:', offer.trainingMode === 'online' ? 'Online' : 'Offline', gx2, gy + 24);
   addField('DEGREE:', `${offer.degree}`, gx2, gy + 36);
-
   currentY += 60;
 
-  // ─── Letter body ───
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.setTextColor(15, 23, 42);
-  doc.text(`Dear ${offer.fullName},`, marginX, currentY);
-  currentY += 8;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(51, 65, 85);
-  
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(15, 23, 42);
+  doc.text(`Dear ${offer.fullName},`, marginX, currentY); currentY += 8;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(51, 65, 85);
   const paragraphs = [
     `On behalf of Invigo Infotech, we are pleased to offer you the position of Intern in the ${domainTitle} domain. This is a structured internship program designed to strengthen your practical skills and professional capabilities.`,
-    
     `Throughout your ${offer.durationWeeks}-week internship, you will complete progressive milestones under the guidance of our experienced mentors. The program includes structured project modules, progress assessments, and hands-on exercises with industry-standard tools.`,
-    
     `Upon successful completion of all milestones and passing the assessment test (minimum 60% score required), you will receive a verified Certificate of Completion with a unique certificate code for employer verification.`,
-    
     `We look forward to having you as part of our learning community. Please access the Student Portal to track your progress and submit your work.`
   ];
-
   paragraphs.forEach((text) => {
-    const wrappedText = doc.splitTextToSize(text, W - marginX * 2);
-    doc.text(wrappedText, marginX, currentY);
-    currentY += wrappedText.length * 5 + 3;
+    const w = doc.splitTextToSize(text, W - marginX * 2);
+    doc.text(w, marginX, currentY); currentY += w.length * 5 + 3;
   });
-
   currentY += 8;
-
-  // ─── Signature block ───
-  doc.setDrawColor(226, 232, 240);
-  doc.line(marginX, currentY, W - marginX, currentY);
-  currentY += 8;
-
-  doc.setFont('times', 'italic');
-  doc.setFontSize(14);
-  doc.setTextColor(15, 23, 42);
-  doc.text('Priyanshu Kumar', marginX, currentY);
-  currentY += 5;
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
+  doc.setDrawColor(226, 232, 240); doc.line(marginX, currentY, W - marginX, currentY); currentY += 8;
+  doc.setFont('times', 'italic'); doc.setFontSize(14); doc.setTextColor(15, 23, 42);
+  doc.text('Priyanshu Kumar', marginX, currentY); currentY += 5;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
   doc.text('Founder, Invigo Infotech', marginX, currentY);
-
-  // QR code on signature line
   drawQRCode(doc, W - marginX - 20, currentY - 15, 18, offer.candidateId);
-
-  // ─── Footer ───
   currentY = H - 15;
-  doc.setDrawColor(226, 232, 240);
-  doc.line(marginX, currentY, W - marginX, currentY);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.setTextColor(148, 163, 184);
+  doc.setDrawColor(226, 232, 240); doc.line(marginX, currentY, W - marginX, currentY);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(148, 163, 184);
   doc.text('This offer letter is electronically generated by Invigo Infotech and does not require a physical signature.', W / 2, currentY + 4, { align: 'center' });
   doc.text(`Verification: https://www.invigoinfotech.in/verification | Ref: ${offer.candidateId}`, W / 2, currentY + 8, { align: 'center' });
-
-  // Bottom accent
-  doc.setFillColor(30, 58, 138);
-  doc.rect(0, H - 3, W, 3, 'F');
-
+  doc.setFillColor(30, 58, 138); doc.rect(0, H - 3, W, 3, 'F');
   doc.save(`Offer_Letter_InvigoInfotech_${offer.fullName.replace(/\s+/g, '_')}.pdf`);
 }
 
-// ═══════════════════════════════════════════════════════════
-// ACCEPTANCE LETTER PDF - Similar style to offer letter
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// ACCEPTANCE LETTER PDF (unchanged)
+// ═══════════════════════════════════════════════
 export function downloadAcceptanceLetterPDF(enrollment: EnrollmentState, domainTitle: string) {
-  const doc = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4'
-  });
-
-  const W = 210;
-  const H = 297;
-  const marginX = 20;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const W = 210, H = 297, marginX = 20;
   let currentY = 12;
-
-  // ─── Top accent bar ───
-  doc.setFillColor(16, 185, 129); // emerald
-  doc.rect(0, 0, W, 4, 'F');
-  
-  // Side stripes
-  doc.setFillColor(34, 197, 94);
-  doc.rect(0, 0, 3, 40, 'F');
-  doc.setFillColor(59, 130, 246);
-  doc.rect(4, 0, 3, 30, 'F');
-  doc.setFillColor(234, 179, 8);
-  doc.rect(8, 0, 3, 20, 'F');
-
+  doc.setFillColor(16, 185, 129); doc.rect(0, 0, W, 4, 'F');
+  doc.setFillColor(34, 197, 94); doc.rect(0, 0, 3, 40, 'F');
+  doc.setFillColor(59, 130, 246); doc.rect(4, 0, 3, 30, 'F');
+  doc.setFillColor(234, 179, 8); doc.rect(8, 0, 3, 20, 'F');
   currentY += 8;
-
-  // ─── Logo & Header ───
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
-  doc.setTextColor(30, 58, 138);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(30, 58, 138);
   doc.text('INVIGO INFOTECH', marginX, currentY + 6);
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(100, 116, 139);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(100, 116, 139);
   doc.text('Internship & Skill Development Platform', marginX, currentY + 11);
   doc.text('Web: www.invigoinfotech.in | Email: info@invigoinfotech.in', marginX, currentY + 15);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.setTextColor(16, 185, 129);
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(16, 185, 129);
   doc.text('ISO 9001:2015 Certified', W - marginX - 35, currentY + 6);
-
   currentY += 22;
-
-  doc.setDrawColor(226, 232, 240);
-  doc.setLineWidth(0.5);
-  doc.line(marginX, currentY, W - marginX, currentY);
-  currentY += 8;
-
-  // ─── Title ───
-  doc.setFont('times', 'bolditalic');
-  doc.setFontSize(18);
-  doc.setTextColor(16, 185, 129);
+  doc.setDrawColor(226, 232, 240); doc.setLineWidth(0.5);
+  doc.line(marginX, currentY, W - marginX, currentY); currentY += 8;
+  doc.setFont('times', 'bolditalic'); doc.setFontSize(18); doc.setTextColor(16, 185, 129);
   doc.text('Internship Acceptance Letter', W / 2, currentY, { align: 'center' });
   currentY += 4;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(71, 85, 105);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(9); doc.setTextColor(71, 85, 105);
   doc.text(`Reference ID: ${enrollment.candidateId}`, marginX, currentY + 4);
   doc.text(`Date: ${enrollment.enrollmentDate}`, W - marginX, currentY + 4, { align: 'right' });
   currentY += 12;
-
-  // ─── Details Box ───
-  doc.setFillColor(240, 253, 244); // emerald-50
-  doc.roundedRect(marginX, currentY, W - marginX * 2, 40, 3, 3, 'F');
-  doc.setDrawColor(187, 247, 208); // emerald-200
-  doc.roundedRect(marginX, currentY, W - marginX * 2, 40, 3, 3, 'S');
-
-  const gx1 = marginX + 5;
-  const gx2 = 115;
+  doc.setFillColor(240, 253, 244); doc.roundedRect(marginX, currentY, W - marginX * 2, 40, 3, 3, 'F');
+  doc.setDrawColor(187, 247, 208); doc.roundedRect(marginX, currentY, W - marginX * 2, 40, 3, 3, 'S');
+  const gx1b = marginX + 5, gx2b = 115;
   let gy2 = currentY + 6;
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.setTextColor(100, 116, 139);
-  doc.text('INTERN NAME:', gx1, gy2);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(15, 23, 42);
-  doc.text(enrollment.fullName, gx1, gy2 + 4);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.setTextColor(100, 116, 139);
-  doc.text('COLLEGE:', gx1, gy2 + 12);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(15, 23, 42);
-  const collegeText = enrollment.collegeName.length > 35 ? enrollment.collegeName.slice(0, 32) + '...' : enrollment.collegeName;
-  doc.text(`${enrollment.degree}, ${collegeText}`, gx1, gy2 + 16);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.setTextColor(100, 116, 139);
-  doc.text('INTERNSHIP DOMAIN:', gx2, gy2);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.setTextColor(16, 185, 129);
-  doc.text(domainTitle, gx2, gy2 + 4);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.setTextColor(100, 116, 139);
-  doc.text('DURATION:', gx2, gy2 + 12);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(15, 23, 42);
-  doc.text(`${enrollment.durationWeeks} Weeks | ${enrollment.trainingMode === 'offline' ? 'Offline' : 'Online'}`, gx2, gy2 + 16);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.setTextColor(100, 116, 139);
-  doc.text('START DATE:', gx1, gy2 + 26);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(15, 23, 42);
-  doc.text(formatDate(enrollment.startDate), gx1, gy2 + 30);
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.setTextColor(100, 116, 139);
-  doc.text('STATUS:', gx2, gy2 + 26);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
-  doc.setTextColor(16, 185, 129);
-  doc.text('ACCEPTED', gx2, gy2 + 30);
-
+  const addF2 = (label: string, value: string, x: number, y: number, color?: [number, number, number]) => {
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(100, 116, 139); doc.text(label, x, y);
+    doc.setFont('helvetica', 'bold'); doc.setFontSize(color ? 10 : 9);
+    doc.setTextColor(color ? color[0] : 15, color ? color[1] : 23, color ? color[2] : 42);
+    doc.text(value, x, y + 4);
+  };
+  addF2('INTERN NAME:', enrollment.fullName, gx1b, gy2);
+  const col = enrollment.collegeName.length > 35 ? enrollment.collegeName.slice(0, 32) + '...' : enrollment.collegeName;
+  addF2('COLLEGE:', `${enrollment.degree}, ${col}`, gx1b, gy2 + 12);
+  addF2('START DATE:', enrollment.startDate, gx1b, gy2 + 26);
+  addF2('INTERNSHIP DOMAIN:', domainTitle, gx2b, gy2, [16, 185, 129]);
+  addF2('DURATION:', `${enrollment.durationWeeks} Weeks | ${enrollment.trainingMode === 'offline' ? 'Offline' : 'Online'}`, gx2b, gy2 + 12);
+  addF2('STATUS:', 'ACCEPTED', gx2b, gy2 + 26, [16, 185, 129]);
   currentY += 50;
-
-  // ─── Letter body ───
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.setTextColor(15, 23, 42);
-  doc.text(`Dear ${enrollment.fullName},`, marginX, currentY);
-  currentY += 8;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(51, 65, 85);
-  
-  const acceptanceParagraphs = [
-    `We are pleased to confirm that your application for the ${domainTitle} internship program at Invigo Infotech has been reviewed and accepted. Welcome to the Invigo learning community!`,
-    
-    `Your internship is scheduled to begin on ${formatDate(enrollment.startDate)} and will span ${enrollment.durationWeeks} weeks. During this period, you will work through structured phases of learning, each culminating in practical deliverables and milestone assessments.`,
-    
-    `As an accepted intern, you are expected to:`,
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(11); doc.setTextColor(15, 23, 42);
+  doc.text(`Dear ${enrollment.fullName},`, marginX, currentY); currentY += 8;
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(51, 65, 85);
+  const ap = [
+    `We are pleased to confirm that your application for the ${domainTitle} internship program at Invigo Infotech has been reviewed and accepted.`,
+    `Your internship is scheduled to begin on ${formatDate(enrollment.startDate)} and will span ${enrollment.durationWeeks} weeks.`,
+    `As an accepted intern, you are expected to complete all assigned weekly milestones, maintain regular communication, submit all deliverables before the deadline, and pass the final MCQ assessment with a minimum score of 60%.`,
+    `Upon successful completion, you will receive a verified Certificate of Completion. We look forward to supporting your growth and success.`
   ];
-
-  acceptanceParagraphs.forEach((text) => {
-    const wrappedText = doc.splitTextToSize(text, W - marginX * 2);
-    doc.text(wrappedText, marginX, currentY);
-    currentY += wrappedText.length * 5 + 3;
+  ap.forEach(text => {
+    const w = doc.splitTextToSize(text, W - marginX * 2);
+    doc.text(w, marginX, currentY); currentY += w.length * 5 + 4;
   });
-
-  // Bullet points
-  const bullets = [
-    'Complete all assigned weekly milestones on time',
-    'Maintain regular communication through the Student Portal',
-    'Submit all project deliverables before the deadline',
-    'Pass the final MCQ assessment with a minimum score of 60%',
-    'Adhere to the code of conduct and ethical guidelines'
-  ];
-
-  bullets.forEach((bullet) => {
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(9);
-    doc.setTextColor(51, 65, 85);
-    doc.text(`  •  ${bullet}`, marginX + 5, currentY);
-    currentY += 5.5;
-  });
-
-  currentY += 5;
-
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(51, 65, 85);
-  const closingText = 'Upon successful completion, you will receive a verified Certificate of Completion that can be validated by employers and academic institutions. We look forward to supporting your growth and success.';
-  const wrappedClosing = doc.splitTextToSize(closingText, W - marginX * 2);
-  doc.text(wrappedClosing, marginX, currentY);
-  currentY += wrappedClosing.length * 5 + 10;
-
-  // ─── Signature ───
-  doc.setDrawColor(226, 232, 240);
-  doc.line(marginX, currentY, W - marginX, currentY);
   currentY += 8;
-
-  doc.setFont('times', 'italic');
-  doc.setFontSize(14);
-  doc.setTextColor(15, 23, 42);
-  doc.text('Priyanshu Kumar', marginX, currentY);
-  currentY += 5;
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9);
+  doc.setDrawColor(226, 232, 240); doc.line(marginX, currentY, W - marginX, currentY); currentY += 8;
+  doc.setFont('times', 'italic'); doc.setFontSize(14); doc.setTextColor(15, 23, 42);
+  doc.text('Priyanshu Kumar', marginX, currentY); currentY += 5;
+  doc.setFont('helvetica', 'bold'); doc.setFontSize(9);
   doc.text('Founder, Invigo Infotech', marginX, currentY);
-
-  // QR code
   drawQRCode(doc, W - marginX - 20, currentY - 15, 18, enrollment.candidateId);
-
-  // ─── Footer ───
   currentY = H - 15;
-  doc.setDrawColor(226, 232, 240);
-  doc.line(marginX, currentY, W - marginX, currentY);
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7);
-  doc.setTextColor(148, 163, 184);
+  doc.setDrawColor(226, 232, 240); doc.line(marginX, currentY, W - marginX, currentY);
+  doc.setFont('helvetica', 'normal'); doc.setFontSize(7); doc.setTextColor(148, 163, 184);
   doc.text('This acceptance letter is electronically generated by Invigo Infotech.', W / 2, currentY + 4, { align: 'center' });
   doc.text(`Verification: https://www.invigoinfotech.in/verification | Ref: ${enrollment.candidateId}`, W / 2, currentY + 8, { align: 'center' });
-
-  doc.setFillColor(16, 185, 129);
-  doc.rect(0, H - 3, W, 3, 'F');
-
+  doc.setFillColor(16, 185, 129); doc.rect(0, H - 3, W, 3, 'F');
   doc.save(`Acceptance_Letter_InvigoInfotech_${enrollment.fullName.replace(/\s+/g, '_')}.pdf`);
 }
