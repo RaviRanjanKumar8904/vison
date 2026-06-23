@@ -696,23 +696,13 @@ export default function EnrollmentWizard({
                     <div className="bg-white rounded-[2rem] border border-slate-100 p-6 shadow-[0_8px_30px_rgb(0,0,0,0.03)] w-full flex flex-col items-center space-y-4">
                       
                       {/* Responsive dynamic scan-ready QR code generating actual UPI deep link */}
-                      <div className="p-2.5 bg-white rounded-2xl relative w-44 h-44 flex items-center justify-center border border-slate-100 shadow-inner">
+                      <div className="p-2 bg-white rounded-2xl relative w-48 h-48 flex items-center justify-center border border-slate-100 shadow-inner overflow-hidden">
                         <img
-                          src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi%3A%2F%2Fpay%3Fpa%3Dinvigoinfotech-2%40okaxis%26pn%3DINVIGO%2520INFOTECH%26cu%3DINR&margin=0"
+                          src="/scanner.png"
                           alt="INVIGO INFOTECH scan-to-pay QR"
-                          className="w-36 h-36 object-contain select-none"
+                          className="w-full h-full object-cover select-none"
                           referrerPolicy="no-referrer"
                         />
-                        {/* Google Pay Center circle badge overlay visual matching the sample precisely */}
-                        <div className="absolute w-10 h-10 bg-white rounded-full border border-slate-100/80 flex items-center justify-center shadow-md p-1.5 z-10">
-                          <svg className="w-7 h-7" viewBox="0 0 40 40" fill="none">
-                            {/* GPay replica curved bars */}
-                            <path d="M12 16C12 13.7909 13.7909 12 16 12C18.2091 12 20 13.7909 20 16V24C20 26.2091 18.2091 28 16 28C13.7909 28 12 26.2091 12 24V16Z" fill="#4285F4" />
-                            <path d="M17 18C17 15.7909 18.7909 14 21 14C23.2091 14 25 15.7909 25 18V26C25 28.2091 23.2091 30 21 30C18.7909 30 17 28.2091 17 26V18Z" fill="#EA4335" />
-                            <path d="M22 15C22 12.7909 23.7909 11 26 11C28.2091 11 30 12.7909 30 15V23C30 25.2091 28.2091 27 26 27C23.7909 27 22 25.2091 22 23V15Z" fill="#FBBC05" />
-                            <circle cx="28" cy="25" r="4" fill="#34A853" />
-                          </svg>
-                        </div>
                       </div>
 
                       {/* Display VPA layout matching bottom part of white ticket */}
