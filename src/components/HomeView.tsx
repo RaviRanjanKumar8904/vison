@@ -1,4 +1,5 @@
 import { ArrowRight, Sparkles, Brain, Award, ShieldCheck, Milestone, GraduationCap, Users, Code, BookOpen, User, Calendar, FileText, Trash2, HelpCircle, Phone, Star } from 'lucide-react';
+import { ArrowRight, Sparkles, Brain, Award, ShieldCheck, Milestone, GraduationCap, Users, Code, BookOpen, User, Calendar, FileText, Trash2, HelpCircle, Phone, Star, Cpu as CpuIcon, Code as CodeIcon, Terminal as TerminalIcon, FlaskConical as LabIcon, Briefcase as BusinessIcon } from 'lucide-react';
 import { motion } from 'motion/react';
 import { TESTIMONIALS, INTERNSHIP_DOMAINS } from '../data';
 import { EnrollmentState } from '../types';
@@ -9,6 +10,7 @@ interface HomeViewProps {
   setSelectedDegreeFilter: (degree: string) => void;
   enrollments?: EnrollmentState[];
   onClearEnrollments?: () => void;
+  onSelectDomainForEnrollment?: (domainId: string) => void;
 }
 
 export default function HomeView({ 
@@ -16,7 +18,8 @@ export default function HomeView({
   setSelectedCategoryFilter, 
   setSelectedDegreeFilter,
   enrollments = [],
-  onClearEnrollments
+  onClearEnrollments,
+  onSelectDomainForEnrollment
 }: HomeViewProps) {
   
   const handleDegreeFocus = (degree: 'B.Tech' | 'Diploma' | 'BCA' | 'B.Sc' | 'MBA' | 'BA' | 'B.Com') => {
@@ -308,7 +311,7 @@ export default function HomeView({
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6">
             {INTERNSHIP_DOMAINS.slice(0, 5).map((domain, idx) => (
-                <div key={domain.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col group h-full sm:h-72 min-h-[16rem] cursor-pointer" onClick={() => { setCurrentTab('internships'); setSelectedCategoryFilter('All'); setSelectedDegreeFilter('All'); }}>
+                <div key={domain.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col group h-full sm:h-72 min-h-[16rem] cursor-pointer" onClick={() => onSelectDomainForEnrollment ? onSelectDomainForEnrollment(domain.id) : setCurrentTab('enroll')}>
                   
                   {/* Domain Image Banner */}
                   <div className="relative h-24 sm:h-32 overflow-hidden shrink-0">

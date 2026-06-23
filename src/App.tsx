@@ -311,6 +311,7 @@ export default function App() {
               setSelectedDegreeFilter={setSelectedDegreeFilter}
               enrollments={currentUser ? enrollments.filter(e => e.email.toLowerCase() === currentUser.email.toLowerCase()) : []}
               onClearEnrollments={handleClearEnrollments}
+              onSelectDomainForEnrollment={handleSelectDomainForEnrollment}
             />
           )}
           
