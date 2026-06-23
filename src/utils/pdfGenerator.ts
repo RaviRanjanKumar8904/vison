@@ -150,16 +150,17 @@ async function buildDocument(
   const blue: [number, number, number]   = [59, 107, 198];
 
   // Top-Left corner ribbons (angle 135)
-  fillQuad([[0, 0], [35, 0], [0, 35]], green);
-  drawRotatedRect(doc, 25, 25, 100, 5, 135, yellow);
-  drawRotatedRect(doc, 50, 15, 60, 14, 135, red);
-  drawRotatedRect(doc, 15, 60, 80, 25, 135, blue);
+  const s = isLandscape ? 1 : 0.6; // scale factor for portrait ribbons
+  fillQuad([[0, 0], [35 * s, 0], [0, 35 * s]], green);
+  drawRotatedRect(doc, 25 * s, 25 * s, 100 * s, 5 * s, 135, yellow);
+  drawRotatedRect(doc, 50 * s, 15 * s, 60 * s, 14 * s, 135, red);
+  drawRotatedRect(doc, 15 * s, 60 * s, 80 * s, 25 * s, 135, blue);
 
   // Bottom-Right corner ribbons (angle 135)
-  fillQuad([[W, H], [W - 35, H], [W, H - 35]], yellow);
-  drawRotatedRect(doc, W - 25, H - 25, 100, 5, 135, green);
-  drawRotatedRect(doc, W - 50, H - 15, 60, 14, 135, red);
-  drawRotatedRect(doc, W - 15, H - 60, 80, 25, 135, blue);
+  fillQuad([[W, H], [W - 35 * s, H], [W, H - 35 * s]], yellow);
+  drawRotatedRect(doc, W - 25 * s, H - 25 * s, 100 * s, 5 * s, 135, green);
+  drawRotatedRect(doc, W - 50 * s, H - 15 * s, 60 * s, 14 * s, 135, red);
+  drawRotatedRect(doc, W - 15 * s, H - 60 * s, 80 * s, 25 * s, 135, blue);
 
   // Top URL
   doc.setFont('helvetica', 'normal');
@@ -170,7 +171,7 @@ async function buildDocument(
 
   // ─── Fetch and draw images (Bigger sizes) ───
   const logoY = 24;
-  const startX = isLandscape ? 45 : 15;
+  const startX = isLandscape ? 45 : 25;
   const gap = isLandscape ? 50 : 38;
 
   const msmeImg = await getBase64ImageFromUrl('/msme_logo.png');
@@ -180,13 +181,13 @@ async function buildDocument(
   if (mcaImg) doc.addImage(mcaImg, 'JPEG', startX + gap, logoY - 7, isLandscape ? 26 : 22, isLandscape ? 26 : 22);
 
   const isoImg = await getBase64ImageFromUrl('/ISO_Logo.png');
-  if (isoImg) doc.addImage(isoImg, 'PNG', startX + gap*2 - (isLandscape?0:2), logoY - 5, isLandscape ? 24 : 20, isLandscape ? 24 : 20);
+  if (isoImg) doc.addImage(isoImg, 'PNG', startX + gap * 2 - (isLandscape ? 0 : 2), logoY - 5, isLandscape ? 24 : 20, isLandscape ? 24 : 20);
 
   const dpiitImg = await getBase64ImageFromUrl('/DPIIT_startup_india.png');
-  if (dpiitImg) doc.addImage(dpiitImg, 'PNG', startX + gap*3 - (isLandscape?0:5), logoY - 2, isLandscape ? 45 : 35, isLandscape ? 16 : 12);
+  if (dpiitImg) doc.addImage(dpiitImg, 'PNG', startX + gap * 3 - (isLandscape ? 0 : 5), logoY - 2, isLandscape ? 45 : 35, isLandscape ? 16 : 12);
 
   const invigoLogoImg = await getBase64ImageFromUrl('/logo.jpg');
-  if (invigoLogoImg) doc.addImage(invigoLogoImg, 'JPEG', startX + gap*4 - (isLandscape?0:5), logoY - 5, isLandscape ? 22 : 18, isLandscape ? 22 : 18);
+  if (invigoLogoImg) doc.addImage(invigoLogoImg, 'JPEG', startX + gap * 4 - (isLandscape ? 0 : 2), logoY - 5, isLandscape ? 22 : 18, isLandscape ? 22 : 18);
 
   // ─── Title ───
   doc.setFont('helvetica', 'bold');
