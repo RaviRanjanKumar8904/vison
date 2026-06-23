@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Search, Filter, Brain, CodeXml, ShieldAlert, BarChart4, Cpu, 
   Smartphone, Radio, Blocks, Sparkles, Wrench, Layers, Settings, 
@@ -40,7 +40,12 @@ export default function InternshipsView({
   // Filter lists
   const categories = ['All', 'Tech', 'Hardware', 'Management', 'Design'];
   const degrees = ['All', 'B.Tech', 'Diploma', 'BCA', 'B.Sc', 'MBA', 'BA', 'B.Com'];
-  const branches = ['All', 'Electrical', 'ECE', 'CSE', 'Mech', 'Civil', 'Robotics', 'Mechatronics', 'IT'];
+  const branches = ['All', 'Electrical', 'ECE', 'CSE', 'Mechanical', 'Civil', 'Robotics', 'Mechatronics', 'IT', 'Automobile', 'Architecture'];
+
+  // Reset branch filter when degree changes to prevent stale hidden filters
+  useEffect(() => {
+    setSelectedBranchFilter('All');
+  }, [selectedDegreeFilter]);
 
   // Analytical computation mapping onto state variables
   const filteredDomains = INTERNSHIP_DOMAINS.filter((domain) => {
@@ -56,9 +61,12 @@ export default function InternshipsView({
     const matchesDegree = 
       selectedDegreeFilter === 'All' || domain.targetDegrees.includes(selectedDegreeFilter as any);
 
+    const isBranchApplicable = selectedDegreeFilter === 'B.Tech' || selectedDegreeFilter === 'Diploma';
+    
     const matchesBranch = 
+      !isBranchApplicable ||
       selectedBranchFilter === 'All' || 
-      (domain.targetBranches && domain.targetBranches.some(b => b.toLowerCase().includes(selectedBranchFilter.toLowerCase())));
+      (domain.targetBranches && domain.targetBranches.includes(selectedBranchFilter));
 
     return matchesSearch && matchesCategory && matchesDegree && matchesBranch;
   });
