@@ -160,7 +160,7 @@ export default function StudentNexus({
   const matchedDomain = INTERNSHIP_DOMAINS.find(domain => domain.id === activeEnrollment?.domainId) || INTERNSHIP_DOMAINS[0];
 
   // Active sub-sections (Samsung One UI segmented control)
-  const [activeSubTab, setActiveSubTab] = useState<'homework' | 'mentor' | 'certificate' | 'roadmap' | 'profile'>('homework');
+  const [activeSubTab, setActiveSubTab] = useState<'homework' | 'mentor' | 'certificate' | 'roadmap'>('homework');
   const [selectedRoadmapNode, setSelectedRoadmapNode] = useState<'current' | 'next' | 'specialty'>('next');
 
   // Study Materials State
@@ -283,45 +283,7 @@ export default function StudentNexus({
   const [selectedTrainer, setSelectedTrainer] = useState('Dr. Devendra R. Mathur');
   const [bookingSuccess, setBookingSuccess] = useState<any | null>(null);
 
-  // Profile editing inputs and camera capture states
-  const [profileName, setProfileName] = useState(activeEnrollment?.fullName || '');
-  const [profileCollege, setProfileCollege] = useState(activeEnrollment?.collegeName || '');
-  const [profileDegree, setProfileDegree] = useState(activeEnrollment?.degree || 'B.Tech');
-  const [profileField, setProfileField] = useState(activeEnrollment?.fieldOfStudy || '');
-  const [profileYear, setProfileYear] = useState(activeEnrollment?.currentYear || '');
-  const [profilePassingYear, setProfilePassingYear] = useState(activeEnrollment?.passingYear || '');
-  const [profilePhone, setProfilePhone] = useState(activeEnrollment?.phone || '');
-
-  // Synchronize input controls when matching selected enrollments changes
-  useEffect(() => {
-    if (activeEnrollment) {
-      setProfileName(activeEnrollment.fullName || '');
-      setProfileCollege(activeEnrollment.collegeName || '');
-      setProfileDegree(activeEnrollment.degree || 'B.Tech');
-      setProfileField(activeEnrollment.fieldOfStudy || '');
-      setProfileYear(activeEnrollment.currentYear || '');
-      setProfilePassingYear(activeEnrollment.passingYear || '');
-      setProfilePhone(activeEnrollment.phone || '');
-    }
-  }, [activeEnrollment]);
-
-  // Profile Camera captures streams and refs
-  const [cameraActive, setCameraActive] = useState(false);
-  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
-  const [capturedAvatar, setCapturedAvatar] = useState<string | null>(null);
-  const [cameraError, setCameraError] = useState<string | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  // Load avatar image for currently selected candidate email
-  useEffect(() => {
-    const emailKey = activeEnrollment?.email || 'guest';
-    const savedAvatar = localStorage.getItem(`invigo_avatar_${emailKey}`);
-    if (savedAvatar) {
-      setCapturedAvatar(savedAvatar);
-    } else {
-      setCapturedAvatar(null);
-    }
-  }, [activeEnrollment?.email]);
+  
 
   // Independent Study Hours calculation limits
   const [extraStudyHours, setExtraStudyHours] = useState<number>(() => {
@@ -400,54 +362,7 @@ export default function StudentNexus({
     }, 2000);
   };
 
-  const startCamera = async () => {
-    setCameraError(null);
-    setCameraActive(true);
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { width: 360, height: 360, facingMode: 'user' },
-        audio: false 
-      });
-      setCameraStream(stream);
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
-      }
-    } catch (err: any) {
-      console.error("Camera access failed:", err);
-      setCameraError("Could not access your camera. Please ensure permissions are granted on your browser.");
-      setCameraActive(false);
-    }
-  };
-
-  const stopCamera = () => {
-    if (cameraStream) {
-      cameraStream.getTracks().forEach(track => track.stop());
-      setCameraStream(null);
-    }
-    setCameraActive(false);
-  };
-
-  const capturePhoto = () => {
-    if (videoRef.current) {
-      const video = videoRef.current;
-      const canvas = document.createElement('canvas');
-      canvas.width = 300;
-      canvas.height = 300;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        const minDim = Math.min(video.videoWidth, video.videoHeight);
-        const sx = (video.videoWidth - minDim) / 2;
-        const sy = (video.videoHeight - minDim) / 2;
-        ctx.drawImage(video, sx, sy, minDim, minDim, 0, 0, 300, 300);
-        const base64Img = canvas.toDataURL('image/jpeg', 0.85);
-        setCapturedAvatar(base64Img);
-        const emailKey = activeEnrollment?.email || 'guest';
-        localStorage.setItem(`invigo_avatar_${emailKey}`, base64Img);
-      }
-      stopCamera();
-    }
-  };
+  
 
   const handleUpdateExtraHours = (val: number) => {
     const newVal = Math.max(0, val);
@@ -456,51 +371,7 @@ export default function StudentNexus({
     localStorage.setItem(`invigo_study_hours_${emailKey}`, String(newVal));
   };
 
-  const handleSaveProfile = () => {
-    const updatedEnrollment: EnrollmentState = {
-      ...activeEnrollment,
-      fullName: profileName,
-      collegeName: profileCollege,
-      degree: profileDegree as any,
-      fieldOfStudy: profileField,
-      currentYear: profileYear,
-      passingYear: profilePassingYear,
-      phone: profilePhone
-    };
-
-    const newFilteredList = activeEnrollments.map((item, idx) => 
-      idx === selectedEnrollmentIdx ? updatedEnrollment : item
-    );
-
-    if (onUpdateEnrollments) {
-      onUpdateEnrollments(newFilteredList);
-    } else {
-      try {
-        localStorage.setItem('invigo_credentials_nexus', JSON.stringify(newFilteredList));
-      } catch(e) {
-        console.warn(e);
-      }
-    }
-
-    if (currentUser && onUpdateUser) {
-      const updatedUser = {
-        ...currentUser,
-        fullName: profileName,
-        phone: profilePhone,
-        collegeName: profileCollege,
-        degree: profileDegree,
-        fieldOfStudy: profileField,
-        currentYear: profileYear,
-        passingYear: profilePassingYear
-      };
-      onUpdateUser(updatedUser);
-    }
-
-    setSaveSuccess(true);
-      setTimeout(() => {
-        setSaveSuccess(false);
-      }, 3000);
-    };
+  
 
     const isDurationComplete = (startDate: string, durationWeeks: number): boolean => {
       if (!startDate) return false;
@@ -723,11 +594,7 @@ export default function StudentNexus({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div className="flex items-center gap-3">
                   <div className="h-9 w-9 bg-slate-50 rounded-xl flex items-center justify-center shrink-0 border border-slate-150 overflow-hidden">
-                    {capturedAvatar ? (
-                      <img src={capturedAvatar} alt="Captured Avatar" className="h-full w-full object-cover" referrerPolicy="no-referrer" />
-                    ) : (
-                      <User className="h-4.5 w-4.5 text-blue-650" />
-                    )}
+                    <User className="h-4.5 w-4.5 text-blue-650" />
                   </div>
                   <div>
                     <span className="text-[10px] text-slate-400 block uppercase font-bold">Student Name / ID</span>
@@ -832,17 +699,7 @@ export default function StudentNexus({
               <span>Roadmap</span>
             </button>
 
-            <button
-              onClick={() => setActiveSubTab('profile')}
-              className={`py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                activeSubTab === 'profile'
-                  ? 'bg-blue-650 text-white shadow-sm'
-                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
-              }`}
-            >
-              <User className="h-4.5 w-4.5" />
-              <span>Profile</span>
-            </button>
+            
 
           </div>
         </div>
@@ -1593,310 +1450,7 @@ export default function StudentNexus({
             );
           })()}
 
-          {/* TAB 5: STUDENT PROFILE */}
-          {activeSubTab === 'profile' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-[1.8rem] bg-white border border-slate-200 p-6 sm:p-8 space-y-8 shadow-sm"
-            >
-              <div className="border-b border-slate-200 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                  <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <User className="h-5.5 w-5.5 text-blue-600" />
-                    <span>My Learning Profile details</span>
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1 font-medium">
-                    Manage your credentials, snap your verified student avatar, and track your active performance hours.
-                  </p>
-                </div>
-                
-                {saveSuccess && (
-                  <div className="px-4 py-2 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-xl border border-emerald-200 animate-pulse">
-                    ✔ Changes Saved to Cloud Database!
-                  </div>
-                )}
-              </div>
-
-              {/* ROW 1: CAMERA SNAPSHOT */}
-              <div className="space-y-3">
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block font-mono">Profile Photograph</span>
-                <div className="flex flex-col sm:flex-row items-center gap-6 bg-slate-50 p-5 rounded-3xl border border-slate-200">
-                  <div className="relative h-28 w-28 rounded-full border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-150 overflow-hidden shrink-0 shadow-inner group">
-                    {cameraActive ? (
-                      <div className="absolute inset-0 bg-slate-950 flex items-center justify-center">
-                        <span className="h-2 w-2 rounded-full bg-red-500 animate-ping absolute top-2 right-2" />
-                        <video 
-                          ref={videoRef} 
-                          className="h-full w-full object-cover scale-x-[-1]" 
-                          muted 
-                          playsInline 
-                        />
-                      </div>
-                    ) : capturedAvatar ? (
-                      <img src={capturedAvatar} alt="Captured Avatar" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="h-full w-full bg-slate-200 flex items-center justify-center">
-                        <User className="h-10 w-10 text-slate-400 group-hover:scale-105 transition-all" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-3 text-center sm:text-left flex-grow">
-                    <p className="text-xs text-slate-500 leading-relaxed md:max-w-md font-medium">
-                      Snap an instant professional avatar using your webcam. We secure your photo to customize your certificates.
-                    </p>
-
-                    <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-                      {cameraActive ? (
-                        <>
-                          <button
-                            type="button"
-                            onClick={capturePhoto}
-                            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-                          >
-                            <Check className="h-3.5 w-3.5" />
-                            <span>Capture Photo</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={stopCamera}
-                            className="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-                          >
-                            <AlertTriangle className="h-3.5 w-3.5" />
-                            <span>Cancel</span>
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            onClick={startCamera}
-                            className="px-4 py-2.5 bg-blue-650 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 shadow-xs cursor-pointer"
-                          >
-                            <Camera className="h-3.5 w-3.5" />
-                            <span>{capturedAvatar ? 'Retake Photo' : 'Capture with Camera'}</span>
-                          </button>
-                          {capturedAvatar && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setCapturedAvatar(null);
-                                const emailKey = activeEnrollment?.email || 'guest';
-                                localStorage.removeItem(`invigo_avatar_${emailKey}`);
-                              }}
-                              className="px-3 py-2 bg-white text-rose-600 border border-slate-200 hover:bg-rose-50 text-xs font-semibold rounded-xl transition-all cursor-pointer"
-                            >
-                              Delete Photo
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
-                    {cameraError && (
-                      <p className="text-[11px] text-rose-600 font-medium mt-1">{cameraError}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* ROW 2: TOTAL METRIC HOURS DETAILS */}
-              <div className="space-y-3">
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block font-mono">Academic Achievement & Study Hours Metrics</span>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  
-                  <div className="rounded-2xl border border-slate-200 p-5 bg-gradient-to-br from-white to-blue-50/20 shadow-xs flex flex-col justify-between">
-                    <div>
-                      <span className="text-[9px] uppercase tracking-wider font-bold text-blue-600 block">Milestones Lab Work</span>
-                      <span className="text-3xl font-extrabold text-slate-800 font-mono block mt-1.5">
-                        {unlockedMaterials.length * 15} <span className="text-xs font-bold font-sans text-slate-405">HRS</span>
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 mt-3 leading-relaxed font-medium">
-                      Earned at 15 hours per completed weekly project check.
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl border border-slate-200 p-5 bg-gradient-to-br from-white to-emerald-50/20 shadow-xs flex flex-col justify-between">
-                    <div>
-                      <span className="text-[9px] uppercase tracking-wider font-bold text-emerald-600 block">Independent LAB Practicum</span>
-                      <div className="flex items-center gap-3 mt-1.5">
-                        <span className="text-3xl font-extrabold text-slate-800 font-mono">
-                          {extraStudyHours} <span className="text-xs font-bold font-sans text-slate-405">HRS</span>
-                        </span>
-                        
-                        {/* Step custom inputs */}
-                        <div className="flex flex-col gap-1 shrink-0 ml-auto">
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateExtraHours(extraStudyHours + 5)}
-                            className="h-6 w-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-650 flex items-center justify-center font-bold text-xs cursor-pointer"
-                          >
-                            +
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateExtraHours(extraStudyHours - 5)}
-                            className="h-6 w-6 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-650 flex items-center justify-center font-bold text-xs cursor-pointer"
-                          >
-                            -
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="mt-3">
-                      <label className="text-[10px] text-slate-400 block font-semibold uppercase">Self-Track hours:</label>
-                      <input 
-                        type="range"
-                        min="0"
-                        max="100"
-                        step="1"
-                        value={extraStudyHours}
-                        onChange={(e) => handleUpdateExtraHours(Number(e.target.value))}
-                        className="w-full h-1.5 bg-slate-205 rounded-lg appearance-none cursor-pointer accent-emerald-600 mt-1"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="rounded-2xl border border-slate-200 p-5 bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-xs flex flex-col justify-between relative overflow-hidden">
-                    <div className="absolute top-[-30%] right-[-10%] h-36 w-36 rounded-full bg-blue-500/10 blur-xl pointer-events-none" />
-                    
-                    <div>
-                      <span className="text-[9px] uppercase tracking-wider font-bold text-blue-300 block">Grand Total Completed Care Time</span>
-                      <span className="text-4xl font-black font-mono text-cyan-300 block mt-1.5">
-                        {(unlockedMaterials.length * 15) + (bookingSuccess ? 2 : 0) + extraStudyHours} <span className="text-sm font-bold font-sans text-white/50">HRS</span>
-                      </span>
-                    </div>
-                    <div className="mt-4 pt-3.5 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-300">
-                      <span>Target: 150 hours</span>
-                      <span className="font-bold text-cyan-300">
-                        {Math.round((((unlockedMaterials.length * 15) + (bookingSuccess ? 2 : 0) + extraStudyHours) / 150) * 100)}% Reached
-                      </span>
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-              {/* ROW 3: DETAILED USER INPUT FIELDS */}
-              <div className="space-y-4">
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-wider block font-mono">Academic & Bio-Data Registration Details</span>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase ml-1 block">Full Student Name</label>
-                    <input
-                      type="text"
-                      value={profileName}
-                      onChange={(e) => setProfileName(e.target.value)}
-                      className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs focus:outline-none focus:border-blue-600 font-semibold"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase ml-1 block">Contact Phone</label>
-                    <input
-                      type="tel"
-                      value={profilePhone}
-                      onChange={(e) => setProfilePhone(e.target.value)}
-                      className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs focus:outline-none focus:border-blue-600 font-semibold"
-                    />
-                  </div>
-
-                  <div className="space-y-1 md:col-span-2">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase ml-1 block">College / University Name</label>
-                    <input
-                      type="text"
-                      value={profileCollege}
-                      onChange={(e) => setProfileCollege(e.target.value)}
-                      className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs focus:outline-none focus:border-blue-600 font-semibold"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase ml-1 block">Degree Selection</label>
-                    <select
-                      value={profileDegree}
-                      onChange={(e) => setProfileDegree(e.target.value)}
-                      className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs focus:outline-none focus:border-blue-600 font-semibold cursor-pointer"
-                    >
-                      <option value="B.Tech">B.Tech (Bachelor of Technology)</option>
-                      <option value="Diploma">Diploma (Engineering/Polytechnic)</option>
-                      <option value="BCA">BCA (Bachelor of Computer Applications)</option>
-                      <option value="B.Sc">B.Sc (Bachelor of Science)</option>
-                      <option value="MBA">MBA (Master of Business Administration)</option>
-                      <option value="BA">BA (Bachelor of Arts)</option>
-                      <option value="B.Com">B.Com (Bachelor of Commerce)</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase ml-1 block">Branch / Field of Study</label>
-                    <input
-                      type="text"
-                      value={profileField}
-                      onChange={(e) => setProfileField(e.target.value)}
-                      className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs focus:outline-none focus:border-blue-600 font-semibold"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase ml-1 block">Current Academic Year</label>
-                    <input
-                      type="text"
-                      value={profileYear}
-                      onChange={(e) => setProfileYear(e.target.value)}
-                      className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs focus:outline-none focus:border-blue-600 font-semibold"
-                      placeholder="e.g. 3rd Year"
-                    />
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500 uppercase ml-1 block">Expected Passing Year</label>
-                    <input
-                      type="text"
-                      value={profilePassingYear}
-                      onChange={(e) => setProfilePassingYear(e.target.value)}
-                      className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 text-slate-800 text-xs focus:outline-none focus:border-blue-600 font-semibold"
-                      placeholder="e.g. 2027"
-                    />
-                  </div>
-                </div>
-
-                <div className="pt-4 flex flex-col sm:flex-row gap-3">
-                  <button
-                    type="button"
-                    onClick={handleSaveProfile}
-                    className="px-6 py-3.5 bg-blue-650 hover:bg-blue-700 text-white text-xs font-bold rounded-2xl shadow-md transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <Save className="h-4 w-4" />
-                    <span>Save Profile Changes</span>
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (activeEnrollment) {
-                        setProfileName(activeEnrollment.fullName || '');
-                        setProfileCollege(activeEnrollment.collegeName || '');
-                        setProfileDegree(activeEnrollment.degree || 'B.Tech');
-                        setProfileField(activeEnrollment.fieldOfStudy || '');
-                        setProfileYear(activeEnrollment.currentYear || '');
-                        setProfilePassingYear(activeEnrollment.passingYear || '');
-                        setProfilePhone(activeEnrollment.phone || '');
-                      }
-                    }}
-                    className="px-5 py-3.5 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 text-xs font-bold rounded-2xl transition-all cursor-pointer"
-                  >
-                    Discard Changes
-                  </button>
-                </div>
-              </div>
-
-            </motion.div>
-          )}
-
-        </div>
+          </div>
 
       </div>
     </div>
