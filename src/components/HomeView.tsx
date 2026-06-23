@@ -424,7 +424,7 @@ export default function HomeView({
           className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-center py-3 px-4 rounded-xl text-sm font-bold shadow-md shadow-emerald-500/20 my-8 max-w-2xl mx-auto flex items-center justify-center gap-2 cursor-pointer hover:scale-105 transition-transform"
         >
           <Phone className="w-4 h-4 text-emerald-100" />
-          <span>Contact on <a href="tel:+916204266080" className="underline decoration-emerald-200 underline-offset-2 mx-1 text-white font-extrabold">+91 6204266080</a> for Colabration and special offer.</span>
+          <span>Contact on <a href="tel:+916204266080" className="underline decoration-emerald-200 underline-offset-2 mx-1 text-white font-extrabold">+91 6204266080</a> for Colabration, Special offer and Discount Coupon code.</span>
         </motion.div>
 
         {/* TESTIMONIALS */}
