@@ -89,7 +89,7 @@ export default function EnrollmentWizard({
 
   useEffect(() => {
     if (currentStep === 4) {
-      let base = formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199);
+      let base = formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149);
       if (appliedCoupon) {
         base = base - (base * appliedCoupon.discountPercent / 100);
       }
@@ -226,7 +226,7 @@ export default function EnrollmentWizard({
 
   const handlePaymentComplete = (txnId: string) => {
     setIsSynthesizing(true);
-    let base = formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199);
+    let base = formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149);
     let discountAmt = 0;
     if (appliedCoupon) {
       discountAmt = Math.round(base * appliedCoupon.discountPercent / 100);
@@ -563,26 +563,26 @@ export default function EnrollmentWizard({
                           onChange={(e) => setFormData({ ...formData, trainingMode: e.target.value as 'online' | 'offline' })}
                           className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-800 text-xs sm:text-sm focus:outline-none focus:border-blue-500"
                         >
-                          <option value="online">Online Virtual Lab Mode (₹149/week)</option>
-                          <option value="offline">Offline Centers Immersive Mode (₹199/week)</option>
+                          <option value="online">Online Virtual Lab Mode (₹99/week)</option>
+                          <option value="offline">Offline Centers Immersive Mode (₹149/week)</option>
                         </select>
                       </div>
 
                       <div className="space-y-1 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-xl border border-blue-100 flex flex-col justify-between font-mono">
                         <div className="flex justify-between items-center text-[10px] text-slate-500">
                           <span>REGULAR ADMISSION RATE:</span>
-                          <span className="line-through text-slate-405">₹5,000</span>
+                          <span className="line-through text-slate-405">₹{formData.durationWeeks * (formData.trainingMode === 'online' ? 499 : 799)}</span>
                         </div>
                         <div className="flex justify-between items-center text-xs mt-1">
                           <span className="text-slate-600 font-medium">SUBSIDIZED RATE:</span>
                           <span className="text-emerald-600 font-bold">
-                            ₹{formData.trainingMode === 'online' ? 149 : 199} <span className="text-[10px] font-normal text-slate-500">/ week</span>
+                            ₹{formData.trainingMode === 'online' ? 99 : 149} <span className="text-[10px] font-normal text-slate-500">/ week</span>
                           </span>
                         </div>
                         <div className="border-t border-slate-200 pt-2 flex justify-between items-center text-xs mt-2 font-bold text-slate-800">
                           <span>TOTAL SECURE DUE:</span>
                           <span className="text-blue-600 text-sm font-extrabold">
-                            ₹{formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199)}
+                            ₹{formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149)}
                           </span>
                         </div>
                       </div>
@@ -716,17 +716,17 @@ export default function EnrollmentWizard({
                   </div>
                   <div className="flex justify-between gap-4">
                     <span>Admission Standard Rate:</span>
-                    <span className="text-slate-400 line-through">₹5,000</span>
+                    <span className="text-slate-400 line-through">₹{formData.durationWeeks * (formData.trainingMode === 'online' ? 499 : 799)}</span>
                   </div>
                   <div className="flex justify-between gap-4 text-emerald-600 font-semibold">
                     <span>Subsidy Waiver Apply:</span>
-                    <span>-₹{5000 - formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199)}</span>
+                    <span>-₹{(formData.durationWeeks * (formData.trainingMode === 'online' ? 499 : 799)) - (formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149))}</span>
                   </div>
 
                   {appliedCoupon && (
                     <div className="flex justify-between gap-4 text-purple-600 font-bold bg-purple-50 p-1.5 -mx-1.5 px-1.5 rounded">
                       <span className="flex items-center gap-1"><Tag className="w-3 h-3"/> Coupon ({appliedCoupon.code}):</span>
-                      <span>-₹{Math.round((formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199)) * appliedCoupon.discountPercent / 100)}</span>
+                      <span>-₹{Math.round((formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149)) * appliedCoupon.discountPercent / 100)}</span>
                     </div>
                   )}
 
@@ -734,12 +734,12 @@ export default function EnrollmentWizard({
                     <span>TOTAL AMOUNT DUE:</span>
                     <span className="text-emerald-600 font-sans font-extrabold text-xl flex items-center gap-1">
                       ₹{appliedCoupon 
-                          ? Math.round((formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199)) * (1 - appliedCoupon.discountPercent / 100))
-                          : formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199)}
+                          ? Math.round((formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149)) * (1 - appliedCoupon.discountPercent / 100))
+                          : formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149)}
                       <button 
                         type="button" 
                         onClick={() => {
-                          const base = formData.durationWeeks * (formData.trainingMode === 'online' ? 149 : 199);
+                          const base = formData.durationWeeks * (formData.trainingMode === 'online' ? 99 : 149);
                           const finalPrice = appliedCoupon ? Math.round(base * (1 - appliedCoupon.discountPercent / 100)) : base;
                           navigator.clipboard.writeText(finalPrice.toString());
                           setCopyStatus('amount');

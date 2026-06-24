@@ -11,7 +11,7 @@ import {
   Plus, BookOpen, FileQuestion, Globe, Video, FileType, Layers, User, Tag
 } from 'lucide-react';
 import { db } from '../firebase';
-import { collection, onSnapshot, doc, updateDoc, deleteDoc, setDoc, getDocs, addDoc, query, where } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, deleteDoc, setDoc, getDocs, getDoc, addDoc, query, where } from 'firebase/firestore';
 import { EnrollmentState, ActivityLog, PortalSettings, ErrorReport, StudyMaterial, MCQQuestion, InternshipDomain, Coupon } from '../types';
 import { INTERNSHIP_DOMAINS, DEFAULT_MCQ_QUESTIONS } from '../data';
 import { downloadCertificatePDF, downloadOfferLetterPDF, downloadAcceptanceLetterPDF } from '../utils/pdfGenerator';
@@ -21,7 +21,7 @@ interface AdminPanelProps {
   setCurrentTab: (tab: string) => void;
 }
 
-type AdminSection = 'dashboard' | 'users' | 'certificates' | 'logs' | 'errors' | 'communication' | 'domains' | 'materials' | 'mcqTests' | 'testResultsView' | 'coupons';
+type AdminSection = 'dashboard' | 'users' | 'certificates' | 'logs' | 'errors' | 'communication' | 'domains' | 'materials' | 'mcqTests' | 'testResultsView' | 'coupons' | 'mentorBookings' | 'settings';
 
 // ─── Helper: resolve domain title from domainId ───
 function getDomainTitle(domainId: string): string {
@@ -114,7 +114,19 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
   const [customCertDate, setCustomCertDate] = useState(new Date().toISOString().split('T')[0]);
 
   // Metrics
-  const [trafficCount, setTrafficCount] = useState(1340);
+  const thisMonthEnrollments = useMemo(() => {
+    const now = new Date();
+    return allEnrollments.filter(e => {
+      const d = new Date(e.enrollmentDate);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).length;
+  }, [allEnrollments]);
+
+  const testPassRate = useMemo(() => {
+    if (testResults.length === 0) return 0;
+    const passed = testResults.filter(r => r.passed).length;
+    return Math.round((passed / testResults.length) * 100);
+  }, [testResults]);
 
   // Activity Logs
   const [logs, setLogs] = useState<ActivityLog[]>([]);
@@ -131,6 +143,12 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
     supportPhone: '+91 89047 88201',
     themeAccent: '#2563eb'
   });
+
+  // Admin list
+  const [adminList, setAdminList] = useState<{email: string}[]>([]);
+
+  // Mentor bookings
+  const [mentorBookings, setMentorBookings] = useState<any[]>([]);
 
   // Communication
   const [commSubject, setCommSubject] = useState('');
@@ -176,6 +194,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
 
   // ─── Load enrollments from Firestore ───
   useEffect(() => {
+    const migratingIds = new Set<string>();
     const enrollmentsCol = collection(db, 'enrollments');
     const unsubscribe = onSnapshot(enrollmentsCol, (snapshot) => {
       const fetched: EnrollmentState[] = [];
@@ -184,20 +203,24 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
         const candidateId = docSnap.id;
         
         if (candidateId.startsWith('INV-')) {
-          const year = new Date().getFullYear();
-          let cleanReg = data.registrationNo ? data.registrationNo.replace(/\s+/g, '').toUpperCase() : '';
-          if (!cleanReg) cleanReg = candidateId.includes('ADM') ? `ADM${Date.now().toString(36).toUpperCase()}` : Math.floor(1000 + Math.random() * 9000).toString();
-          const last4Reg = cleanReg.length >= 4 ? cleanReg.slice(-4) : cleanReg.padStart(4, '0');
-          const courseCode = data.domainId ? data.domainId.replace(/[^a-zA-Z]/g, '').substring(0, 2).toUpperCase() : 'XX';
-          const newId = `${year}IN${courseCode}${last4Reg}`;
-          
-          setTimeout(async () => {
-             try {
-               const newEnrollment = { ...data, candidateId: newId };
-               await setDoc(doc(db, 'enrollments', newId), newEnrollment);
-               await deleteDoc(doc(db, 'enrollments', candidateId));
-             } catch (e) { console.error("Admin migration failed", e); }
-          }, 0);
+          if (!migratingIds.has(candidateId)) {
+            migratingIds.add(candidateId);
+            const year = new Date().getFullYear();
+            let cleanReg = data.registrationNo ? data.registrationNo.replace(/\s+/g, '').toUpperCase() : '';
+            if (!cleanReg) cleanReg = candidateId.includes('ADM') ? `ADM${Date.now().toString(36).toUpperCase()}` : Math.floor(1000 + Math.random() * 9000).toString();
+            const last4Reg = cleanReg.length >= 4 ? cleanReg.slice(-4) : cleanReg.padStart(4, '0');
+            const courseCode = data.domainId ? data.domainId.replace(/[^a-zA-Z]/g, '').substring(0, 2).toUpperCase() : 'XX';
+            const newId = `${year}IN${courseCode}${last4Reg}`;
+            
+            setTimeout(async () => {
+               try {
+                 const newEnrollment = { ...data, candidateId: newId };
+                 await setDoc(doc(db, 'enrollments', newId), newEnrollment);
+                 await deleteDoc(doc(db, 'enrollments', candidateId));
+               } catch (e) { console.error("Admin migration failed", e); }
+               migratingIds.delete(candidateId);
+            }, 0);
+          }
         } else {
           fetched.push({ candidateId, ...data });
         }
@@ -285,7 +308,23 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
       setAllCoupons(cps);
     }, () => {});
 
-    return () => { unsubscribe(); unsubDomains(); unsubMaterials(); unsubQuestions(); unsubResults(); unsubCoupons(); };
+    // Load admin list
+    const adminCol = collection(db, 'adminList');
+    const unsubAdmins = onSnapshot(adminCol, (snap) => {
+      const admins: any[] = [];
+      snap.forEach(d => admins.push({ email: d.id, ...d.data() }));
+      setAdminList(admins);
+    }, () => {});
+
+    // Load mentor bookings
+    const bookingsCol = collection(db, 'mentorBookings');
+    const unsubBookings = onSnapshot(bookingsCol, (snap) => {
+      const bookings: any[] = [];
+      snap.forEach(d => bookings.push({ id: d.id, ...d.data() }));
+      setMentorBookings(bookings);
+    }, () => {});
+
+    return () => { unsubscribe(); unsubDomains(); unsubMaterials(); unsubQuestions(); unsubResults(); unsubCoupons(); unsubAdmins(); unsubBookings(); unsubSettings(); unsubLogs(); unsubErrors(); };
   }, []);
 
   // ─── Helpers ───
@@ -298,6 +337,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
       type
     };
     setLogs(prev => [newLog, ...prev]);
+    addDoc(collection(db, 'activityLogs'), newLog).catch(e => console.error('Log write failed:', e));
   };
 
   const addError = (message: string, source: string, severity: ErrorReport['severity']) => {
@@ -310,6 +350,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
       resolved: false
     };
     setErrors(prev => [newError, ...prev]);
+    addDoc(collection(db, 'errorReports'), newError).catch(e => console.error('Error report write failed:', e));
   };
 
   // ─── CRUD Operations ───
@@ -363,6 +404,27 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
         trainingMode: 'online'
       };
       await setDoc(doc(db, 'enrollments', candidateId), newEnrollment);
+
+      // Also create a student profile so they can log in and find their data
+      const studentId = candidateId; // use candidateId as a fallback uid
+      const studentRef = doc(db, 'students', studentId);
+      const existing = await getDoc(studentRef);
+      if (!existing.exists()) {
+        await setDoc(studentRef, {
+          id: studentId,
+          fullName: enrollForm.fullName,
+          email: enrollForm.email.toLowerCase(),
+          phone: enrollForm.phone,
+          collegeName: enrollForm.collegeName,
+          degree: enrollForm.degree,
+          fieldOfStudy: enrollForm.fieldOfStudy,
+          currentYear: enrollForm.currentYear,
+          passingYear: enrollForm.passingYear,
+          createdAt: new Date().toISOString(),
+          createdBy: 'admin'
+        });
+      }
+
       addLog(`Admin enrolled ${enrollForm.fullName} into ${getDomainTitle(enrollForm.domainId)}`, 'user');
       setShowEnrollModal(false);
       setEnrollForm({
@@ -617,7 +679,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
   const verifiedPayments = allEnrollments.filter(e => e.paymentVerified).length;
   const pendingPayments = allEnrollments.filter(e => !e.paymentVerified).length;
   const certifiedCount = allEnrollments.filter(e => e.certificateIssued).length;
-  const totalRevenue = verifiedPayments * 1999;
+  const totalRevenue = allEnrollments.reduce((acc, e) => acc + (e.paymentVerified ? (e.amountPaid || 0) : 0), 0);
   const blockedCount = allEnrollments.filter(e => e.blocked).length;
   const activeErrors = errors.filter(e => !e.resolved).length;
 
@@ -791,9 +853,11 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
     { id: 'mcqTests', label: 'MCQ Tests', icon: FileQuestion, badge: allQuestions.length },
     { id: 'testResultsView', label: 'Test Results', icon: CheckCircle, badge: testResults.length },
     { id: 'coupons', label: 'Coupons', icon: Tag, badge: allCoupons.length },
+    { id: 'mentorBookings', label: 'Mentor Bookings', icon: Calendar, badge: mentorBookings.length },
     { id: 'logs', label: 'Activity Logs', icon: Activity, badge: logs.length },
     { id: 'errors', label: 'Error Reports', icon: AlertTriangle, badge: activeErrors },
     { id: 'communication', label: 'Communication', icon: MessageSquare },
+    { id: 'settings', label: 'Portal Settings', icon: Settings2 },
   ];
 
   // Log filter
@@ -904,7 +968,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
             </div>
             <div className="flex items-center gap-2.5">
               <button
-                onClick={() => setTrafficCount(prev => prev + Math.floor(Math.random() * 30 + 10))}
+                onClick={() => window.location.reload()}
                 className="p-2.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 rounded-xl text-xs flex items-center gap-1.5 transition-all shadow-sm cursor-pointer active:scale-95"
               >
                 <RefreshCw className="h-3.5 w-3.5 text-blue-600" />
@@ -1090,8 +1154,12 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                   {/* Quick Stats */}
                   <div className="mt-5 pt-4 border-t border-slate-100 space-y-2">
                     <div className="flex justify-between text-[10px]">
-                      <span className="text-slate-500 font-mono uppercase font-bold">Daily Traffic</span>
-                      <span className="font-mono font-bold text-slate-700">{trafficCount}</span>
+                      <span className="text-slate-500 font-mono uppercase font-bold">This Month's Enrollments</span>
+                      <span className="font-mono font-bold text-slate-700">{thisMonthEnrollments}</span>
+                    </div>
+                    <div className="flex justify-between text-[10px]">
+                      <span className="text-slate-500 font-mono uppercase font-bold">Test Pass Rate</span>
+                      <span className="font-mono font-bold text-slate-700">{testPassRate}%</span>
                     </div>
                     <div className="flex justify-between text-[10px]">
                       <span className="text-slate-500 font-mono uppercase font-bold">System Errors</span>
@@ -2392,6 +2460,122 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                     No coupons created yet.
                   </div>
                 )}
+              </div>
+            </motion.div>
+          )}
+
+          )}
+
+          {/* Mentor Bookings View */}
+          {activeSection === 'mentorBookings' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">Mentor Bookings</h2>
+                  <p className="text-xs text-slate-500 mt-1">Manage 1-on-1 mentor session requests.</p>
+                </div>
+              </div>
+
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm">
+                {mentorBookings.length > 0 ? (
+                  <table className="w-full text-xs">
+                    <thead><tr className="bg-slate-50 border-b border-slate-200">
+                      <th className="text-left px-4 py-3 font-bold text-slate-600">Student Name</th>
+                      <th className="text-left px-4 py-3 font-bold text-slate-600">Email</th>
+                      <th className="text-left px-4 py-3 font-bold text-slate-600">Domain</th>
+                      <th className="text-center px-4 py-3 font-bold text-slate-600">Date & Time</th>
+                      <th className="text-center px-4 py-3 font-bold text-slate-600">Status</th>
+                      <th className="text-right px-4 py-3 font-bold text-slate-600">Actions</th>
+                    </tr></thead>
+                    <tbody>
+                      {mentorBookings.map(booking => (
+                        <tr key={booking.id} className="border-b border-slate-100 hover:bg-slate-50">
+                          <td className="px-4 py-3 font-medium text-slate-800">{booking.studentName}</td>
+                          <td className="px-4 py-3 text-slate-600">{booking.studentEmail}</td>
+                          <td className="px-4 py-3 text-slate-600">{getDomainTitle(booking.domainId)}</td>
+                          <td className="px-4 py-3 text-center text-slate-600">{booking.preferredDate} {booking.preferredTime}</td>
+                          <td className="px-4 py-3 text-center">
+                            <span className={`px-2 py-1 rounded-full text-[10px] font-bold ${booking.status === 'confirmed' ? 'bg-emerald-50 text-emerald-700' : booking.status === 'declined' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
+                              {booking.status?.toUpperCase() || 'PENDING'}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 flex justify-end gap-2">
+                            {booking.status === 'pending' && (
+                              <>
+                                <button onClick={() => updateDoc(doc(db, 'mentorBookings', booking.id), { status: 'confirmed' })} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded transition-colors" title="Confirm">
+                                  <Check className="h-4 w-4" />
+                                </button>
+                                <button onClick={() => updateDoc(doc(db, 'mentorBookings', booking.id), { status: 'declined' })} className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors" title="Decline">
+                                  <X className="h-4 w-4" />
+                                </button>
+                              </>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="text-center py-12 text-slate-400 text-sm">
+                    <Calendar className="h-10 w-10 mx-auto mb-3 text-slate-300" />
+                    No mentor bookings yet.
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Settings View */}
+          {activeSection === 'settings' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">Portal Settings</h2>
+                  <p className="text-xs text-slate-500 mt-1">Manage global settings and admin accounts.</p>
+                </div>
+                <button onClick={handleSaveSettings} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-sm">Save Global Settings</button>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
+                  <h3 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-2">Global Settings</h3>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700">Portal Name</label>
+                    <input type="text" value={settings.portalName} onChange={e => setSettings({...settings, portalName: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700">Support Phone</label>
+                    <input type="text" value={settings.supportPhone} onChange={e => setSettings({...settings, supportPhone: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <input type="checkbox" checked={settings.maintenanceMode} onChange={e => setSettings({...settings, maintenanceMode: e.target.checked})} className="h-4 w-4 rounded border-slate-300 text-blue-600" />
+                    <label className="text-xs font-bold text-slate-700">Maintenance Mode</label>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
+                  <h3 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-2 flex justify-between items-center">
+                    Admin Accounts
+                    <button onClick={() => {
+                      const email = window.prompt('Enter new admin email:');
+                      if (email && email.includes('@')) {
+                        setDoc(doc(db, 'adminList', email.trim().toLowerCase()), { addedAt: new Date().toISOString() });
+                      }
+                    }} className="text-blue-600 hover:text-blue-700 text-[10px] flex items-center gap-1"><Plus className="h-3 w-3"/> Add Admin</button>
+                  </h3>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {adminList.map(admin => (
+                      <div key={admin.email} className="flex justify-between items-center p-2.5 bg-slate-50 rounded-lg border border-slate-100">
+                        <span className="text-xs font-bold text-slate-700">{admin.email}</span>
+                        <button onClick={() => {
+                          if (window.confirm(`Remove ${admin.email} from admins?`)) {
+                            deleteDoc(doc(db, 'adminList', admin.email));
+                          }
+                        }} className="p-1.5 text-slate-400 hover:text-red-500 rounded"><Trash2 className="h-3 w-3"/></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </motion.div>
           )}

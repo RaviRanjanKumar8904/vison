@@ -199,28 +199,7 @@ export default function App() {
         const fetchedEnrollments: EnrollmentState[] = [];
         snapshot.forEach((docSnap) => {
           const data = docSnap.data() as EnrollmentState;
-          
-          // Auto-migrate old IDs
-          if (data.candidateId && data.candidateId.startsWith('INV-')) {
-             const year = new Date().getFullYear();
-             const cleanReg = data.registrationNo ? data.registrationNo.replace(/\s+/g, '').toUpperCase() : Math.floor(1000 + Math.random() * 9000).toString();
-             const last4Reg = cleanReg.length >= 4 ? cleanReg.slice(-4) : cleanReg.padStart(4, '0');
-             const courseCode = data.domainId ? data.domainId.replace(/[^a-zA-Z]/g, '').substring(0, 2).toUpperCase() : 'XX';
-             const newId = `${year}IN${courseCode}${last4Reg}`;
-             
-             // Run async migration without blocking
-             setTimeout(async () => {
-               try {
-                 const newEnrollment = { ...data, candidateId: newId };
-                 await setDoc(doc(db, 'enrollments', newId), newEnrollment);
-                 await deleteDoc(doc(db, 'enrollments', data.candidateId));
-               } catch (e) {
-                 console.error("Migration failed", e);
-               }
-             }, 0);
-          } else {
-            fetchedEnrollments.push(data);
-          }
+          fetchedEnrollments.push(data);
         });
         // Sort chronologically desc
         fetchedEnrollments.sort(
@@ -267,13 +246,19 @@ export default function App() {
   };
 
   const handleClearEnrollments = async () => {
-    // Delete documents for the logged in user
-    for (const e of enrollments) {
-      try {
-        await deleteDoc(doc(db, 'enrollments', e.candidateId));
-      } catch (err) {
-        console.warn('Failed to delete enrollment:', e.candidateId, err);
-      }
+    const confirmed = window.confirm(
+      '⚠️ This will permanently delete ALL your enrollment records from our system. This cannot be undone. Are you sure?'
+    );
+    if (!confirmed) return;
+    
+    try {
+      const deletePromises = enrollments.map(e => 
+        deleteDoc(doc(db, 'enrollments', e.candidateId))
+      );
+      await Promise.all(deletePromises);
+      alert('All your enrollment records have been cleared from our systems.');
+    } catch (e: any) {
+      alert(`Failed to clear enrollments: ${e.message}`);
     }
     setEnrollments([]);
     setCurrentTab('home');

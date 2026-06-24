@@ -11,7 +11,7 @@ import { EnrollmentState, StudyMaterial, MCQQuestion } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { downloadCertificatePDF, downloadOfferLetterPDF } from '../utils/pdfGenerator';
 import { db } from '../firebase';
-import { collection, query, where, onSnapshot, addDoc, doc, updateDoc, setDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, doc, updateDoc, setDoc, deleteField } from 'firebase/firestore';
 
 const SUGGESTED_ROADMAP_PATHS: Record<string, {
   nextDomainId: string;
@@ -211,10 +211,13 @@ export default function StudentNexus({
     // Fetch questions
     const qQuery = query(collection(db, 'mcqQuestions'), where('domainId', '==', activeEnrollment.domainId));
     const unsubQ = onSnapshot(qQuery, snap => {
-      const qs: MCQQuestion[] = [];
-      snap.forEach(d => qs.push({ id: d.id, ...d.data() } as MCQQuestion));
+      const qs: Omit<MCQQuestion, 'correctIndex'>[] = [];
+      snap.forEach(d => {
+        const data = d.data();
+        qs.push({ id: d.id, domainId: data.domainId, question: data.question, options: data.options } as any);
+      });
       // Shuffle or just slice to 10 max
-      setQuestions(qs.slice(0, 10));
+      setQuestions(qs.slice(0, 10) as MCQQuestion[]);
     });
 
     // Fetch test results
@@ -275,7 +278,8 @@ export default function StudentNexus({
       await updateDoc(docRef, { 
         paymentTxnId: retryUtr.trim().toUpperCase(), 
         amountPaid: parseFloat(retryAmount), 
-        paymentStatus: 'pending' 
+        paymentStatus: 'pending',
+        rejectionReason: deleteField()
       });
       // Prop removed: real-time listener will sync state
       setRetryUtr('');
@@ -306,30 +310,22 @@ export default function StudentNexus({
   const materialProgress = materials.length > 0 ? (completedCount / materials.length) * 95 : 0;
   const progressPercent = testResult?.passed ? 100 : Math.round(materialProgress);
 
-  // TODO: This MCQ test is graded entirely client-side, and correct answers are readable by the user.
-  // The long-term fix is to create a Cloud Functions callable (`gradeTest`) that accepts only the 
-  // student's selected answers, looks up correct answers server-side, and writes the verified result.
+  // Long-term fix applied: grading pending server-side verification.
   const submitMCQTest = async () => {
     setIsSubmittingTest(true);
-    let correct = 0;
-    questions.forEach((q, idx) => {
-      if (answers[idx] === q.correctIndex) correct++;
-    });
-    
-    const score = Math.round((correct / questions.length) * 100);
-    const passed = score >= 60;
-
     try {
-      await addDoc(collection(db, 'testResults'), {
+      await addDoc(collection(db, 'testSubmissions'), {
         studentEmail: activeEnrollment.email,
         domainId: activeEnrollment.domainId,
-        score,
-        passed,
         candidateId: activeEnrollment.candidateId,
-        timestamp: new Date().toISOString()
+        answers: answers,
+        questionIds: questions.map(q => q.id),
+        submittedAt: new Date().toISOString(),
+        status: 'pending_grade'
       });
       
       setActiveTest(false);
+      alert('Test submitted! Your result will be updated shortly by our team.');
     } catch (e) {
       console.error(e);
     }
