@@ -97,8 +97,22 @@ export interface PortalSettings {
   portalName: string;
   maintenanceMode: boolean;
   announcementText: string;
+  announcementStartDate?: string;
+  announcementEndDate?: string;
+  announcementType?: 'info' | 'warning' | 'success';
   supportPhone: string;
   themeAccent: string;
+}
+
+export interface AdminMessage {
+  id: string;
+  toEmail: string;
+  toName: string;
+  subject: string;
+  body: string;
+  sentAt: string;
+  sentBy: string;
+  read: boolean;
 }
 
 export interface ErrorReport {

@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import JSZip from 'jszip';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Users, CreditCard, Award, ShieldAlert, Search, Filter,
@@ -20,9 +21,7 @@ interface AdminPanelProps {
   currentUser: any;
   setCurrentTab: (tab: string) => void;
 }
-
-type AdminSection = 'dashboard' | 'users' | 'certificates' | 'logs' | 'errors' | 'communication' | 'domains' | 'materials' | 'mcqTests' | 'testResultsView' | 'coupons' | 'mentorBookings' | 'settings';
-
+type AdminSection = 'dashboard' | 'users' | 'certificates' | 'certRequests' | 'testSubmissions' | 'analytics' | 'logs' | 'errors' | 'communication' | 'domains' | 'materials' | 'mcqTests' | 'testResultsView' | 'coupons' | 'mentorBookings' | 'settings';
 // ─── Helper: resolve domain title from domainId ───
 function getDomainTitle(domainId: string): string {
   const domain = INTERNSHIP_DOMAINS.find(d => d.id === domainId);
@@ -113,6 +112,10 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
   const [certDateFor, setCertDateFor] = useState<EnrollmentState | null>(null);
   const [customCertDate, setCustomCertDate] = useState(new Date().toISOString().split('T')[0]);
 
+  // Messaging Modal
+  const [messagingStudent, setMessagingStudent] = useState<EnrollmentState | null>(null);
+  const [msgContent, setMsgContent] = useState('');
+
   // Metrics
   const thisMonthEnrollments = useMemo(() => {
     const now = new Date();
@@ -144,8 +147,12 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
 
   // Mentor bookings
   const [mentorBookings, setMentorBookings] = useState<any[]>([]);
+  
+  // Test Submissions
+  const [testSubmissions, setTestSubmissions] = useState<any[]>([]);
 
-  // Communication
+  // Communication / Messages
+  const [adminMessages, setAdminMessages] = useState<any[]>([]);
   const [commSubject, setCommSubject] = useState('');
   const [commMessage, setCommMessage] = useState('');
 
@@ -254,6 +261,23 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
       setErrors(fetchedErrors);
     });
 
+    // Load test submissions
+    const subCol = collection(db, 'testSubmissions');
+    const unsubSub = onSnapshot(subCol, snap => {
+      const subs: any[] = [];
+      snap.forEach(d => subs.push({ id: d.id, ...d.data() }));
+      subs.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+      setTestSubmissions(subs);
+    }, () => {});
+
+    // Load admin messages
+    const msgCol = collection(db, 'adminMessages');
+    const unsubMsg = onSnapshot(msgCol, snap => {
+      const msgs: any[] = [];
+      snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+      msgs.sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime());
+      setAdminMessages(msgs);
+    }, () => {});
     // Load settings from Firestore
     const settingsDoc = doc(db, 'portalSettings', 'main');
     const unsubSettings = onSnapshot(settingsDoc, (snap) => {
@@ -324,7 +348,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
       setMentorBookings(bookings);
     }, () => {});
 
-    return () => { unsubscribe(); unsubDomains(); unsubMaterials(); unsubQuestions(); unsubResults(); unsubCoupons(); unsubAdmins(); unsubBookings(); unsubSettings(); unsubLogs(); unsubErrors(); };
+    return () => { unsubscribe(); unsubDomains(); unsubMaterials(); unsubQuestions(); unsubResults(); unsubCoupons(); unsubAdmins(); unsubBookings(); unsubSettings(); unsubLogs(); unsubErrors(); unsubSub(); unsubMsg(); };
   }, []);
 
   // ─── Helpers ───
@@ -617,6 +641,32 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
     });
   };
 
+  const handleBulkDownloadCerts = async () => {
+    const eligible = selectedIds
+      .map(id => allEnrollments.find(e => e.candidateId === id))
+      .filter(e => e && e.certificateIssued) as EnrollmentState[];
+    
+    if (eligible.length === 0) {
+      alert('No selected enrollments have an issued certificate.');
+      return;
+    }
+    
+    const zip = new JSZip();
+    for (const enr of eligible) {
+      const pdfBytes = await downloadCertificatePDF(enr, getDomainTitle(enr.domainId), true);
+      if (pdfBytes) {
+        zip.file(`${enr.candidateId}_${enr.fullName.replace(/\s+/g, '_')}_Certificate.pdf`, pdfBytes);
+      }
+    }
+    const content = await zip.generateAsync({ type: 'blob' });
+    const url = URL.createObjectURL(content);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `invigo_certificates_${new Date().toISOString().split('T')[0]}.zip`;
+    a.click();
+    addLog(`Bulk downloaded ${eligible.length} certificate PDFs as ZIP`, 'certificate');
+  };
+
   const handleSaveSettings = async () => {
     try {
       await setDoc(doc(db, 'portalSettings', 'main'), settings);
@@ -846,17 +896,20 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
 
   const navItems: { id: AdminSection; label: string; icon: any; badge?: number }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'analytics', label: 'Revenue Analytics', icon: TrendingUp },
     { id: 'users', label: 'User Management', icon: Users, badge: totalStudents },
     { id: 'certificates', label: 'Certificates', icon: Award, badge: certifiedCount },
+    { id: 'certRequests', label: 'Cert Requests', icon: Award, badge: allEnrollments.filter(e => e.certificateRequested && !e.certificateIssued).length },
     { id: 'domains', label: 'Domain Management', icon: Globe },
     { id: 'materials', label: 'Study Materials', icon: BookOpen, badge: allMaterials.length },
     { id: 'mcqTests', label: 'MCQ Tests', icon: FileQuestion, badge: allQuestions.length },
+    { id: 'testSubmissions', label: 'Test Queue', icon: FileQuestion, badge: testSubmissions.filter(s => s.status === 'pending_grade').length },
     { id: 'testResultsView', label: 'Test Results', icon: CheckCircle, badge: testResults.length },
     { id: 'coupons', label: 'Coupons', icon: Tag, badge: allCoupons.length },
     { id: 'mentorBookings', label: 'Mentor Bookings', icon: Calendar, badge: mentorBookings.length },
+    { id: 'communication', label: 'Communication', icon: MessageSquare, badge: adminMessages.filter(m => !m.read).length },
     { id: 'logs', label: 'Activity Logs', icon: Activity, badge: logs.length },
     { id: 'errors', label: 'Error Reports', icon: AlertTriangle, badge: activeErrors },
-    { id: 'communication', label: 'Communication', icon: MessageSquare },
     { id: 'settings', label: 'Portal Settings', icon: Settings2 },
   ];
 
@@ -1210,6 +1263,192 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
             </motion.div>
           )}
 
+          {/* ═══════════════════════ ANALYTICS SECTION ═══════════════════════ */}
+          {activeSection === 'analytics' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-slate-800">Revenue Analytics</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase">Total Revenue</span>
+                  <h3 className="text-2xl font-bold text-emerald-600 mt-1">₹{totalRevenue.toLocaleString()}</h3>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase">This Month</span>
+                  <h3 className="text-2xl font-bold text-blue-600 mt-1">
+                    ₹{allEnrollments.filter(e => {
+                        const d = new Date(e.enrollmentDate || '');
+                        const now = new Date();
+                        return !isNaN(d.getTime()) && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && e.paymentVerified;
+                      }).reduce((acc, e) => acc + (e.amountPaid || 0), 0).toLocaleString()}
+                  </h3>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase">Conversion Rate</span>
+                  <h3 className="text-2xl font-bold text-amber-600 mt-1">
+                    {totalStudents > 0 ? Math.round((verifiedPayments / totalStudents) * 100) : 0}%
+                  </h3>
+                </div>
+                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase">Avg Duration</span>
+                  <h3 className="text-2xl font-bold text-purple-600 mt-1">
+                    {totalStudents > 0 ? Math.round(allEnrollments.reduce((acc, e) => acc + (e.durationWeeks || 0), 0) / totalStudents) : 0} wks
+                  </h3>
+                </div>
+              </div>
+              {/* Top Domains by Revenue */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center gap-2"><Globe className="w-4 h-4 text-blue-600"/> Top Domains by Revenue</h3>
+                <div className="space-y-4">
+                  {Object.entries(allEnrollments.filter(e => e.paymentVerified).reduce((acc: any, e) => {
+                    acc[e.domainId] = (acc[e.domainId] || 0) + (e.amountPaid || 0);
+                    return acc;
+                  }, {})).sort((a: any, b: any) => b[1] - a[1]).slice(0, 5).map(([dId, rev]: any) => (
+                    <div key={dId}>
+                      <div className="flex justify-between text-xs mb-1">
+                        <span className="font-semibold text-slate-700">{getDomainTitle(dId)}</span>
+                        <span className="font-bold text-slate-600">₹{rev.toLocaleString()}</span>
+                      </div>
+                      <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${((rev as number) / Math.max(totalRevenue, 1)) * 100}%` }}></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ═══════════════════════ CERT REQUESTS SECTION ═══════════════════════ */}
+          {activeSection === 'certRequests' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex items-start gap-3">
+                <Info className="w-5 h-5 text-emerald-600 mt-0.5 shrink-0" />
+                <div>
+                  <h4 className="text-sm font-bold text-emerald-800">Certificate Requests Queue</h4>
+                  <p className="text-xs text-emerald-700 mt-1">These students have completed their internship and clicked 'Request Certificate'. Verify payment and test score before issuing.</p>
+                </div>
+              </div>
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
+                  <thead className="bg-slate-50 font-bold uppercase tracking-wider text-[10px] text-slate-500">
+                    <tr>
+                      <th className="py-3 px-4">Student</th>
+                      <th className="py-3 px-4">Domain</th>
+                      <th className="py-3 px-4 text-center">Payment</th>
+                      <th className="py-3 px-4 text-center">Test Passed</th>
+                      <th className="py-3 px-4">Requested At</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white font-medium">
+                    {allEnrollments.filter(e => e.certificateRequested && !e.certificateIssued).map(e => (
+                      <tr key={e.candidateId} className="hover:bg-slate-50">
+                        <td className="py-3 px-4">
+                          <div className="font-bold text-slate-800">{e.fullName}</div>
+                          <div className="text-[10px] text-slate-400">{e.email}</div>
+                        </td>
+                        <td className="py-3 px-4">{getDomainTitle(e.domainId)} ({e.durationWeeks}W)</td>
+                        <td className="py-3 px-4 text-center">
+                          {e.paymentVerified ? <span className="text-emerald-600 bg-emerald-50 px-2 py-1 rounded font-bold">Yes</span> : <span className="text-red-600 bg-red-50 px-2 py-1 rounded font-bold">No</span>}
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          {e.testPassed ? <span className="text-emerald-600 bg-emerald-50 px-2 py-1 rounded font-bold">Yes ({e.testScore}%)</span> : <span className="text-amber-600 bg-amber-50 px-2 py-1 rounded font-bold">No/Pending</span>}
+                        </td>
+                        <td className="py-3 px-4 text-slate-500">{e.certificateRequestedAt ? new Date(e.certificateRequestedAt).toLocaleDateString() : 'Unknown'}</td>
+                        <td className="py-3 px-4">
+                          <div className="flex justify-end gap-1">
+                            <button onClick={() => handleIssueCertificate(e)} className="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] font-bold shadow-sm transition-all active:scale-95">Issue</button>
+                            <button onClick={() => setCertDateFor(e)} className="px-2 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded text-[10px] font-bold shadow-sm transition-all active:scale-95">Custom Date</button>
+                            <button onClick={async () => {
+                              const reason = prompt('Reason for denial:');
+                              if (reason) {
+                                await updateDoc(doc(db, 'enrollments', e.candidateId), { certificateRequested: false, certDenyReason: reason });
+                                addLog(`Denied certificate request for ${e.fullName}: ${reason}`, 'certificate');
+                              }
+                            }} className="px-2 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-[10px] font-bold shadow-sm transition-all active:scale-95">Deny</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {allEnrollments.filter(e => e.certificateRequested && !e.certificateIssued).length === 0 && (
+                      <tr><td colSpan={6} className="py-8 text-center text-slate-400">No pending requests.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ═══════════════════════ TEST SUBMISSIONS SECTION ═══════════════════════ */}
+          {activeSection === 'testSubmissions' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-slate-800">Test Queue</h2>
+              </div>
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
+                  <thead className="bg-slate-50 font-bold uppercase tracking-wider text-[10px] text-slate-500">
+                    <tr>
+                      <th className="py-3 px-4">Student</th>
+                      <th className="py-3 px-4">Domain</th>
+                      <th className="py-3 px-4">Submitted At</th>
+                      <th className="py-3 px-4 text-center">Status</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white font-medium">
+                    {testSubmissions.filter(s => s.status === 'pending_grade').map(sub => {
+                      const enr = allEnrollments.find(e => e.candidateId === sub.enrollmentId);
+                      return (
+                        <tr key={sub.id} className="hover:bg-slate-50">
+                          <td className="py-3 px-4">
+                            <div className="font-bold text-slate-800">{enr?.fullName || sub.enrollmentId}</div>
+                            <div className="text-[10px] text-slate-400">{enr?.email || ''}</div>
+                          </td>
+                          <td className="py-3 px-4">{getDomainTitle(sub.domainId)}</td>
+                          <td className="py-3 px-4 text-slate-500">{new Date(sub.submittedAt).toLocaleString()}</td>
+                          <td className="py-3 px-4 text-center"><span className="text-amber-600 bg-amber-50 px-2 py-1 rounded font-bold text-[10px]">Pending</span></td>
+                          <td className="py-3 px-4 text-right">
+                            <button onClick={async () => {
+                              try {
+                                const qSnap = await getDocs(query(collection(db, 'mcqQuestions'), where('domainId', 'in', [sub.domainId, 'general'])));
+                                let correct = 0;
+                                let total = 0;
+                                const fallbackQs = (DEFAULT_MCQ_QUESTIONS[sub.domainId] || []).concat(DEFAULT_MCQ_QUESTIONS['general'] || []);
+                                const qList = qSnap.empty ? fallbackQs : qSnap.docs.map(d => d.data() as MCQQuestion);
+                                for (const ans of sub.answers) {
+                                  const q = qList.find((x: any) => x.id === ans.questionId);
+                                  if (q && q.correctIndex === ans.selectedOptionIndex) correct++;
+                                  total++;
+                                }
+                                const score = total > 0 ? Math.round((correct / total) * 100) : 0;
+                                const passed = score >= 60;
+                                
+                                await updateDoc(doc(db, 'testSubmissions', sub.id), { status: 'graded', score, passed });
+                                await setDoc(doc(db, 'testResults', sub.id), { ...sub, score, passed, gradedAt: new Date().toISOString() });
+                                if (enr) {
+                                  await updateDoc(doc(db, 'enrollments', enr.candidateId), { testScore: score, testPassed: passed, testCompletedAt: new Date().toISOString() });
+                                }
+                                addLog(`Graded test for ${enr?.fullName || sub.enrollmentId} - Score: ${score}%`, 'user');
+                              } catch (e) { console.error(e); alert('Error grading test'); }
+                            }} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95">
+                              Grade Test
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {testSubmissions.filter(s => s.status === 'pending_grade').length === 0 && (
+                      <tr><td colSpan={5} className="py-8 text-center text-slate-400">No pending test submissions.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          )}
+
           {/* ═══════════════════════ USERS SECTION ═══════════════════════ */}
           {activeSection === 'users' && (
             <motion.div
@@ -1533,6 +1772,13 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                             <td className="py-3.5 px-4">
                               <div className="flex items-center justify-center gap-1">
                                 <button
+                                  title="Message"
+                                  onClick={() => setMessagingStudent(enr)}
+                                  className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all cursor-pointer"
+                                >
+                                  <Mail className="h-3.5 w-3.5" />
+                                </button>
+                                <button
                                   title="View"
                                   onClick={() => setViewingStudent(enr)}
                                   className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-all cursor-pointer"
@@ -1660,6 +1906,43 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                           className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl cursor-pointer active:scale-95 transition-all"
                         >
                           Issue All ({eligible.length})
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (!window.confirm(`Are you sure you want to download ${eligible.length} certificates as a ZIP?`)) return;
+                            try {
+                              const zip = new JSZip();
+                              const folder = zip.folder("Certificates");
+                              if (!folder) return;
+                              for (const e of eligible) {
+                                const pdfBytes = await downloadCertificatePDF(e, getDomainTitle(e.domainId), true);
+                                if (pdfBytes) {
+                                  folder.file(`Certificate_${e.fullName.replace(/\s+/g, '_')}.pdf`, pdfBytes);
+                                  await updateDoc(doc(db, 'enrollments', e.candidateId), {
+                                    certificateIssued: true,
+                                    certificateDate: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                                    status: 'Completed'
+                                  });
+                                }
+                              }
+                              const content = await zip.generateAsync({ type: 'blob' });
+                              const url = URL.createObjectURL(content);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = `Bulk_Certificates_${new Date().toISOString().split('T')[0]}.zip`;
+                              document.body.appendChild(a);
+                              a.click();
+                              document.body.removeChild(a);
+                              URL.revokeObjectURL(url);
+                              addLog(`Bulk exported ${eligible.length} certificates to ZIP`, 'certificate');
+                            } catch (err) {
+                              console.error(err);
+                              alert('Error creating ZIP file.');
+                            }
+                          }}
+                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl cursor-pointer active:scale-95 transition-all flex items-center gap-1.5"
+                        >
+                          <Download className="h-3.5 w-3.5" /> Export ZIP
                         </button>
                       </div>
                     );
@@ -2423,6 +2706,8 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                     <thead><tr className="bg-slate-50 border-b border-slate-200">
                       <th className="text-left px-4 py-3 font-bold text-slate-600">Coupon Code</th>
                       <th className="text-center px-4 py-3 font-bold text-slate-600">Discount (%)</th>
+                      <th className="text-center px-4 py-3 font-bold text-slate-600">Uses</th>
+                      <th className="text-center px-4 py-3 font-bold text-slate-600">Revenue</th>
                       <th className="text-center px-4 py-3 font-bold text-slate-600">Expires At</th>
                       <th className="text-center px-4 py-3 font-bold text-slate-600">Status</th>
                       <th className="text-right px-4 py-3 font-bold text-slate-600">Actions</th>
@@ -2434,6 +2719,12 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                         <tr key={coupon.id} className="border-b border-slate-100 hover:bg-slate-50">
                           <td className="px-4 py-3 font-mono font-bold text-purple-700">{coupon.code}</td>
                           <td className="px-4 py-3 text-center font-bold text-emerald-600">{coupon.discountPercent}%</td>
+                          <td className="px-4 py-3 text-center text-slate-500 font-mono font-bold">
+                            {allEnrollments.filter(e => e.appliedCouponCode === coupon.code).length}
+                          </td>
+                          <td className="px-4 py-3 text-center text-emerald-600 font-mono font-bold">
+                            ₹{allEnrollments.filter(e => e.appliedCouponCode === coupon.code && e.paymentVerified).reduce((sum, e) => sum + (e.amountPaid || 0), 0).toLocaleString()}
+                          </td>
                           <td className="px-4 py-3 text-center text-slate-500">{coupon.expiresAt ? new Date(coupon.expiresAt).toLocaleDateString() : 'Never'}</td>
                           <td className="px-4 py-3 text-center">
                             <button
@@ -2553,6 +2844,32 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                 </div>
 
                 <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
+                  <h3 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-2">Global Announcement Banner</h3>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700">Announcement Text</label>
+                    <textarea rows={2} value={settings.announcementText || ''} onChange={e => setSettings({...settings, announcementText: e.target.value})} placeholder="Leave blank to disable banner" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-xs font-bold text-slate-700">Banner Type</label>
+                    <select value={settings.announcementType || 'info'} onChange={e => setSettings({...settings, announcementType: e.target.value as any})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm">
+                      <option value="info">Info (Blue)</option>
+                      <option value="success">Success (Green)</option>
+                      <option value="warning">Warning (Yellow)</option>
+                    </select>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-700">Start Date (Optional)</label>
+                      <input type="date" value={settings.announcementStartDate || ''} onChange={e => setSettings({...settings, announcementStartDate: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-bold text-slate-700">End Date (Optional)</label>
+                      <input type="date" value={settings.announcementEndDate || ''} onChange={e => setSettings({...settings, announcementEndDate: e.target.value})} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
                   <h3 className="font-bold text-slate-800 text-sm border-b border-slate-100 pb-2 flex justify-between items-center">
                     Admin Accounts
                     <button onClick={() => {
@@ -2578,11 +2895,106 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
               </div>
             </motion.div>
           )}
+          {/* ═══════════════════════ COMMUNICATION SECTION ═══════════════════════ */}
+          {activeSection === 'communication' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-slate-800">Direct Messaging</h2>
+                <span className="text-xs text-slate-500">Sent Messages</span>
+              </div>
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
+                  <thead className="bg-slate-50 font-bold uppercase tracking-wider text-[10px] text-slate-500">
+                    <tr>
+                      <th className="py-3 px-4">To</th>
+                      <th className="py-3 px-4">Message Preview</th>
+                      <th className="py-3 px-4">Sent At</th>
+                      <th className="py-3 px-4 text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 bg-white font-medium">
+                    {adminMessages.map(msg => {
+                      const enr = allEnrollments.find(e => e.candidateId === msg.studentId);
+                      return (
+                        <tr key={msg.id} className="hover:bg-slate-50">
+                          <td className="py-3 px-4">
+                            <div className="font-bold text-slate-800">{enr?.fullName || msg.studentId}</div>
+                            <div className="text-[10px] text-slate-400">{enr?.email || ''}</div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <p className="text-slate-600 line-clamp-1 max-w-md">{msg.content}</p>
+                          </td>
+                          <td className="py-3 px-4 text-slate-500">{new Date(msg.sentAt).toLocaleString()}</td>
+                          <td className="py-3 px-4 text-center">
+                            {msg.read ? <span className="text-emerald-600 bg-emerald-50 px-2 py-1 rounded font-bold text-[10px]">Read</span> : <span className="text-slate-600 bg-slate-100 px-2 py-1 rounded font-bold text-[10px]">Unread</span>}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {adminMessages.length === 0 && (
+                      <tr><td colSpan={4} className="py-8 text-center text-slate-400">No messages sent yet.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          )}
 
         </div>
       </main>
 
       {/* ─── MODALS ─── */}
+
+      {/* ─── MESSAGING MODAL ─── */}
+      <AnimatePresence>
+        {messagingStudent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-md"
+            >
+              <div className="p-5 border-b border-slate-100 flex justify-between items-center">
+                <h3 className="font-bold text-slate-800 text-base flex items-center gap-2"><Mail className="w-5 h-5 text-blue-600"/> Message Student</h3>
+                <button onClick={() => setMessagingStudent(null)} className="p-2 bg-slate-50 hover:bg-slate-100 rounded-full text-slate-500 cursor-pointer">
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+              <div className="p-5 space-y-4">
+                <div>
+                  <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">To:</p>
+                  <p className="text-sm font-semibold text-slate-800">{messagingStudent.fullName} ({messagingStudent.email})</p>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">Message Content</label>
+                  <textarea rows={4} value={msgContent} onChange={(e) => setMsgContent(e.target.value)} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm outline-none focus:border-blue-500" placeholder="Type your message here..." />
+                </div>
+              </div>
+              <div className="p-5 border-t border-slate-100 flex justify-end gap-3">
+                <button onClick={() => setMessagingStudent(null)} className="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 cursor-pointer">Cancel</button>
+                <button onClick={async () => {
+                  if (!msgContent.trim()) return;
+                  try {
+                    await addDoc(collection(db, 'adminMessages'), {
+                      studentId: messagingStudent.candidateId,
+                      content: msgContent.trim(),
+                      sentAt: new Date().toISOString(),
+                      read: false
+                    });
+                    addLog(`Sent direct message to ${messagingStudent.fullName}`, 'communication');
+                    setMessagingStudent(null);
+                    setMsgContent('');
+                  } catch (e) {
+                    console.error(e);
+                    alert('Failed to send message.');
+                  }
+                }} className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 flex items-center gap-1 cursor-pointer shadow-sm"><Send className="h-4 w-4" /> Send</button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* ─── ENROLL STUDENT MODAL ─── */}
       <AnimatePresence>

@@ -280,6 +280,39 @@ export default function App() {
 
   const isAdminUser = currentUser && ADMIN_EMAILS.includes(currentUser.email.toLowerCase());
 
+  const isAnnouncementActive = () => {
+    if (!portalSettings || !portalSettings.announcementText) return false;
+    const now = new Date();
+    if (portalSettings.announcementStartDate) {
+      const start = new Date(portalSettings.announcementStartDate);
+      start.setHours(0, 0, 0, 0);
+      if (now < start) return false;
+    }
+    if (portalSettings.announcementEndDate) {
+      const end = new Date(portalSettings.announcementEndDate);
+      end.setHours(23, 59, 59, 999);
+      if (now > end) return false;
+    }
+    return true;
+  };
+
+  const getAnnouncementColor = () => {
+    switch (portalSettings?.announcementType) {
+      case 'warning': return 'bg-amber-100 text-amber-800 border-amber-200';
+      case 'success': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+      default: return 'bg-blue-100 text-blue-800 border-blue-200';
+    }
+  };
+
+  const renderAnnouncement = () => {
+    if (!isAnnouncementActive()) return null;
+    return (
+      <div className={`w-full px-4 py-2.5 text-center text-sm font-bold border-b z-40 relative ${getAnnouncementColor()} shadow-sm`}>
+        {portalSettings!.announcementText}
+      </div>
+    );
+  };
+
   if (isAdminUser) {
     return (
       <div className="flex min-h-screen flex-col bg-[#f8fafc] font-sans text-slate-800 selection:bg-cyan-100 selection:text-cyan-900 relative overflow-hidden">
@@ -291,6 +324,7 @@ export default function App() {
           onLogout={handleLogout}
           hasCompletedInternship={hasCompletedInternship}
         />
+        {renderAnnouncement()}
         <main className="flex-grow relative z-10">
           <Suspense fallback={<PageLoader />}>
             <AdminPanel 
@@ -321,6 +355,7 @@ export default function App() {
         onLogout={handleLogout}
         hasCompletedInternship={hasCompletedInternship}
       />
+      {renderAnnouncement()}
 
       {/* Main viewport switcher */}
       <main className="flex-grow relative z-10">

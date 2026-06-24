@@ -123,5 +123,11 @@ service cloud.firestore {
         && incoming().studentEmail.lower() == request.auth.token.email.lower();
       allow read, update, delete: if isAdmin();
     }
+
+    // Admin Messages
+    match /adminMessages/{msgId} {
+      allow create, update, delete: if isAdmin();
+      allow read, update: if isSignedIn(); // allow read and marking as read
+    }
   }
 }

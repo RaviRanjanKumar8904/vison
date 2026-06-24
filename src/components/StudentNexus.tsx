@@ -158,7 +158,7 @@ export default function StudentNexus({
   const matchedDomain = INTERNSHIP_DOMAINS.find(domain => domain.id === activeEnrollment?.domainId) || INTERNSHIP_DOMAINS[0];
 
   // Active sub-sections (Samsung One UI segmented control)
-  const [activeSubTab, setActiveSubTab] = useState<'homework' | 'mentor' | 'certificate' | 'roadmap'>('homework');
+  const [activeSubTab, setActiveSubTab] = useState<'homework' | 'certificate' | 'roadmap' | 'messages'>('homework');
   const [selectedRoadmapNode, setSelectedRoadmapNode] = useState<'current' | 'next' | 'specialty'>('next');
 
   // Study Materials State
@@ -253,6 +253,18 @@ export default function StudentNexus({
 
     return () => { unsubMat(); unsubQ(); };
   }, [activeEnrollment]);
+  // Fetch admin messages
+  const [messages, setMessages] = useState<any[]>([]);
+  useEffect(() => {
+    if (!activeEnrollment?.candidateId) return;
+    const q = query(collection(db, 'adminMessages'), where('studentId', '==', activeEnrollment.candidateId));
+    const unsub = onSnapshot(q, snap => {
+      const msgs = snap.docs.map(d => ({ id: d.id, ...(d.data() as any) }));
+      msgs.sort((a, b) => new Date(b.sentAt).getTime() - new Date(a.sentAt).getTime());
+      setMessages(msgs);
+    });
+    return () => unsub();
+  }, [activeEnrollment?.candidateId]);
 
   // On completion: write to Firestore
   const handleMarkMaterialComplete = async (index: number) => {
@@ -692,7 +704,20 @@ export default function StudentNexus({
               <span>Roadmap</span>
             </button>
 
-            
+            <button
+              onClick={() => setActiveSubTab('messages')}
+              className={`py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                activeSubTab === 'messages'
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'text-slate-500 hover:text-slate-800 hover:bg-slate-100'
+              }`}
+            >
+              <MessageSquare className="h-4.5 w-4.5" />
+              <span>Messages</span>
+              {messages.filter(m => !m.read).length > 0 && (
+                <span className="bg-red-500 text-white text-[10px] px-1.5 py-0.5 rounded-full">{messages.filter(m => !m.read).length}</span>
+              )}
+            </button>
 
           </div>
         </div>
@@ -1449,6 +1474,44 @@ export default function StudentNexus({
               </motion.div>
             );
           })()}
+
+          {/* TAB 4: MESSAGES */}
+          {activeSubTab === 'messages' && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+              <div className="flex items-center gap-2 mb-2">
+                <MessageSquare className="h-5 w-5 text-blue-600" />
+                <h3 className="text-lg font-bold text-slate-900">Admin Messages</h3>
+              </div>
+              <div className="space-y-3">
+                {messages.length === 0 ? (
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-10 text-center">
+                    <MessageSquare className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-500 text-sm font-medium">You have no messages yet.</p>
+                  </div>
+                ) : (
+                  messages.map(msg => (
+                    <div key={msg.id} className={`p-4 rounded-2xl border ${!msg.read ? 'bg-blue-50/50 border-blue-200 shadow-sm' : 'bg-white border-slate-200'}`}>
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-xs font-bold text-blue-800">Support Team</span>
+                        <span className="text-[10px] text-slate-400 font-mono">{new Date(msg.sentAt).toLocaleString()}</span>
+                      </div>
+                      <p className="text-sm text-slate-700 whitespace-pre-wrap">{msg.content}</p>
+                      {!msg.read && (
+                        <button 
+                          onClick={async () => {
+                            await updateDoc(doc(db, 'adminMessages', msg.id), { read: true });
+                          }}
+                          className="mt-3 text-[10px] font-bold text-blue-600 bg-blue-100 hover:bg-blue-200 px-2 py-1 rounded transition-colors"
+                        >
+                          Mark as Read
+                        </button>
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          )}
 
           </div>
 

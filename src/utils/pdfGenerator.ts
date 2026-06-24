@@ -419,7 +419,7 @@ export async function generateManualCertificatePDF(data: ManualCertData): Promis
 // ═══════════════════════════════════════════════
 // ENROLLMENT-BASED CERTIFICATE
 // ═══════════════════════════════════════════════
-export async function downloadCertificatePDF(cert: EnrollmentState, domainTitle: string): Promise<void> {
+export async function downloadCertificatePDF(cert: EnrollmentState, domainTitle: string, returnBytes: boolean = false): Promise<Uint8Array | void> {
   const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
   const regNo = cert.registrationNo || cert.candidateId;
   const issuedDate = cert.certificateDate
@@ -447,6 +447,9 @@ export async function downloadCertificatePDF(cert: EnrollmentState, domainTitle:
     docType: 'Certificate'
   });
 
+  if (returnBytes) {
+    return new Uint8Array(doc.output('arraybuffer'));
+  }
   doc.save(`Certificate_InvigoInfotech_${cert.fullName.replace(/\s+/g, '_')}.pdf`);
 }
 
