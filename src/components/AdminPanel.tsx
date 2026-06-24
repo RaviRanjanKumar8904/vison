@@ -122,11 +122,6 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
     }).length;
   }, [allEnrollments]);
 
-  const testPassRate = useMemo(() => {
-    if (testResults.length === 0) return 0;
-    const passed = testResults.filter(r => r.passed).length;
-    return Math.round((passed / testResults.length) * 100);
-  }, [testResults]);
 
   // Activity Logs
   const [logs, setLogs] = useState<ActivityLog[]>([]);
@@ -187,6 +182,11 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
   const [questionDomainFilter, setQuestionDomainFilter] = useState('All');
   const [testResults, setTestResults] = useState<any[]>([]);
 
+  const testPassRate = useMemo(() => {
+    if (testResults.length === 0) return 0;
+    const passed = testResults.filter((r: any) => r.passed).length;
+    return Math.round((passed / testResults.length) * 100);
+  }, [testResults]);
   // Coupons
   const [allCoupons, setAllCoupons] = useState<Coupon[]>([]);
   const [showAddCouponModal, setShowAddCouponModal] = useState(false);
