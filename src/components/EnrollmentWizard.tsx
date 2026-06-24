@@ -217,7 +217,8 @@ export default function EnrollmentWizard({
     const cleanReg = formData.registrationNo ? formData.registrationNo.replace(/[^a-zA-Z0-9]/g, '').toUpperCase() : Math.floor(1000 + Math.random() * 9000).toString();
     const last4Reg = cleanReg.length >= 4 ? cleanReg.slice(-4) : cleanReg.padStart(4, '0');
     const courseCode = formData.domainId ? formData.domainId.replace(/[^a-zA-Z]/g, '').substring(0, 2).toUpperCase() : 'XX';
-    return `${year}IN${courseCode}${last4Reg}`;
+    const uniqueSuffix = Math.random().toString(36).substring(2, 5).toUpperCase();
+    return `${year}IN${courseCode}${last4Reg}${uniqueSuffix}`;
   };
 
   const handleFormSubmit = (e: FormEvent) => {
@@ -245,7 +246,7 @@ export default function EnrollmentWizard({
     setTimeout(async () => {
       const compiledOffer: EnrollmentState = {
         ...formData,
-        email: formData.email.toLowerCase(),
+        email: formData.email.trim().toLowerCase(),
         candidateId: generateCandidateId(),
         enrollmentDate: new Date().toISOString(),
         status: 'Initiated',
@@ -255,8 +256,8 @@ export default function EnrollmentWizard({
         paymentVerified: false,
         paymentStatus: 'pending',
         certificateIssued: false,
-        appliedCouponCode: appliedCoupon?.code,
-        discountAmount: discountAmt
+        appliedCouponCode: appliedCoupon ? appliedCoupon.code : null,
+        discountAmount: discountAmt || 0
       };
       
       try {
