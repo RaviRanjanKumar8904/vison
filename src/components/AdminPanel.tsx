@@ -172,7 +172,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
   // Coupons
   const [allCoupons, setAllCoupons] = useState<Coupon[]>([]);
   const [showAddCouponModal, setShowAddCouponModal] = useState(false);
-  const [newCoupon, setNewCoupon] = useState({ code: '', discountPercent: 33, active: true, expiresAt: '' });
+  const [newCoupon, setNewCoupon] = useState({ code: '', discountPercent: 33, active: true, expiresAt: '', collaboratorName: '' });
 
   // ─── Load enrollments from Firestore ───
   useEffect(() => {
@@ -185,9 +185,11 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
         
         if (candidateId.startsWith('INV-')) {
           const year = new Date().getFullYear();
-          let regNo = data.registrationNo ? data.registrationNo.replace(/\s+/g, '').toUpperCase() : '';
-          if (!regNo) regNo = candidateId.includes('ADM') ? `ADM${Date.now().toString(36).toUpperCase()}` : Math.floor(100000 + Math.random() * 900000).toString(16).toUpperCase();
-          const newId = `${year}IN${regNo}`;
+          let cleanReg = data.registrationNo ? data.registrationNo.replace(/\s+/g, '').toUpperCase() : '';
+          if (!cleanReg) cleanReg = candidateId.includes('ADM') ? `ADM${Date.now().toString(36).toUpperCase()}` : Math.floor(1000 + Math.random() * 9000).toString();
+          const last4Reg = cleanReg.length >= 4 ? cleanReg.slice(-4) : cleanReg.padStart(4, '0');
+          const courseCode = data.domainId ? data.domainId.replace(/[^a-zA-Z]/g, '').substring(0, 2).toUpperCase() : 'XX';
+          const newId = `${year}IN${courseCode}${last4Reg}`;
           
           setTimeout(async () => {
              try {
@@ -209,23 +211,33 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
       setIsLoading(false);
     });
 
-    // Load initial logs
-    const initialLogs: ActivityLog[] = [
-      { id: '1', timestamp: new Date(Date.now() - 300000).toLocaleString(), action: 'Admin panel session initialized', admin: currentUser?.email || 'admin', type: 'user' },
-      { id: '2', timestamp: new Date(Date.now() - 1200000).toLocaleString(), action: 'System health check completed — all nodes operational', admin: 'system', type: 'setting' },
-    ];
-    setLogs(initialLogs);
+    // Load logs from Firestore
+    const logsCol = collection(db, 'activityLogs');
+    const unsubLogs = onSnapshot(logsCol, (snap) => {
+      const fetchedLogs: ActivityLog[] = [];
+      snap.forEach(d => fetchedLogs.push({ id: d.id, ...d.data() } as ActivityLog));
+      fetchedLogs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      setLogs(fetchedLogs.length > 0 ? fetchedLogs : [
+        { id: '1', timestamp: new Date().toLocaleString(), action: 'Admin panel initialized', admin: 'system', type: 'system' } as any
+      ]);
+    });
 
-    // Load settings from localStorage
-    const savedSettings = localStorage.getItem('invigo_admin_settings');
-    if (savedSettings) {
-      try { setSettings(JSON.parse(savedSettings)); } catch (e) { /* ignore */ }
-    }
+    // Load errors from Firestore
+    const errorsCol = collection(db, 'errorReports');
+    const unsubErrors = onSnapshot(errorsCol, (snap) => {
+      const fetchedErrors: ErrorReport[] = [];
+      snap.forEach(d => fetchedErrors.push({ id: d.id, ...d.data() } as ErrorReport));
+      fetchedErrors.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      setErrors(fetchedErrors);
+    });
 
-    
-    setErrors([
-      { id: 'err_1', timestamp: new Date(Date.now() - 7200000).toLocaleString(), message: 'Firestore cold-start latency spike detected (450ms)', source: 'Firestore SDK', severity: 'low', resolved: true },
-    ]);
+    // Load settings from Firestore
+    const settingsDoc = doc(db, 'portalSettings', 'main');
+    const unsubSettings = onSnapshot(settingsDoc, (snap) => {
+      if (snap.exists()) {
+        setSettings(snap.data() as PortalSettings);
+      }
+    });
 
     // Load domains from Firestore
     const domainsCol = collection(db, 'domains');
@@ -336,7 +348,9 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
     setEnrollLoading(true);
     try {
       const year = new Date().getFullYear();
-      const candidateId = `${year}INADM${Date.now().toString(36).toUpperCase()}`;
+      const courseCode = enrollForm.domainId ? enrollForm.domainId.replace(/[^a-zA-Z]/g, '').substring(0, 2).toUpperCase() : 'XX';
+      const last4Reg = Math.floor(1000 + Math.random() * 9000).toString();
+      const candidateId = `${year}IN${courseCode}${last4Reg}`;
       const newEnrollment: EnrollmentState = {
         ...enrollForm,
         candidateId,
@@ -541,9 +555,13 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
     });
   };
 
-  const handleSaveSettings = () => {
-    localStorage.setItem('invigo_admin_settings', JSON.stringify(settings));
-    addLog('Updated portal global settings', 'setting');
+  const handleSaveSettings = async () => {
+    try {
+      await setDoc(doc(db, 'portalSettings', 'main'), settings);
+      addLog('Updated portal global settings', 'setting');
+    } catch (err) {
+      addError('Failed to save settings', 'Firestore', 'medium');
+    }
   };
 
   // ─── Filter & Sort Logic ───
@@ -734,13 +752,12 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
         discountPercent: newCoupon.discountPercent,
         active: newCoupon.active
       };
-      if (newCoupon.expiresAt) {
-        couponData.expiresAt = newCoupon.expiresAt;
-      }
+      if (newCoupon.expiresAt) couponData.expiresAt = newCoupon.expiresAt;
+      if (newCoupon.collaboratorName) couponData.collaboratorName = newCoupon.collaboratorName;
       await setDoc(doc(db, 'coupons', code), couponData);
       addLog(`Added new coupon: ${code} (${newCoupon.discountPercent}%)`, 'setting');
       setShowAddCouponModal(false);
-      setNewCoupon({ code: '', discountPercent: 33, active: true, expiresAt: '' });
+      setNewCoupon({ code: '', discountPercent: 33, active: true, expiresAt: '', collaboratorName: '' });
     } catch (err) { console.error(err); }
   };
 
@@ -1532,7 +1549,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                 <div className="rounded-2xl bg-white border border-slate-200 p-5">
                   <span className="text-[10px] text-slate-500 font-mono uppercase font-bold">Eligible (Not Issued)</span>
                   <h3 className="text-3xl font-mono font-extrabold text-blue-600 mt-2">
-                    {allEnrollments.filter(e => !e.certificateIssued && e.paymentVerified && isDurationComplete(e.startDate, e.durationWeeks)).length}
+                    {allEnrollments.filter(e => !e.certificateIssued && e.paymentVerified && (e.certificateRequested || isDurationComplete(e.startDate, e.durationWeeks))).length}
                   </h3>
                 </div>
                 <div className="rounded-2xl bg-white border border-slate-200 p-5">
@@ -1552,7 +1569,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
 
                 {/* Bulk action */}
                 {(() => {
-                  const eligible = allEnrollments.filter(e => !e.certificateIssued && e.paymentVerified && isDurationComplete(e.startDate, e.durationWeeks));
+                  const eligible = allEnrollments.filter(e => !e.certificateIssued && e.paymentVerified && (e.certificateRequested || isDurationComplete(e.startDate, e.durationWeeks)));
                   if (eligible.length > 0) {
                     return (
                       <div className="mb-4 p-3 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-between">
@@ -1622,18 +1639,107 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                             </div>
                           ) : (
                             enr.paymentVerified && (
-                              <button
-                                onClick={() => handleIssueCertificate(enr)}
-                                className={`px-3 py-1.5 text-white text-[9px] font-bold rounded-lg cursor-pointer active:scale-95 transition-all ${durationDone ? 'bg-blue-600 hover:bg-blue-700' : 'bg-amber-500 hover:bg-amber-600'}`}
-                              >
-                                🎓 Issue
-                              </button>
+                              <div className="flex items-center gap-2">
+                                {enr.certificateRequested && (
+                                  <span className="text-[9px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 animate-pulse">Requested</span>
+                                )}
+                                <button
+                                  onClick={() => handleIssueCertificate(enr)}
+                                  className={`px-3 py-1.5 text-white text-[9px] font-bold rounded-lg cursor-pointer active:scale-95 transition-all ${durationDone || enr.certificateRequested ? 'bg-blue-600 hover:bg-blue-700' : 'bg-amber-500 hover:bg-amber-600'}`}
+                                >
+                                  🎓 Issue
+                                </button>
+                              </div>
                             )
                           )}
                         </div>
                       </div>
                     );
                   })}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ═══════════════════════ REFER & EARN / COUPONS ═══════════════════════ */}
+          {activeSection === 'coupons' && (
+            <motion.div
+              key="coupons"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">Refer & Earn</h2>
+                  <p className="text-sm text-slate-500 mt-1">Manage collaborators and view referral rankings</p>
+                </div>
+                <button onClick={() => setShowAddCouponModal(true)} className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition-all cursor-pointer">
+                  <Plus className="w-4 h-4" /> Add Collaborator
+                </button>
+              </div>
+
+              {/* Leaderboard */}
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-500 text-[10px] uppercase tracking-wider">
+                        <th className="p-4 font-bold border-b border-slate-200">Rank</th>
+                        <th className="p-4 font-bold border-b border-slate-200">Collaborator</th>
+                        <th className="p-4 font-bold border-b border-slate-200">Coupon Code</th>
+                        <th className="p-4 font-bold border-b border-slate-200">Referral Link</th>
+                        <th className="p-4 font-bold border-b border-slate-200">Registrations</th>
+                        <th className="p-4 font-bold border-b border-slate-200">Discount</th>
+                        <th className="p-4 font-bold border-b border-slate-200">Status</th>
+                        <th className="p-4 font-bold border-b border-slate-200">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="text-sm divide-y divide-slate-100">
+                      {allCoupons.map((c) => {
+                        const regCount = allEnrollments.filter(e => e.appliedCouponCode === c.code).length;
+                        return { ...c, regCount };
+                      }).sort((a, b) => b.regCount - a.regCount).map((c, idx) => (
+                        <tr key={c.id} className="hover:bg-slate-50/50 transition-colors">
+                          <td className="p-4 font-bold text-slate-400">#{idx + 1}</td>
+                          <td className="p-4 font-bold text-slate-800">{c.collaboratorName || 'N/A'}</td>
+                          <td className="p-4 font-mono text-blue-600 font-bold">{c.code}</td>
+                          <td className="p-4">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-mono text-slate-500 truncate max-w-[150px]">
+                                {window.location.origin}/?ref={c.code}
+                              </span>
+                              <button onClick={() => navigator.clipboard.writeText(`${window.location.origin}/?ref=${c.code}`)} className="text-blue-500 hover:text-blue-700 p-1 cursor-pointer" title="Copy Link">
+                                <BookOpen className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <span className="bg-blue-50 text-blue-700 font-bold px-2.5 py-1 rounded-lg text-xs">
+                              {c.regCount} Users
+                            </span>
+                          </td>
+                          <td className="p-4 text-slate-600 font-semibold">{c.discountPercent}% Off</td>
+                          <td className="p-4">
+                            <button onClick={() => handleToggleCoupon(c)} className={`text-[10px] font-bold px-2 py-1 rounded-full cursor-pointer transition-all ${c.active ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 hover:bg-emerald-100' : 'bg-slate-100 text-slate-400 border border-slate-200 hover:bg-slate-200'}`}>
+                              {c.active ? 'Active' : 'Inactive'}
+                            </button>
+                          </td>
+                          <td className="p-4">
+                            <button onClick={() => handleRemoveCoupon(c.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer" title="Delete">
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {allCoupons.length === 0 && (
+                        <tr>
+                          <td colSpan={8} className="p-8 text-center text-slate-400">No collaborators or coupons found.</td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </motion.div>
@@ -2771,6 +2877,16 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                     onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
                     placeholder="e.g. IAMNEW"
                     className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none uppercase font-mono text-sm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Collaborator Name (Optional)</label>
+                  <input
+                    type="text"
+                    value={newCoupon.collaboratorName}
+                    onChange={(e) => setNewCoupon({ ...newCoupon, collaboratorName: e.target.value })}
+                    placeholder="e.g. John Doe"
+                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none text-sm"
                   />
                 </div>
                 <div className="space-y-1">

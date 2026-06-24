@@ -1,4 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
+import { PortalSettings } from './types';
 
 const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAIL || '')
   .toLowerCase()
@@ -49,8 +50,18 @@ export default function App() {
     return 'home';
   });
 
-  // Sync URL with current tab
+  // Sync URL with current tab and capture referral codes
   useEffect(() => {
+    // Capture referral code if present
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      localStorage.setItem('referralCode', ref.toUpperCase());
+      // Clean up URL without refreshing page
+      const newUrl = window.location.pathname;
+      window.history.replaceState({}, '', newUrl);
+    }
+
     const currentPath = window.location.pathname;
     let targetPath = '/';
     if (currentTab === 'verify') targetPath = '/verification';
@@ -83,9 +94,29 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState<StudentUser | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
 
+  // Clear preselected domain when leaving the enroll tab
+  useEffect(() => {
+    if (currentTab !== 'enroll') {
+      setPreselectedDomainId('');
+    }
+  }, [currentTab]);
+
   // Dual-filtering synchronization states across page thresholds
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>('All');
   const [selectedDegreeFilter, setSelectedDegreeFilter] = useState<string>('All');
+
+  const [portalSettings, setPortalSettings] = useState<PortalSettings | null>(null);
+
+  // Subscribe to Portal Settings
+  useEffect(() => {
+    const settingsDoc = doc(db, 'portalSettings', 'main');
+    const unsubscribe = onSnapshot(settingsDoc, (snap) => {
+      if (snap.exists()) {
+        setPortalSettings(snap.data() as PortalSettings);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Load persistent user session using Firebase Auth
   useEffect(() => {
@@ -117,9 +148,11 @@ export default function App() {
           if (docSnap.exists()) {
             const userData = docSnap.data() as StudentUser;
             setCurrentUser(userData);
-            // Only redirect admin to admin panel on auth state change
+            // Redirect admin to admin panel, or regular user to nexus if they were on the auth screen
             if (ADMIN_EMAILS.includes(userData.email.toLowerCase())) {
               setCurrentTab('admin');
+            } else if (currentTab === 'auth') {
+              setCurrentTab('nexus');
             }
           } else {
             // Fallback basic student representation
@@ -132,6 +165,8 @@ export default function App() {
             setCurrentUser(basicUser);
             if (ADMIN_EMAILS.includes(basicUser.email.toLowerCase())) {
               setCurrentTab('admin');
+            } else if (currentTab === 'auth') {
+              setCurrentTab('nexus');
             }
           }
         } catch (e) {
@@ -168,8 +203,10 @@ export default function App() {
           // Auto-migrate old IDs
           if (data.candidateId && data.candidateId.startsWith('INV-')) {
              const year = new Date().getFullYear();
-             const regNo = data.registrationNo ? data.registrationNo.replace(/\\s+/g, '').toUpperCase() : Math.floor(100000 + Math.random() * 900000).toString(16).toUpperCase();
-             const newId = `${year}IN${regNo}`;
+             const cleanReg = data.registrationNo ? data.registrationNo.replace(/\s+/g, '').toUpperCase() : Math.floor(1000 + Math.random() * 9000).toString();
+             const last4Reg = cleanReg.length >= 4 ? cleanReg.slice(-4) : cleanReg.padStart(4, '0');
+             const courseCode = data.domainId ? data.domainId.replace(/[^a-zA-Z]/g, '').substring(0, 2).toUpperCase() : 'XX';
+             const newId = `${year}IN${courseCode}${last4Reg}`;
              
              // Run async migration without blocking
              setTimeout(async () => {
@@ -418,7 +455,7 @@ export default function App() {
 
       {/* Floating WhatsApp Overlay */}
       <a 
-        href="https://wa.me/916204266080" 
+        href={`https://wa.me/${portalSettings?.supportPhone?.replace(/\D/g, '') || '916204266080'}`} 
         target="_blank" 
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 flex items-center justify-center w-14 h-14 bg-[#25D366] text-white rounded-full shadow-2xl hover:bg-[#20bd5a] hover:scale-110 transition-all duration-300 group ring-4 ring-[#25D366]/30"

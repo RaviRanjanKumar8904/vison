@@ -38,6 +38,7 @@ export interface Coupon {
   discountPercent: number;
   active: boolean;
   expiresAt?: string; // ISO date string or YYYY-MM-DD
+  collaboratorName?: string; // For refer and earn feature
 }
 
 export interface EnrollmentState {
@@ -70,6 +71,8 @@ export interface EnrollmentState {
   
   certificateIssued?: boolean;
   certificateDate?: string;
+  certificateRequested?: boolean;
+  certificateRequestedAt?: string;
   blocked?: boolean;
   // MCQ Test fields
   testScore?: number;

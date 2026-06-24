@@ -430,7 +430,7 @@ export async function downloadCertificatePDF(cert: EnrollmentState, domainTitle:
     : new Date().toISOString().split('T')[0];
 
   const year2 = new Date(issuedDate).getFullYear().toString().slice(-2);
-  const certNo = `${year2}IN${regNo}`;
+  const certNo = cert.candidateId;
   const scoreText = cert.testScore && cert.testScore >= 80 ? 'Excellent' : cert.testScore && cert.testScore >= 60 ? 'Good' : 'Good';
 
   await buildDocument(doc, {

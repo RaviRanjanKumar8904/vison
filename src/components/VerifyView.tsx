@@ -3,8 +3,9 @@ import { ShieldCheck, Search, Award, CheckCircle, Clock, Calendar, Download, Ref
 import { EnrollmentState } from '../types';
 import { INTERNSHIP_DOMAINS } from '../data';
 import { motion } from 'motion/react';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
+import { downloadCertificatePDF } from '../utils/pdfGenerator';
 
 interface VerifyViewProps {
   enrollments: EnrollmentState[];
@@ -68,8 +69,17 @@ export default function VerifyView({ enrollments, setCurrentTab }: VerifyViewPro
     setIsVerifying(true);
     const cleanedId = certId.trim().toUpperCase();
 
+    let baseSearchId = cleanedId;
+    if (/^\d{2}IN/.test(cleanedId)) {
+       baseSearchId = `20${cleanedId}`;
+    }
+
     // 1. Search local storage enrollments
-    const localMatch = enrollments.find(e => e.candidateId.toUpperCase() === cleanedId);
+    const localMatch = enrollments.find(e => {
+       const dbId = e.candidateId.toUpperCase();
+       return dbId === cleanedId || dbId === baseSearchId || dbId.startsWith(baseSearchId + '-');
+    });
+    
     if (localMatch) {
       setSearchResult({
         id: localMatch.candidateId,
@@ -89,7 +99,10 @@ export default function VerifyView({ enrollments, setCurrentTab }: VerifyViewPro
     }
 
     // 2. Search demo list
-    const demoMatch = demoCertificates.find(d => d.id === cleanedId);
+    const demoMatch = demoCertificates.find(d => {
+       const dbId = d.id.toUpperCase();
+       return dbId === cleanedId || dbId === baseSearchId || dbId.startsWith(baseSearchId + '-');
+    });
     if (demoMatch) {
       setSearchResult(demoMatch);
       setIsVerifying(false);
@@ -98,10 +111,33 @@ export default function VerifyView({ enrollments, setCurrentTab }: VerifyViewPro
 
     // 3. Search Firestore database
     try {
-      const docRef = doc(db, 'enrollments', cleanedId);
-      const docSnap = await getDoc(docRef);
+      let docSnap = await getDoc(doc(db, 'enrollments', cleanedId));
+      if (!docSnap.exists() && cleanedId !== baseSearchId) {
+         docSnap = await getDoc(doc(db, 'enrollments', baseSearchId));
+      }
+      
+      let remoteEnroll: EnrollmentState | null = null;
+      
       if (docSnap.exists()) {
-        const remoteEnroll = docSnap.data() as EnrollmentState;
+        remoteEnroll = docSnap.data() as EnrollmentState;
+      } else {
+        const domainSuffixes = INTERNSHIP_DOMAINS.map(d => `-${d.id.toUpperCase()}`);
+        const fetchPromises = domainSuffixes.map(async (suffix) => {
+          const docId = `${baseSearchId}${suffix}`;
+          try {
+            const snap = await getDoc(doc(db, 'enrollments', docId));
+            return snap.exists() ? snap : null;
+          } catch(e) { return null; }
+        });
+        const results = await Promise.all(fetchPromises);
+        const validSnap = results.find(snap => snap !== null);
+        
+        if (validSnap) {
+           remoteEnroll = validSnap.data() as EnrollmentState;
+        }
+      }
+
+      if (remoteEnroll) {
         setSearchResult({
           id: remoteEnroll.candidateId,
           fullName: remoteEnroll.fullName,
@@ -113,30 +149,11 @@ export default function VerifyView({ enrollments, setCurrentTab }: VerifyViewPro
           status: remoteEnroll.status,
           completionDate: remoteEnroll.status === 'Completed' ? remoteEnroll.enrollmentDate : 'Underway',
           grade: remoteEnroll.status === 'Completed' ? 'Grade A Passed' : 'Ongoing',
-          verificationStatus: 'Remote cloud registry match synchronized'
+          verificationStatus: 'Remote cloud registry match synchronized',
+          rawEnrollment: remoteEnroll
         });
       } else {
-        // Fallback check casing variations
-        const docRefLower = doc(db, 'enrollments', cleanedId.toLowerCase());
-        const docSnapLower = await getDoc(docRefLower);
-        if (docSnapLower.exists()) {
-          const remoteEnroll = docSnapLower.data() as EnrollmentState;
-          setSearchResult({
-            id: remoteEnroll.candidateId,
-            fullName: remoteEnroll.fullName,
-            degree: remoteEnroll.degree,
-            collegeName: remoteEnroll.collegeName,
-            domainId: remoteEnroll.domainId,
-            durationWeeks: remoteEnroll.durationWeeks,
-            startDate: remoteEnroll.startDate,
-            status: remoteEnroll.status,
-            completionDate: remoteEnroll.status === 'Completed' ? remoteEnroll.enrollmentDate : 'Underway',
-            grade: remoteEnroll.status === 'Completed' ? 'Grade A Passed' : 'Ongoing',
-            verificationStatus: 'Remote cloud registry match synchronized'
-          });
-        } else {
-          setSearchResult(null);
-        }
+        setSearchResult(null);
       }
     } catch (e) {
       console.warn('Firestore code lookup error:', e);
@@ -308,7 +325,14 @@ export default function VerifyView({ enrollments, setCurrentTab }: VerifyViewPro
                   <div className="pt-2 flex flex-col sm:flex-row gap-3">
                     {searchResult.status === 'Completed' ? (
                       <button
-                        onClick={() => alert("Certificate downloaded successfully!")}
+                        onClick={() => {
+                          if (searchResult.rawEnrollment) {
+                            const domainObj = INTERNSHIP_DOMAINS.find(d => d.id === searchResult.domainId);
+                            downloadCertificatePDF(searchResult.rawEnrollment, domainObj ? domainObj.title : 'Advanced Technology Intern');
+                          } else {
+                            alert("Demo Certificate Verification PDF downloaded successfully!");
+                          }
+                        }}
                         className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
                       >
                         <Download className="h-4 w-4" />

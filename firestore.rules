@@ -12,7 +12,13 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && request.auth.token.email.lower() == 'raviranjan8904@gmail.com';
+      // TODO: Long-term fix is to use Firebase custom claims for an `admin` role set via a privileged Cloud Function/Admin SDK script, instead of hardcoding emails.
+      // IMPORTANT: Keep this list in sync with VITE_ADMIN_EMAIL in .env
+      return isSignedIn() && request.auth.token.email.lower() in [
+        'raviranjan8904@gmail.com',
+        'admin@yourdomain.com',
+        'anotheradmin@yourdomain.com'
+      ];
     }
 
     function incoming() {
@@ -37,7 +43,7 @@ service cloud.firestore {
       allow create: if isAdmin() || (isSignedIn()
                     && incoming().email.lower() == request.auth.token.email.lower());
       allow list: if isAdmin() || (isSignedIn()
-                  && (resource.data.email.lower() == request.auth.token.email.lower()));
+                  && (resource.data.email == request.auth.token.email.lower() || resource.data.email == request.auth.token.email));
       allow get: if true; // Public verification of individual certificate IDs allowed
       allow update: if isAdmin() || (isSignedIn()
                     && (resource.data.email.lower() == request.auth.token.email.lower())
@@ -49,6 +55,12 @@ service cloud.firestore {
     // Domains collection - public read, admin write
     match /domains/{domainId} {
       allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Coupons collection
+    match /coupons/{couponId} {
+      allow read: if isSignedIn();
       allow write: if isAdmin();
     }
 
@@ -66,7 +78,12 @@ service cloud.firestore {
 
     // Test Results
     match /testResults/{resultId} {
-      allow create: if isSignedIn();
+      allow create: if isSignedIn() 
+                    && incoming().studentEmail.lower() == request.auth.token.email.lower()
+                    && incoming().score is number 
+                    && incoming().score >= 0 
+                    && incoming().score <= 100
+                    && incoming().passed is bool;
       allow read: if isAdmin() || (isSignedIn()
         && resource.data.studentEmail.lower() == request.auth.token.email.lower());
       allow update, delete: if isAdmin();
@@ -77,6 +94,20 @@ service cloud.firestore {
       allow read, write: if isAdmin() || (isSignedIn()
         && resource.data.studentEmail.lower() == request.auth.token.email.lower());
       allow create: if isSignedIn();
+    }
+
+    // Admin Logs and Errors
+    match /activityLogs/{logId} {
+      allow read, write: if isAdmin();
+    }
+    match /errorReports/{errorId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Portal Settings
+    match /portalSettings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
   }
 }

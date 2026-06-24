@@ -138,8 +138,7 @@ interface StudentNexusProps {
   enrollments: EnrollmentState[];
   setCurrentTab: (tab: string) => void;
   onSelectDomainForEnrollment?: (domainId: string) => void;
-  onUpdateEnrollments?: (updatedEnrollments: EnrollmentState[]) => void;
-  onUpdateUser?: (updatedValue: any) => void;
+  // Removed unused props
   currentUser?: any;
 }
 
@@ -147,8 +146,7 @@ export default function StudentNexus({
   enrollments, 
   setCurrentTab, 
   onSelectDomainForEnrollment,
-  onUpdateEnrollments,
-  onUpdateUser,
+  // Removed unused props from destructuring
   currentUser
 }: StudentNexusProps) {
   const hasEnrolled = enrollments.length > 0;
@@ -260,15 +258,7 @@ export default function StudentNexus({
         amountPaid: parseFloat(retryAmount), 
         paymentStatus: 'pending' 
       });
-      if (onUpdateEnrollments) {
-        const updated = enrollments.map(e => e.candidateId === activeEnrollment.candidateId ? {
-          ...e,
-          paymentTxnId: retryUtr.trim().toUpperCase(),
-          amountPaid: parseFloat(retryAmount),
-          paymentStatus: 'pending'
-        } as EnrollmentState : e);
-        onUpdateEnrollments(updated);
-      }
+      // Prop removed: real-time listener will sync state
       setRetryUtr('');
       setRetryAmount('');
     } catch (e) {
@@ -302,13 +292,15 @@ export default function StudentNexus({
 
   // Certificate state
   const [isCompilingCert, setIsCompilingCert] = useState(false);
-  const [certCompiled, setCertCompiled] = useState(false);
 
   // Calculate Progress Percent based on materials and test
   const completedCount = Math.max(0, unlockedMaterials.length - 1);
   const materialProgress = materials.length > 0 ? (completedCount / materials.length) * 95 : 0;
   const progressPercent = testResult?.passed ? 100 : Math.round(materialProgress);
 
+  // TODO: This MCQ test is graded entirely client-side, and correct answers are readable by the user.
+  // The long-term fix is to create a Cloud Functions callable (`gradeTest`) that accepts only the 
+  // student's selected answers, looks up correct answers server-side, and writes the verified result.
   const submitMCQTest = async () => {
     setIsSubmittingTest(true);
     let correct = 0;
@@ -346,20 +338,18 @@ export default function StudentNexus({
     });
   };
 
-  const handleFastTrackCompletion = () => {
-    // Just unlock all materials
-    const newUnlocked = materials.map((_, i) => i);
-    if (!newUnlocked.includes(0)) newUnlocked.push(0);
-    setUnlockedMaterials(newUnlocked);
-    localStorage.setItem(`invigo_progress_${activeEnrollment.candidateId}`, JSON.stringify(newUnlocked));
-  };
-
-  const handleCompileCertificate = () => {
+  const handleCompileCertificate = async () => {
     setIsCompilingCert(true);
-    setTimeout(() => {
-      setCertCompiled(true);
-      setIsCompilingCert(false);
-    }, 2000);
+    try {
+      const docRef = doc(db, 'enrollments', activeEnrollment.candidateId);
+      await updateDoc(docRef, { 
+        certificateRequested: true, 
+        certificateRequestedAt: new Date().toISOString() 
+      });
+    } catch (e) {
+      console.error("Failed to request certificate:", e);
+    }
+    setIsCompilingCert(false);
   };
 
   
@@ -1046,7 +1036,7 @@ export default function StudentNexus({
                 </div>
               ) : (
                 /* Progress IS 100% or Admin officially issued -> Apply/Download Option Appears! */
-                (certCompiled || activeEnrollment.certificateIssued) ? (
+                (activeEnrollment.certificateIssued) ? (
                   <div className="space-y-6">
                     
                     {/* Visual Verified Badge */}
@@ -1144,23 +1134,30 @@ export default function StudentNexus({
 
                     </div>
 
-                    <button
-                      onClick={handleCompileCertificate}
-                      disabled={isCompilingCert}
-                      className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-xs flex justify-center items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
-                    >
-                      {isCompilingCert ? (
-                        <>
-                          <RefreshCw className="h-4 w-4 animate-spin" />
-                          <span>Compiling Verified Internship Credentials...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Award className="h-4 w-4" />
-                          <span>Apply & Compile Verified Certificate</span>
-                        </>
-                      )}
-                    </button>
+                    {activeEnrollment.certificateRequested ? (
+                      <div className="w-full py-4 bg-slate-100 border border-slate-200 text-slate-500 font-bold rounded-2xl text-xs flex justify-center items-center gap-1.5 cursor-not-allowed shadow-xs">
+                        <Clock className="h-4 w-4" />
+                        <span>Certificate requested — pending final admin verification</span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={handleCompileCertificate}
+                        disabled={isCompilingCert}
+                        className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl text-xs flex justify-center items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                      >
+                        {isCompilingCert ? (
+                          <>
+                            <RefreshCw className="h-4 w-4 animate-spin" />
+                            <span>Requesting Verified Internship Credentials...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Award className="h-4 w-4" />
+                            <span>Apply & Request Verified Certificate</span>
+                          </>
+                        )}
+                      </button>
+                    )}
 
                   </div>
                 )

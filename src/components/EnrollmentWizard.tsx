@@ -14,7 +14,7 @@ import { downloadOfferLetterPDF, downloadAcceptanceLetterPDF } from '../utils/pd
 interface EnrollmentWizardProps {
   preselectedDomainId: string;
   setPreselectedDomainId: (id: string) => void;
-  onEnrollmentComplete: (newEnrollment: EnrollmentState) => void;
+  onEnrollmentComplete: (newEnrollment: EnrollmentState) => Promise<void>;
   setCurrentTab: (tab: string) => void;
   currentUser?: StudentUser;
 }
@@ -97,8 +97,9 @@ export default function EnrollmentWizard({
     }
   }, [currentStep, formData.durationWeeks, formData.trainingMode, appliedCoupon]);
 
-  const handleApplyCoupon = async () => {
-    if (!couponCodeInput.trim()) return;
+  const handleApplyCoupon = async (autoCode?: string) => {
+    const codeToApply = autoCode || couponCodeInput;
+    if (!codeToApply.trim()) return;
     setIsApplyingCoupon(true);
     setCouponError('');
     try {
@@ -106,7 +107,7 @@ export default function EnrollmentWizard({
       let found: Coupon | null = null;
       querySnapshot.forEach((doc) => {
         const c = doc.data() as Coupon;
-        if (c.code.toUpperCase() === couponCodeInput.trim().toUpperCase()) {
+        if (c.code.toUpperCase() === codeToApply.trim().toUpperCase()) {
           found = c;
         }
       });
@@ -148,6 +149,16 @@ export default function EnrollmentWizard({
       setIsApplyingCoupon(false);
     }
   };
+
+  // Auto-apply referral coupon
+  useEffect(() => {
+    const refCode = localStorage.getItem('referralCode');
+    if (refCode && !appliedCoupon && !isApplyingCoupon && formData.email) {
+      setCouponCodeInput(refCode);
+      handleApplyCoupon(refCode);
+      localStorage.removeItem('referralCode'); // only apply once
+    }
+  }, [formData.email]); // Trigger when user signs in / email is available
 
   const validateStep = (step: number) => {
     const tempErrors: Record<string, string> = {};
@@ -196,8 +207,10 @@ export default function EnrollmentWizard({
 
   const generateCandidateId = () => {
     const year = new Date().getFullYear();
-    const regNo = formData.registrationNo ? formData.registrationNo.replace(/\s+/g, '').toUpperCase() : Math.floor(100000 + Math.random() * 900000).toString(16).toUpperCase();
-    return `${year}IN${regNo}`;
+    const cleanReg = formData.registrationNo ? formData.registrationNo.replace(/\s+/g, '').toUpperCase() : Math.floor(1000 + Math.random() * 9000).toString();
+    const last4Reg = cleanReg.length >= 4 ? cleanReg.slice(-4) : cleanReg.padStart(4, '0');
+    const courseCode = formData.domainId ? formData.domainId.replace(/[^a-zA-Z]/g, '').substring(0, 2).toUpperCase() : 'XX';
+    return `${year}IN${courseCode}${last4Reg}`;
   };
 
   const handleFormSubmit = (e: FormEvent) => {
@@ -222,7 +235,7 @@ export default function EnrollmentWizard({
     const finalAmount = parseFloat(amountPaidInput) || Math.round(base);
     
     // Simulate futuristic quantum credentials synthesis
-    setTimeout(() => {
+    setTimeout(async () => {
       const compiledOffer: EnrollmentState = {
         ...formData,
         email: formData.email.toLowerCase(),
@@ -239,10 +252,15 @@ export default function EnrollmentWizard({
         discountAmount: discountAmt
       };
       
-      setSynthesizedOffer(compiledOffer);
-      onEnrollmentComplete(compiledOffer);
-      setIsSynthesizing(false);
-      setCurrentStep(5);
+      try {
+        await onEnrollmentComplete(compiledOffer);
+        setSynthesizedOffer(compiledOffer);
+        setIsSynthesizing(false);
+        setCurrentStep(5);
+      } catch (err: any) {
+        setIsSynthesizing(false);
+        setPaymentError(`Your payment was recorded but we couldn't save your enrollment — please contact support with your UTR ${txnId} or try again.`);
+      }
     }, 2500);
   };
 
