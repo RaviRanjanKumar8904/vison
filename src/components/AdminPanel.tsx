@@ -2464,7 +2464,6 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
             </motion.div>
           )}
 
-          )}
 
           {/* Mentor Bookings View */}
           {activeSection === 'mentorBookings' && (
