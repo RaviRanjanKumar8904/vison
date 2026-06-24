@@ -13,6 +13,10 @@ export const DOMAIN_IMAGES: Record<string, string> = {
   electric_vehicle: '/domain_electric_vehicle.png',
   solidworks: '/domain_solidworks.png',
   ic_engine: '/domain_ic_engine.png',
+  ai_ml: '/domain_ai_ml.png',
+  c_programming: '/domain_web_development.png',
+  cpp_programming: '/domain_python_programming.png',
+  java_programming: '/domain_core_java.png',
 };
 
 // Branch options per degree for branch-wise filtering
@@ -611,6 +615,63 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
       { title: 'Capstone SCM Strategy', description: 'Build an end-to-end supply chain strategy with forecasting and KPI tracking.', deliverables: ['Supply chain strategy document', 'KPI tracking dashboard'] }
     ]
   },
+  {
+    id: 'c_programming',
+    title: 'C Programming',
+    category: 'Software',
+    shortDesc: 'Master the fundamental concepts of C programming, pointers, memory management, and system-level logic.',
+    iconName: 'Code',
+    durationWeeks: [4, 8],
+    targetDegrees: ['B.Tech', 'BCA', 'Diploma', 'B.Sc'],
+    targetBranches: ['CSE', 'IT', 'ECE'],
+    skills: ['Pointers & Memory', 'Data Structures in C', 'System Level Coding', 'Algorithm Logic'],
+    toolsAndTech: ['C Compiler', 'GCC', 'VS Code', 'Linux Terminal'],
+    gradient: 'from-sky-600 via-blue-700 to-indigo-800',
+    imageUrl: '/domain_web_development.png',
+    phases: [
+      { title: 'Core C Syntax & Pointers', description: 'Understand basic data types, loops, arrays, and memory pointers.', deliverables: ['Basic C console applications', 'Pointer memory management tests'] },
+      { title: 'Data Structures in C', description: 'Implement linked lists, stacks, queues, and tree structures from scratch.', deliverables: ['Custom data structure library', 'Memory leak analysis reports'] },
+      { title: 'System Level Capstone', description: 'Create an efficient system utility using C system calls and file handling.', deliverables: ['File compression utility or similar project', 'Performance benchmark sheet'] }
+    ]
+  },
+  {
+    id: 'cpp_programming',
+    title: 'C++ Programming',
+    category: 'Software',
+    shortDesc: 'Dive into object-oriented C++, advanced STL libraries, and performance-critical software development.',
+    iconName: 'FileCode',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'BCA', 'Diploma', 'B.Sc'],
+    targetBranches: ['CSE', 'IT', 'ECE'],
+    skills: ['Object-Oriented Design', 'Standard Template Library (STL)', 'Memory Management', 'Multithreading'],
+    toolsAndTech: ['C++17/20', 'CMake', 'GDB Debugger', 'VS Code'],
+    gradient: 'from-blue-700 via-indigo-700 to-violet-800',
+    imageUrl: '/domain_python_programming.png',
+    phases: [
+      { title: 'OOP in C++', description: 'Master classes, inheritance, polymorphism, and memory management with smart pointers.', deliverables: ['Object-oriented console simulation', 'Class hierarchy diagrams'] },
+      { title: 'Advanced STL & Templates', description: 'Utilize Standard Template Library containers, iterators, and generic programming paradigms.', deliverables: ['Optimized algorithm implementations', 'Template library module'] },
+      { title: 'Performance Capstone Project', description: 'Develop a high-performance multithreaded application.', deliverables: ['Multithreaded data processing app', 'Execution profiling logs'] }
+    ]
+  },
+  {
+    id: 'java_programming',
+    title: 'Java Programming',
+    category: 'Software',
+    shortDesc: 'Learn core Java programming, object-oriented concepts, exception handling, and GUI development.',
+    iconName: 'Coffee',
+    durationWeeks: [4, 8],
+    targetDegrees: ['B.Tech', 'BCA', 'B.Sc'],
+    targetBranches: ['CSE', 'IT', 'ECE'],
+    skills: ['Java Basics', 'OOPs Concepts', 'Exception Handling', 'GUI using Swing/JavaFX'],
+    toolsAndTech: ['Java 17+', 'IntelliJ IDEA', 'Eclipse', 'JavaFX'],
+    gradient: 'from-orange-500 via-amber-600 to-yellow-600',
+    imageUrl: '/domain_core_java.png',
+    phases: [
+      { title: 'Core Java Syntax & OOPs', description: 'Master classes, objects, inheritance, polymorphism, and abstract classes.', deliverables: ['Basic console applications', 'Object-oriented logic tests'] },
+      { title: 'Exceptions & Collections', description: 'Implement exception handling, file I/O, and the Java Collections Framework.', deliverables: ['Data processing application', 'Collection framework implementations'] },
+      { title: 'GUI Capstone Project', description: 'Build a desktop application with graphical user interface components.', deliverables: ['Functional desktop app', 'UI event handling code'] }
+    ]
+  }
 ];
 
 export const FAQS: FAQItem[] = [

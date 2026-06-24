@@ -2496,7 +2496,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
               {/* Filter by domain */}
               <div className="flex gap-2 flex-wrap">
                 <button onClick={() => setMaterialDomainFilter('All')} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border cursor-pointer ${materialDomainFilter === 'All' ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>All</button>
-                {allDomains.slice(0, 8).map(d => (
+                {allDomains.map(d => (
                   <button key={d.id} onClick={() => setMaterialDomainFilter(d.id)} className={`px-3 py-1.5 text-[10px] font-bold rounded-lg border cursor-pointer ${materialDomainFilter === d.id ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>{d.title}</button>
                 ))}
               </div>
