@@ -14,9 +14,12 @@ export const DOMAIN_IMAGES: Record<string, string> = {
   solidworks: '/domain_solidworks.png',
   ic_engine: '/domain_ic_engine.png',
   ai_ml: '/domain_ai_ml.png',
-  c_programming: '/domain_web_development.png',
-  cpp_programming: '/domain_python_programming.png',
+  c_programming: '/domain_c_programming.png',
+  cpp_programming: '/domain_cpp_programming.png',
   java_programming: '/domain_core_java.png',
+  csharp_programming: '/domain_csharp_programming.png',
+  go_programming: '/domain_go_programming.png',
+  rust_programming: '/domain_rust_programming.png',
 };
 
 // Branch options per degree for branch-wise filtering
@@ -627,7 +630,7 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     skills: ['Pointers & Memory', 'Data Structures in C', 'System Level Coding', 'Algorithm Logic'],
     toolsAndTech: ['C Compiler', 'GCC', 'VS Code', 'Linux Terminal'],
     gradient: 'from-sky-600 via-blue-700 to-indigo-800',
-    imageUrl: '/domain_web_development.png',
+    imageUrl: '/domain_c_programming.png',
     phases: [
       { title: 'Core C Syntax & Pointers', description: 'Understand basic data types, loops, arrays, and memory pointers.', deliverables: ['Basic C console applications', 'Pointer memory management tests'] },
       { title: 'Data Structures in C', description: 'Implement linked lists, stacks, queues, and tree structures from scratch.', deliverables: ['Custom data structure library', 'Memory leak analysis reports'] },
@@ -646,7 +649,7 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
     skills: ['Object-Oriented Design', 'Standard Template Library (STL)', 'Memory Management', 'Multithreading'],
     toolsAndTech: ['C++17/20', 'CMake', 'GDB Debugger', 'VS Code'],
     gradient: 'from-blue-700 via-indigo-700 to-violet-800',
-    imageUrl: '/domain_python_programming.png',
+    imageUrl: '/domain_cpp_programming.png',
     phases: [
       { title: 'OOP in C++', description: 'Master classes, inheritance, polymorphism, and memory management with smart pointers.', deliverables: ['Object-oriented console simulation', 'Class hierarchy diagrams'] },
       { title: 'Advanced STL & Templates', description: 'Utilize Standard Template Library containers, iterators, and generic programming paradigms.', deliverables: ['Optimized algorithm implementations', 'Template library module'] },
@@ -670,6 +673,63 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
       { title: 'Core Java Syntax & OOPs', description: 'Master classes, objects, inheritance, polymorphism, and abstract classes.', deliverables: ['Basic console applications', 'Object-oriented logic tests'] },
       { title: 'Exceptions & Collections', description: 'Implement exception handling, file I/O, and the Java Collections Framework.', deliverables: ['Data processing application', 'Collection framework implementations'] },
       { title: 'GUI Capstone Project', description: 'Build a desktop application with graphical user interface components.', deliverables: ['Functional desktop app', 'UI event handling code'] }
+    ]
+  },
+  {
+    id: 'csharp_programming',
+    title: 'C# / .NET Programming',
+    category: 'Software',
+    shortDesc: 'Master enterprise-level application development using C# and the powerful .NET framework ecosystems.',
+    iconName: 'Layout',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'BCA', 'B.Sc'],
+    targetBranches: ['CSE', 'IT', 'ECE'],
+    skills: ['C# Fundamentals', 'ASP.NET Core', 'Entity Framework', 'Enterprise Architecture'],
+    toolsAndTech: ['Visual Studio', 'C# 10+', '.NET 8', 'SQL Server'],
+    gradient: 'from-purple-600 via-violet-700 to-fuchsia-800',
+    imageUrl: '/domain_csharp_programming.png',
+    phases: [
+      { title: 'C# Syntax & .NET Core', description: 'Learn the fundamentals of C#, LINQ, and asynchronous programming.', deliverables: ['Console apps with complex LINQ queries', 'Asynchronous data parsers'] },
+      { title: 'Web APIs with ASP.NET', description: 'Build robust REST APIs using ASP.NET Core and Entity Framework.', deliverables: ['Fully functional REST API backend', 'Database integration logs'] },
+      { title: 'Enterprise Capstone', description: 'Develop a full-scale enterprise microservice with authentication.', deliverables: ['Deployed microservice architecture', 'API security documentation'] }
+    ]
+  },
+  {
+    id: 'go_programming',
+    title: 'Go (Golang) Programming',
+    category: 'Tech',
+    shortDesc: 'Build blazing-fast, highly concurrent cloud services and network systems with Google’s Go programming language.',
+    iconName: 'Server',
+    durationWeeks: [4, 8],
+    targetDegrees: ['B.Tech', 'BCA', 'Diploma', 'B.Sc'],
+    targetBranches: ['CSE', 'IT'],
+    skills: ['Goroutines & Channels', 'Network Programming', 'Cloud Native APIs', 'Microservices'],
+    toolsAndTech: ['Go Compiler', 'Docker', 'RESTful routing', 'VS Code'],
+    gradient: 'from-cyan-500 via-sky-600 to-blue-700',
+    imageUrl: '/domain_go_programming.png',
+    phases: [
+      { title: 'Go Basics & Tooling', description: 'Understand Go syntax, structs, interfaces, and module management.', deliverables: ['Basic command-line utilities', 'Module architecture setup'] },
+      { title: 'Concurrency with Goroutines', description: 'Master parallel processing using Goroutines and data synchronization via Channels.', deliverables: ['Concurrent data processing engine', 'Race condition analysis report'] },
+      { title: 'Cloud Microservice Capstone', description: 'Design and deploy a highly-concurrent cloud native microservice.', deliverables: ['Containerized Go API service', 'Load testing benchmark metrics'] }
+    ]
+  },
+  {
+    id: 'rust_programming',
+    title: 'Rust Programming',
+    category: 'Software',
+    shortDesc: 'Write highly-secure, blazingly fast systems software with zero-cost abstractions and memory safety guarantees.',
+    iconName: 'Shield',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'BCA'],
+    targetBranches: ['CSE', 'IT', 'ECE'],
+    skills: ['Ownership & Borrowing', 'Memory Safety', 'Systems Programming', 'Concurrency in Rust'],
+    toolsAndTech: ['Cargo', 'Rust Compiler', 'WebAssembly', 'Linux Terminal'],
+    gradient: 'from-red-600 via-orange-600 to-amber-700',
+    imageUrl: '/domain_rust_programming.png',
+    phases: [
+      { title: 'Rust Syntax & Ownership', description: 'Learn the strict ownership model, borrowing rules, and lifetimes in Rust.', deliverables: ['Memory-safe string and data parsers', 'Ownership tracking charts'] },
+      { title: 'Advanced Systems Logic', description: 'Implement traits, macros, and unsafe Rust capabilities for system tuning.', deliverables: ['Custom trait implementations', 'Performance tuning tests'] },
+      { title: 'Secure Systems Capstone', description: 'Build a secure, high-speed network utility or WebAssembly module.', deliverables: ['Functional system-level tool', 'Memory allocation profiling report'] }
     ]
   }
 ];
