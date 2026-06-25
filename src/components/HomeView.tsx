@@ -375,8 +375,16 @@ export default function HomeView({
 
         {/* DEGREE ACADEMIC NEXUS (IMPORTANT SPECIFIC PATHWAYS) */}
         <div className="py-12 sm:py-16 space-y-8 sm:space-y-12 border-t border-slate-200">
+          {/* COLLABORATION BANNER */}
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
+            className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-center py-3 px-4 rounded-xl text-sm font-bold shadow-md shadow-emerald-500/20 mb-8 max-w-2xl mx-auto flex items-center justify-center gap-2 cursor-pointer hover:scale-105 transition-transform"
+          >
+            <Phone className="w-4 h-4 text-emerald-100" />
+            <span>Contact on <a href="tel:+916204266080" className="underline decoration-emerald-200 underline-offset-2 mx-1 text-white font-extrabold">+91 6204266080</a> for Collaboration, Special offer and Discount Coupon code.</span>
+          </motion.div>
+
           <div className="text-center space-y-3 px-2">
-            <p className="text-blue-600 font-bold text-sm sm:text-base">Contact on +91 6204266080 for Collaboration, Special offer and Discount Coupon code.</p>
             <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-slate-900">The Academic Path Matrix</h2>
             <p className="text-slate-600 text-[11px] sm:text-sm max-w-xl mx-auto">
               Select your academic alignment below to filter internships directly configured for your specific educational constraints.
@@ -419,14 +427,7 @@ export default function HomeView({
           </div>
         </div>
 
-        {/* COLLABORATION BANNER */}
-        <motion.div 
-          initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-center py-3 px-4 rounded-xl text-sm font-bold shadow-md shadow-emerald-500/20 my-8 max-w-2xl mx-auto flex items-center justify-center gap-2 cursor-pointer hover:scale-105 transition-transform"
-        >
-          <Phone className="w-4 h-4 text-emerald-100" />
-          <span>Contact on <a href="tel:+916204266080" className="underline decoration-emerald-200 underline-offset-2 mx-1 text-white font-extrabold">+91 6204266080</a> for Colabration, Special offer and Discount Coupon code.</span>
-        </motion.div>
+
 
         {/* TESTIMONIALS */}
         <div className="py-16 border-t border-slate-200 space-y-12">
