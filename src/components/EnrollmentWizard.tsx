@@ -134,8 +134,8 @@ export default function EnrollmentWizard({
           return false;
         }
 
-        if (found.code.toUpperCase() === 'IAMNEW' && hasAnyEnrollment) {
-          setCouponError('The IAMNEW coupon is only valid for new users on their first enrollment.');
+        if (found.code.toUpperCase() === 'INVIGO33' && hasAnyEnrollment) {
+          setCouponError('The INVIGO33 coupon is only valid for new users on their first enrollment.');
           setAppliedCoupon(null);
           return false;
         }

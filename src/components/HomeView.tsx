@@ -104,7 +104,7 @@ export default function HomeView({
                 Special Offer
               </span>
               <span className="text-white text-xs sm:text-sm font-semibold pr-4">
-                New users use code <span className="font-mono font-extrabold bg-white text-purple-700 px-2 py-0.5 rounded shadow-sm">IAMNEW</span> to get <span className="text-yellow-300 font-bold">33% OFF!</span>
+                New users use code <span className="font-mono font-extrabold bg-white text-purple-700 px-2 py-0.5 rounded shadow-sm">INVIGO33</span> to get <span className="text-yellow-300 font-bold">33% OFF!</span>
               </span>
             </div>
           </motion.div>

@@ -318,7 +318,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
       snap.forEach(d => cps.push({ id: d.id, ...d.data() } as Coupon));
       if (cps.length === 0) {
         try {
-          await setDoc(doc(db, 'coupons', 'IAMNEW'), { code: 'IAMNEW', discountPercent: 33, active: true });
+          await setDoc(doc(db, 'coupons', 'INVIGO33'), { code: 'INVIGO33', discountPercent: 33, active: true });
         } catch (e) { console.error(e); }
       }
       setAllCoupons(cps);
@@ -3407,7 +3407,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                     type="text"
                     value={newCoupon.code}
                     onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
-                    placeholder="e.g. IAMNEW"
+                    placeholder="e.g. INVIGO33"
                     className="w-full px-3 py-2.5 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none uppercase font-mono text-sm"
                   />
                 </div>
