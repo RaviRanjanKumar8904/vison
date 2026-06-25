@@ -376,6 +376,7 @@ export default function HomeView({
         {/* DEGREE ACADEMIC NEXUS (IMPORTANT SPECIFIC PATHWAYS) */}
         <div className="py-12 sm:py-16 space-y-8 sm:space-y-12 border-t border-slate-200">
           <div className="text-center space-y-3 px-2">
+            <p className="text-blue-600 font-bold text-sm sm:text-base">Contact on +91 6204266080 for Collaboration, Special offer and Discount Coupon code.</p>
             <h2 className="font-display text-2xl sm:text-4xl font-extrabold text-slate-900">The Academic Path Matrix</h2>
             <p className="text-slate-600 text-[11px] sm:text-sm max-w-xl mx-auto">
               Select your academic alignment below to filter internships directly configured for your specific educational constraints.
