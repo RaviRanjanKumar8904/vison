@@ -15,7 +15,7 @@ export interface StudentUser {
 export interface InternshipDomain {
   id: string;
   title: string;
-  category: 'Tech' | 'Management' | 'Design' | 'Hardware';
+  category: 'Tech' | 'Management' | 'Design' | 'Hardware' | 'Specialized';
   shortDesc: string;
   iconName: string; // Lucide icon lookup
   durationWeeks: number[]; // e.g. [4, 8, 12]

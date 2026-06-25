@@ -751,6 +751,918 @@ export const INTERNSHIP_DOMAINS: InternshipDomain[] = [
       { title: 'Styling Architecture', description: 'Implement CSS variables, Sass features, and maintainable styling structures.', deliverables: ['Reusable styling system', 'Component library styles'] },
       { title: 'Advanced UI & Animations', description: 'Create stunning micro-interactions, keyframe animations, and premium glassmorphism effects.', deliverables: ['Interactive UI prototype', 'Premium aesthetic dashboard design'] }
     ]
+  },
+  {
+    id: 'staad_pro',
+    title: 'Staad Pro',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Staad Pro covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Staad Pro Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_staad_pro.svg',
+    phases: [
+      { title: 'Foundations of Staad Pro', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'ansys',
+    title: 'Ansys',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Ansys covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Ansys Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_ansys.svg',
+    phases: [
+      { title: 'Foundations of Ansys', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'embedded_system',
+    title: 'Embedded System',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Embedded System covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Embedded System Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_embedded_system.svg',
+    phases: [
+      { title: 'Foundations of Embedded System', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'internet_of_things',
+    title: 'Internet of Things',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Internet of Things covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Internet of Things Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_internet_of_things.svg',
+    phases: [
+      { title: 'Foundations of Internet of Things', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'renewable_energy',
+    title: 'Renewable Energy',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Renewable Energy covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Renewable Energy Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_renewable_energy.svg',
+    phases: [
+      { title: 'Foundations of Renewable Energy', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'plc_programming',
+    title: 'Plc Programming',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Plc Programming covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Plc Programming Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_plc_programming.svg',
+    phases: [
+      { title: 'Foundations of Plc Programming', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'matlab',
+    title: 'MATLAB',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in MATLAB covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['MATLAB Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_matlab.svg',
+    phases: [
+      { title: 'Foundations of MATLAB', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'accounting_tally_gst',
+    title: 'Accounting, Tally & GST',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Accounting, Tally & GST covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Accounting, Tally & GST Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_accounting_tally_gst.svg',
+    phases: [
+      { title: 'Foundations of Accounting, Tally & GST', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'ai_ethics',
+    title: 'AI Ethics',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in AI Ethics covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['AI Ethics Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_ai_ethics.svg',
+    phases: [
+      { title: 'Foundations of AI Ethics', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'arabic_ai',
+    title: 'Arabic AI',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Arabic AI covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Arabic AI Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_arabic_ai.svg',
+    phases: [
+      { title: 'Foundations of Arabic AI', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'archaeology',
+    title: 'Archaeology',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Archaeology covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Archaeology Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_archaeology.svg',
+    phases: [
+      { title: 'Foundations of Archaeology', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'biomedical_research',
+    title: 'Biomedical Research',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Biomedical Research covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Biomedical Research Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_biomedical_research.svg',
+    phases: [
+      { title: 'Foundations of Biomedical Research', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'buddhist_studies_heritage',
+    title: 'Buddhist Studies & Heritage',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Buddhist Studies & Heritage covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Buddhist Studies & Heritage Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_buddhist_studies_heritage.svg',
+    phases: [
+      { title: 'Foundations of Buddhist Studies & Heritage', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'climate_carbon',
+    title: 'Climate & Carbon',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Climate & Carbon covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Climate & Carbon Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_climate_carbon.svg',
+    phases: [
+      { title: 'Foundations of Climate & Carbon', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'clinical_counseling',
+    title: 'Clinical Counseling',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Clinical Counseling covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Clinical Counseling Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_clinical_counseling.svg',
+    phases: [
+      { title: 'Foundations of Clinical Counseling', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'corporate_legal',
+    title: 'Corporate Legal',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Corporate Legal covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Corporate Legal Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_corporate_legal.svg',
+    phases: [
+      { title: 'Foundations of Corporate Legal', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'cyber_security',
+    title: 'Cyber Security',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Cyber Security covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Cyber Security Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_cyber_security.svg',
+    phases: [
+      { title: 'Foundations of Cyber Security', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'digital_archives',
+    title: 'Digital Archives',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Digital Archives covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Digital Archives Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_digital_archives.svg',
+    phases: [
+      { title: 'Foundations of Digital Archives', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'digital_marketing_dm',
+    title: 'Digital Marketing (DM)',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Digital Marketing (DM) covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Digital Marketing (DM) Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_digital_marketing_dm.svg',
+    phases: [
+      { title: 'Foundations of Digital Marketing (DM)', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'esg_research',
+    title: 'ESG Research',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in ESG Research covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['ESG Research Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_esg_research.svg',
+    phases: [
+      { title: 'Foundations of ESG Research', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'ethnographic_field_research',
+    title: 'Ethnographic Field Research',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Ethnographic Field Research covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Ethnographic Field Research Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_ethnographic_field_research.svg',
+    phases: [
+      { title: 'Foundations of Ethnographic Field Research', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'financial_mathematics_stock_market_finmath',
+    title: 'Financial Mathematics & Stock Market (FinMath)',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Financial Mathematics & Stock Market (FinMath) covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Financial Mathematics & Stock Market (FinMath) Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_financial_mathematics_stock_market_finmath.svg',
+    phases: [
+      { title: 'Foundations of Financial Mathematics & Stock Market (FinMath)', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'food_technology_fmcg',
+    title: 'Food Technology & FMCG',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Food Technology & FMCG covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Food Technology & FMCG Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_food_technology_fmcg.svg',
+    phases: [
+      { title: 'Foundations of Food Technology & FMCG', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'genetics_biotech_zoology',
+    title: 'Genetics, Biotech & Zoology',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Genetics, Biotech & Zoology covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Genetics, Biotech & Zoology Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_genetics_biotech_zoology.svg',
+    phases: [
+      { title: 'Foundations of Genetics, Biotech & Zoology', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'gis_analysis',
+    title: 'GIS Analysis',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in GIS Analysis covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['GIS Analysis Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_gis_analysis.svg',
+    phases: [
+      { title: 'Foundations of GIS Analysis', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'herbal_ayurvedic_product_development',
+    title: 'Herbal & Ayurvedic Product Development',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Herbal & Ayurvedic Product Development covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Herbal & Ayurvedic Product Development Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_herbal_ayurvedic_product_development.svg',
+    phases: [
+      { title: 'Foundations of Herbal & Ayurvedic Product Development', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'heritage_conservation',
+    title: 'Heritage Conservation',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Heritage Conservation covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Heritage Conservation Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_heritage_conservation.svg',
+    phases: [
+      { title: 'Foundations of Heritage Conservation', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'hindi_journalism',
+    title: 'Hindi Journalism',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Hindi Journalism covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Hindi Journalism Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_hindi_journalism.svg',
+    phases: [
+      { title: 'Foundations of Hindi Journalism', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'hindi_content_writing_ai',
+    title: 'Hindi Content Writing & AI',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Hindi Content Writing & AI covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Hindi Content Writing & AI Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_hindi_content_writing_ai.svg',
+    phases: [
+      { title: 'Foundations of Hindi Content Writing & AI', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'historical_content_seo_blogging',
+    title: 'Historical Content, SEO & Blogging',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Historical Content, SEO & Blogging covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Historical Content, SEO & Blogging Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_historical_content_seo_blogging.svg',
+    phases: [
+      { title: 'Foundations of Historical Content, SEO & Blogging', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'hr_operations_hr_ops',
+    title: 'HR Operations (HR Ops)',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in HR Operations (HR Ops) covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['HR Operations (HR Ops) Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_hr_operations_hr_ops.svg',
+    phases: [
+      { title: 'Foundations of HR Operations (HR Ops)', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'human_rights',
+    title: 'Human Rights',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Human Rights covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Human Rights Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_human_rights.svg',
+    phases: [
+      { title: 'Foundations of Human Rights', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'maithili_ai',
+    title: 'Maithili AI',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Maithili AI covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Maithili AI Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_maithili_ai.svg',
+    phases: [
+      { title: 'Foundations of Maithili AI', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'mental_health',
+    title: 'Mental Health',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Mental Health covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Mental Health Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_mental_health.svg',
+    phases: [
+      { title: 'Foundations of Mental Health', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'microfinance',
+    title: 'Microfinance',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Microfinance covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Microfinance Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_microfinance.svg',
+    phases: [
+      { title: 'Foundations of Microfinance', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'music_production',
+    title: 'Music Production',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Music Production covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Music Production Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_music_production.svg',
+    phases: [
+      { title: 'Foundations of Music Production', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'organic_farming',
+    title: 'Organic Farming',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Organic Farming covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Organic Farming Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_organic_farming.svg',
+    phases: [
+      { title: 'Foundations of Organic Farming', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'personal_finance',
+    title: 'Personal Finance',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Personal Finance covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Personal Finance Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_personal_finance.svg',
+    phases: [
+      { title: 'Foundations of Personal Finance', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'pharma_drug_chemistry',
+    title: 'Pharma & Drug Chemistry',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Pharma & Drug Chemistry covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Pharma & Drug Chemistry Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_pharma_drug_chemistry.svg',
+    phases: [
+      { title: 'Foundations of Pharma & Drug Chemistry', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'political_journalism',
+    title: 'Political Journalism',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Political Journalism covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Political Journalism Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_political_journalism.svg',
+    phases: [
+      { title: 'Foundations of Political Journalism', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'public_health',
+    title: 'Public Health',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Public Health covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Public Health Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_public_health.svg',
+    phases: [
+      { title: 'Foundations of Public Health', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'renewable_energy_system',
+    title: 'Renewable Energy System',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Renewable Energy System covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Renewable Energy System Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_renewable_energy_system.svg',
+    phases: [
+      { title: 'Foundations of Renewable Energy System', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'sales',
+    title: 'Sales',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Sales covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Sales Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_sales.svg',
+    phases: [
+      { title: 'Foundations of Sales', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'sanskrit',
+    title: 'Sanskrit',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Sanskrit covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Sanskrit Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_sanskrit.svg',
+    phases: [
+      { title: 'Foundations of Sanskrit', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'scriptwriting',
+    title: 'Scriptwriting',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Scriptwriting covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Scriptwriting Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_scriptwriting.svg',
+    phases: [
+      { title: 'Foundations of Scriptwriting', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'solar_energy_pv',
+    title: 'Solar Energy PV',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Solar Energy PV covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Solar Energy PV Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_solar_energy_pv.svg',
+    phases: [
+      { title: 'Foundations of Solar Energy PV', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'spoken_english',
+    title: 'Spoken English',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Spoken English covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Spoken English Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_spoken_english.svg',
+    phases: [
+      { title: 'Foundations of Spoken English', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
+  },
+  {
+    id: 'urdu',
+    title: 'Urdu',
+    category: 'Specialized',
+    shortDesc: 'Comprehensive internship program in Urdu covering advanced concepts and practical applications.',
+    iconName: 'BookOpen',
+    durationWeeks: [4, 8, 12],
+    targetDegrees: ['B.Tech', 'B.Sc', 'BA', 'B.Com', 'MBA', 'Diploma'],
+    targetBranches: ['General'],
+    skills: ['Urdu Principles', 'Industry Best Practices', 'Project Management'],
+    toolsAndTech: ['Standard Industry Tools', 'Modern Frameworks'],
+    gradient: 'from-slate-700 via-slate-800 to-slate-900',
+    imageUrl: '/domain_urdu.svg',
+    phases: [
+      { title: 'Foundations of Urdu', description: 'Introduction to core concepts and methodologies.', deliverables: ['Initial concept map', 'Foundational assessment'] },
+      { title: 'Advanced Applications', description: 'Deep dive into practical scenarios and complex problem solving.', deliverables: ['Case study analysis', 'Mid-term project'] },
+      { title: 'Capstone Project', description: 'Real-world application of learned skills in a comprehensive project.', deliverables: ['Final project presentation', 'Comprehensive report'] }
+    ]
   }
 ];
 
