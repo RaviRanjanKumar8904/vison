@@ -466,24 +466,24 @@ export default function HomeView({
           <div className="text-center mb-8 sm:mb-12">
             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest">Recognized, Certified & Incubated By</h3>
           </div>
-          <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-8 md:gap-12 px-4">
-            <div className="bg-white p-5 sm:p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
-              <img src="/ISO_Logo.png" alt="ISO 9001:2015" title="ISO 9001:2015 Certified" className="h-16 sm:h-20 md:h-24 object-contain" />
+          <div className="flex flex-wrap lg:flex-nowrap justify-center items-center gap-3 sm:gap-4 md:gap-6 px-2 sm:px-4 w-full">
+            <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
+              <img src="/ISO_Logo.png" alt="ISO 9001:2015" title="ISO 9001:2015 Certified" className="h-12 sm:h-16 md:h-20 object-contain" />
             </div>
-            <div className="bg-white p-5 sm:p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
-              <img src="/MInistory_of_corporate_affairs.jpeg" alt="Ministry of Corporate Affairs" title="Ministry of Corporate Affairs" className="h-16 sm:h-20 md:h-24 object-contain mix-blend-multiply" />
+            <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
+              <img src="/MInistory_of_corporate_affairs.jpeg" alt="Ministry of Corporate Affairs" title="Ministry of Corporate Affairs" className="h-12 sm:h-16 md:h-20 object-contain mix-blend-multiply" />
             </div>
-            <div className="bg-white p-5 sm:p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
-              <img src="/DPIIT_startup_india.png" alt="DPIIT Startup India" title="DPIIT Startup India" className="h-14 sm:h-16 md:h-20 object-contain" />
+            <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
+              <img src="/DPIIT_startup_india.png" alt="DPIIT Startup India" title="DPIIT Startup India" className="h-10 sm:h-14 md:h-16 object-contain" />
             </div>
-            <div className="bg-white p-5 sm:p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
-              <img src="/startup_bihar.png" alt="Startup Bihar" title="Startup Bihar" className="h-14 sm:h-16 md:h-20 object-contain" />
+            <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
+              <img src="/startup_bihar.png" alt="Startup Bihar" title="Startup Bihar" className="h-10 sm:h-14 md:h-16 object-contain" />
             </div>
-            <div className="bg-white p-5 sm:p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
-              <img src="/msme_logo.png" alt="MSME" title="MSME" className="h-16 sm:h-20 md:h-24 object-contain" />
+            <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
+              <img src="/msme_logo.png" alt="MSME" title="MSME" className="h-12 sm:h-16 md:h-20 object-contain" />
             </div>
-            <div className="bg-white p-5 sm:p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
-              <img src="/nit_patna_incubation_center.jpg" alt="NIT Patna Incubation Center" title="NIT Patna Incubation Center" className="h-16 sm:h-20 md:h-24 object-contain mix-blend-multiply" />
+            <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-slate-100 flex items-center justify-center hover:shadow-md transition-shadow duration-300">
+              <img src="/nit_patna_incubation_center.jpg" alt="NIT Patna Incubation Center" title="NIT Patna Incubation Center" className="h-12 sm:h-16 md:h-20 object-contain mix-blend-multiply" />
             </div>
           </div>
         </div>
