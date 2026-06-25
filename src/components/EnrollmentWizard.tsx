@@ -111,6 +111,12 @@ export default function EnrollmentWizard({
           found = c;
         }
       });
+      
+      // Fallback for INVIGO33 in case it hasn't been created in the database yet
+      if (!found && codeToApply.trim().toUpperCase() === 'INVIGO33') {
+        found = { code: 'INVIGO33', discountPercent: 33, active: true } as Coupon;
+      }
+
       if (found) {
         if (!found.active || (found.expiresAt && new Date(found.expiresAt) < new Date())) {
           setCouponError('Invalid or expired coupon code.');
