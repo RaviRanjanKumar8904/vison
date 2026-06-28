@@ -53,6 +53,7 @@ export interface EnrollmentState {
   passingYear: string;
   domainId: string;
   durationWeeks: number;
+  batchType: 'Alpha' | 'Gamma';
   startDate: string;
   motivation: string;
   candidateId: string;

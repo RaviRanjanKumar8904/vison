@@ -100,6 +100,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
     fullName: '', email: '', phone: '', collegeName: '',
     degree: 'B.Tech' as const, fieldOfStudy: '', currentYear: '3rd Year',
     passingYear: '2027', domainId: 'ai_ml', durationWeeks: 8,
+    batchType: 'Alpha' as 'Alpha' | 'Gamma',
     startDate: new Date().toISOString().split('T')[0], motivation: ''
   });
   const [enrollLoading, setEnrollLoading] = useState(false);
@@ -447,6 +448,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
         fullName: '', email: '', phone: '', collegeName: '',
         degree: 'B.Tech', fieldOfStudy: '', currentYear: '3rd Year',
         passingYear: '2027', domainId: 'ai_ml', durationWeeks: 8,
+        batchType: 'Alpha' as 'Alpha' | 'Gamma',
         startDate: new Date().toISOString().split('T')[0], motivation: ''
       });
     } catch (err: any) {
@@ -1627,6 +1629,11 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                                 <span className="font-bold text-slate-700">{enr.durationWeeks}W</span>
                                 <span className="text-slate-400 mx-1">from</span>
                                 <span className="text-slate-600">{enr.startDate || 'N/A'}</span>
+                                {(enr as any).batchType && (
+                                  <span className={`ml-1.5 inline-flex items-center rounded px-1.5 py-0.5 text-[9px] font-bold ${(enr as any).batchType === 'Alpha' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'}`}>
+                                    {(enr as any).batchType === 'Alpha' ? 'α' : 'γ'} {(enr as any).batchType}
+                                  </span>
+                                )}
                               </div>
                               {enr.startDate && (
                                 <>

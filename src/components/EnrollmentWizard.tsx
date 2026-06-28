@@ -11,6 +11,51 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { StudentUser } from '../types';
 import { downloadOfferLetterPDF, downloadAcceptanceLetterPDF } from '../utils/pdfGenerator';
 
+// ── Batch Helpers ──────────────────────────────────────────────────────────
+// Alpha batch → 1st of each month
+// Gamma batch → 15th of each month
+// Automatically shows the next upcoming batch(es) so students always pick a future date.
+function getUpcomingBatches(): { label: string; value: string; type: 'Alpha' | 'Gamma'; startDate: string }[] {
+  const today = new Date();
+  const batches: { label: string; value: string; type: 'Alpha' | 'Gamma'; startDate: string }[] = [];
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  // Generate batches for the next 3 months (enough upcoming choices)
+  for (let offset = 0; offset < 3; offset++) {
+    const refDate = new Date(today.getFullYear(), today.getMonth() + offset, 1);
+    const year = refDate.getFullYear();
+    const month = refDate.getMonth();
+
+    // Alpha batch: 1st of the month
+    const alphaStart = new Date(year, month, 1);
+    if (alphaStart > today || (alphaStart.toDateString() === today.toDateString())) {
+      const dateStr = alphaStart.toISOString().split('T')[0];
+      batches.push({
+        label: `Alpha Batch — ${monthNames[month]} ${year} (Starts 1st ${monthNames[month]})`,
+        value: `Alpha_${dateStr}`,
+        type: 'Alpha',
+        startDate: dateStr,
+      });
+    }
+
+    // Gamma batch: 15th of the month
+    const gammaStart = new Date(year, month, 15);
+    if (gammaStart > today || (gammaStart.toDateString() === today.toDateString())) {
+      const dateStr = gammaStart.toISOString().split('T')[0];
+      batches.push({
+        label: `Gamma Batch — ${monthNames[month]} ${year} (Starts 15th ${monthNames[month]})`,
+        value: `Gamma_${dateStr}`,
+        type: 'Gamma',
+        startDate: dateStr,
+      });
+    }
+  }
+
+  // Sort by start date ascending
+  batches.sort((a, b) => a.startDate.localeCompare(b.startDate));
+  return batches;
+}
+
 interface EnrollmentWizardProps {
   preselectedDomainId: string;
   setPreselectedDomainId: (id: string) => void;
@@ -40,10 +85,23 @@ export default function EnrollmentWizard({
     passingYear: currentUser?.passingYear || '2027',
     domainId: preselectedDomainId || 'ai_ml',
     durationWeeks: 8,
-    startDate: new Date().toISOString().split('T')[0],
+    batchType: 'Alpha' as 'Alpha' | 'Gamma',
+    startDate: '',
     motivation: '',
     trainingMode: 'online' as 'online' | 'offline'
   });
+
+  // Compute available batches and set default on mount
+  const availableBatches = getUpcomingBatches();
+  const [selectedBatchValue, setSelectedBatchValue] = useState(availableBatches[0]?.value || '');
+
+  // Sync startDate and batchType whenever selectedBatchValue changes
+  useEffect(() => {
+    const match = availableBatches.find(b => b.value === selectedBatchValue);
+    if (match) {
+      setFormData(prev => ({ ...prev, batchType: match.type, startDate: match.startDate }));
+    }
+  }, [selectedBatchValue]);
 
   const [synthesizedOffer, setSynthesizedOffer] = useState<EnrollmentState | null>(null);
   const [isSynthesizing, setIsSynthesizing] = useState(false);
@@ -568,6 +626,84 @@ export default function EnrollmentWizard({
                       </div>
                     </div>
 
+                    {/* ── BATCH SELECTION ──────────────────────────────── */}
+                    <div className="space-y-2">
+                      <label className="text-xs font-mono uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                        <Calendar className="h-3.5 w-3.5 text-blue-500" />
+                        <span>Select Internship Batch</span>
+                      </label>
+                      <div className="grid grid-cols-1 gap-2.5">
+                        {availableBatches.map((batch) => (
+                          <label
+                            key={batch.value}
+                            className={`relative flex items-center gap-3 p-3.5 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                              selectedBatchValue === batch.value
+                                ? batch.type === 'Alpha'
+                                  ? 'border-blue-500 bg-blue-50/60 shadow-md shadow-blue-100'
+                                  : 'border-purple-500 bg-purple-50/60 shadow-md shadow-purple-100'
+                                : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                            }`}
+                          >
+                            <input
+                              type="radio"
+                              name="internshipBatch"
+                              value={batch.value}
+                              checked={selectedBatchValue === batch.value}
+                              onChange={(e) => setSelectedBatchValue(e.target.value)}
+                              className="sr-only"
+                            />
+                            {/* Radio indicator */}
+                            <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                              selectedBatchValue === batch.value
+                                ? batch.type === 'Alpha' ? 'border-blue-500 bg-blue-500' : 'border-purple-500 bg-purple-500'
+                                : 'border-slate-300 bg-white'
+                            }`}>
+                              {selectedBatchValue === batch.value && (
+                                <div className="h-2 w-2 rounded-full bg-white" />
+                              )}
+                            </div>
+                            {/* Badge + Label */}
+                            <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                                  batch.type === 'Alpha'
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : 'bg-purple-100 text-purple-700'
+                                }`}>
+                                  {batch.type === 'Alpha' ? 'α' : 'γ'} {batch.type}
+                                </span>
+                                <span className="text-xs sm:text-sm font-semibold text-slate-800 truncate">
+                                  {batch.label.split(' — ')[1]}
+                                </span>
+                              </div>
+                              <span className="text-[10px] text-slate-500 font-mono">
+                                {batch.type === 'Alpha' ? 'Starts on the 1st of every month' : 'Starts on the 15th of every month'}
+                              </span>
+                            </div>
+                            {/* Selected check */}
+                            {selectedBatchValue === batch.value && (
+                              <CheckCircle className={`h-4.5 w-4.5 shrink-0 ${
+                                batch.type === 'Alpha' ? 'text-blue-500' : 'text-purple-500'
+                              }`} />
+                            )}
+                          </label>
+                        ))}
+                      </div>
+                      {/* Selected batch info bar */}
+                      {formData.startDate && (
+                        <div className={`p-3 rounded-xl border text-[11px] flex items-center gap-2 font-medium ${
+                          formData.batchType === 'Alpha'
+                            ? 'border-blue-200 bg-blue-50 text-blue-700'
+                            : 'border-purple-200 bg-purple-50 text-purple-700'
+                        }`}>
+                          <Calendar className="h-3.5 w-3.5 shrink-0" />
+                          <span>
+                            Your internship will begin on <strong>{new Date(formData.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</strong> under the <strong>{formData.batchType} Batch</strong>.
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
                     {/* NEW: Training Mode & Price Calculation Selector */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-1">
@@ -727,6 +863,12 @@ export default function EnrollmentWizard({
                   <div className="flex justify-between gap-4">
                     <span>Duration & Mode:</span>
                     <span className="text-slate-800 font-bold capitalize text-right">{formData.durationWeeks} Weeks ({formData.trainingMode} Training)</span>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <span>Internship Batch:</span>
+                    <span className={`font-bold text-right ${formData.batchType === 'Alpha' ? 'text-blue-600' : 'text-purple-600'}`}>
+                      {formData.batchType} Batch — {new Date(formData.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    </span>
                   </div>
                   <div className="flex justify-between gap-4">
                     <span>Admission Standard Rate:</span>
@@ -1085,6 +1227,7 @@ export default function EnrollmentWizard({
                     <p><span className="text-slate-500 font-semibold">INTERN NAME:</span> <strong className="text-slate-900 ml-1">{synthesizedOffer.fullName.toUpperCase()}</strong></p>
                     <p><span className="text-slate-500 font-semibold">COLLEGE:</span> <span className="ml-1 font-medium">{synthesizedOffer.degree}, {synthesizedOffer.collegeName}</span></p>
                     <p><span className="text-slate-500 font-semibold">START DATE:</span> <span className="ml-1 font-medium">{new Date(synthesizedOffer.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</span></p>
+                    <p><span className="text-slate-500 font-semibold">BATCH:</span> <strong className={`ml-1 ${synthesizedOffer.batchType === 'Alpha' ? 'text-blue-600' : 'text-purple-600'}`}>{synthesizedOffer.batchType} Batch</strong></p>
                   </div>
                   <div className="space-y-3 sm:border-l sm:border-slate-200 sm:pl-5">
                     <p><span className="text-slate-500 font-semibold">INTERNSHIP DOMAIN:</span> <strong className="text-emerald-600 ml-1">{selectedDomainObject.title}</strong></p>
@@ -1100,7 +1243,7 @@ export default function EnrollmentWizard({
                     We are pleased to confirm that your application for the <strong>{selectedDomainObject.title}</strong> internship program at <strong>Invigo Infotech</strong> has been reviewed and accepted.
                   </p>
                   <p>
-                    Your internship is scheduled to begin on <strong>{new Date(synthesizedOffer.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</strong> and will span <strong>{synthesizedOffer.durationWeeks} weeks</strong>.
+                    Your internship is scheduled to begin on <strong>{new Date(synthesizedOffer.startDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</strong> under the <strong>{synthesizedOffer.batchType} Batch</strong>, and will span <strong>{synthesizedOffer.durationWeeks} weeks</strong>.
                   </p>
                   <p>
                     As an accepted intern, you are expected to complete all assigned weekly milestones, maintain regular communication, submit all deliverables before the deadline, and pass the final MCQ assessment with a minimum score of 60%.
