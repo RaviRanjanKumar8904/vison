@@ -14,13 +14,13 @@ import { downloadOfferLetterPDF, downloadAcceptanceLetterPDF } from '../utils/pd
 // ── Batch Helpers ──────────────────────────────────────────────────────────
 // Alpha batch → 1st of each month
 // Gamma batch → 15th of each month
-// Automatically shows the next upcoming batch(es) so students always pick a future date.
+// Automatically shows the current and upcoming batch(es) so students can enroll retroactively or for the future.
 function getUpcomingBatches(): { label: string; value: string; type: 'Alpha' | 'Gamma'; startDate: string }[] {
   const today = new Date();
   const batches: { label: string; value: string; type: 'Alpha' | 'Gamma'; startDate: string }[] = [];
   const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-  // Generate batches for the next 3 months (enough upcoming choices)
+  // Generate batches for the current and next 2 months
   for (let offset = 0; offset < 3; offset++) {
     const refDate = new Date(today.getFullYear(), today.getMonth() + offset, 1);
     const year = refDate.getFullYear();
@@ -28,7 +28,7 @@ function getUpcomingBatches(): { label: string; value: string; type: 'Alpha' | '
 
     // Alpha batch: 1st of the month
     const alphaStart = new Date(year, month, 1);
-    if (alphaStart > today || (alphaStart.toDateString() === today.toDateString())) {
+    if (alphaStart > today || offset === 0) {
       const dateStr = alphaStart.toISOString().split('T')[0];
       batches.push({
         label: `Alpha Batch — ${monthNames[month]} ${year} (Starts 1st ${monthNames[month]})`,
@@ -40,7 +40,7 @@ function getUpcomingBatches(): { label: string; value: string; type: 'Alpha' | '
 
     // Gamma batch: 15th of the month
     const gammaStart = new Date(year, month, 15);
-    if (gammaStart > today || (gammaStart.toDateString() === today.toDateString())) {
+    if (gammaStart > today || offset === 0) {
       const dateStr = gammaStart.toISOString().split('T')[0];
       batches.push({
         label: `Gamma Batch — ${monthNames[month]} ${year} (Starts 15th ${monthNames[month]})`,
