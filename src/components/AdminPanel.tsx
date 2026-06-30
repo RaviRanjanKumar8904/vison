@@ -164,6 +164,8 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
   // Domain management
   const [firestoreDomains, setFirestoreDomains] = useState<InternshipDomain[]>([]);
   const [showAddDomainModal, setShowAddDomainModal] = useState(false);
+  const [isEditingDomain, setIsEditingDomain] = useState(false);
+  const [editingDomainId, setEditingDomainId] = useState<string | null>(null);
   const [newDomain, setNewDomain] = useState({
     title: '', category: 'Tech' as 'Tech' | 'Management' | 'Design' | 'Hardware' | 'Specialized',
     shortDesc: '', iconName: 'CodeXml', durationWeeks: '4,8,12',
@@ -743,7 +745,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
   // ─── Sidebar Nav Items ───
   // ─── Domain CRUD ───
   const handleAddDomain = async () => {
-    const domainId = newDomain.title.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+    const domainId = isEditingDomain && editingDomainId ? editingDomainId : newDomain.title.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
     if (!domainId || !newDomain.title) return;
     try {
       const domainData: any = {
@@ -757,11 +759,19 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
         toolsAndTech: newDomain.toolsAndTech.split(',').map(s => s.trim()).filter(Boolean),
         gradient: newDomain.gradient,
         imageUrl: newDomain.imageUrl,
-        phases: []
       };
-      await setDoc(doc(db, 'domains', domainId), domainData);
-      addLog(`Added new domain: ${newDomain.title}`, 'setting');
+
+      if (isEditingDomain && editingDomainId) {
+        await updateDoc(doc(db, 'domains', editingDomainId), domainData);
+        addLog(`Updated domain: ${newDomain.title}`, 'setting');
+      } else {
+        domainData.phases = [];
+        await setDoc(doc(db, 'domains', domainId), domainData);
+        addLog(`Added new domain: ${newDomain.title}`, 'setting');
+      }
       setShowAddDomainModal(false);
+      setIsEditingDomain(false);
+      setEditingDomainId(null);
       setNewDomain({ title: '', category: 'Tech', shortDesc: '', iconName: 'CodeXml', durationWeeks: '4,8,12', targetDegrees: 'B.Tech,Diploma', skills: '', toolsAndTech: '', gradient: 'from-blue-500 via-indigo-600 to-purple-700', imageUrl: '' });
     } catch (err) { console.error(err); }
   };
@@ -2369,7 +2379,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                   <h2 className="text-xl font-bold text-slate-800">Domain Management</h2>
                   <p className="text-xs text-slate-500 mt-1">Add, edit, or remove internship domains</p>
                 </div>
-                <button onClick={() => setShowAddDomainModal(true)} className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl flex items-center gap-2 cursor-pointer shadow-sm">
+                <button onClick={() => { setIsEditingDomain(false); setEditingDomainId(null); setNewDomain({ title: '', category: 'Tech', shortDesc: '', iconName: 'CodeXml', durationWeeks: '4,8,12', targetDegrees: 'B.Tech,Diploma', skills: '', toolsAndTech: '', gradient: 'from-blue-500 via-indigo-600 to-purple-700', imageUrl: '' }); setShowAddDomainModal(true); }} className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl flex items-center gap-2 cursor-pointer shadow-sm">
                   <Plus className="h-4 w-4" /> Add New Domain
                 </button>
               </div>
@@ -2395,9 +2405,30 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
                       <p className="text-xs text-slate-600 line-clamp-2">{domain.shortDesc}</p>
                       <div className="flex gap-2">
                         {firestoreDomains.find(d => d.id === domain.id) && (
-                          <button onClick={() => setConfirmAction({ message: `Delete domain "${domain.title}"? This cannot be undone.`, onConfirm: () => { handleRemoveDomain(domain.id); setConfirmAction(null); } })} className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-bold rounded-lg border border-red-200 cursor-pointer flex items-center gap-1">
-                            <Trash2 className="h-3 w-3" /> Remove
-                          </button>
+                          <>
+                            <button onClick={() => {
+                              setIsEditingDomain(true);
+                              setEditingDomainId(domain.id);
+                              setNewDomain({
+                                title: domain.title,
+                                category: domain.category as any,
+                                shortDesc: domain.shortDesc,
+                                iconName: domain.iconName || 'CodeXml',
+                                durationWeeks: domain.durationWeeks?.join(',') || '4,8,12',
+                                targetDegrees: domain.targetDegrees?.join(',') || '',
+                                skills: domain.skills?.join(',') || '',
+                                toolsAndTech: domain.toolsAndTech?.join(',') || '',
+                                gradient: domain.gradient || 'from-blue-500 via-indigo-600 to-purple-700',
+                                imageUrl: domain.imageUrl || ''
+                              });
+                              setShowAddDomainModal(true);
+                            }} className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-600 text-[10px] font-bold rounded-lg border border-blue-200 cursor-pointer flex items-center gap-1">
+                              <Edit3 className="h-3 w-3" /> Edit
+                            </button>
+                            <button onClick={() => setConfirmAction({ message: `Delete domain "${domain.title}"? This cannot be undone.`, onConfirm: () => { handleRemoveDomain(domain.id); setConfirmAction(null); } })} className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-[10px] font-bold rounded-lg border border-red-200 cursor-pointer flex items-center gap-1">
+                              <Trash2 className="h-3 w-3" /> Remove
+                            </button>
+                          </>
                         )}
                         <span className="text-[10px] text-slate-400 self-center">{domain.durationWeeks?.join('/')} weeks</span>
                       </div>
@@ -3224,7 +3255,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm">
             <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
               <div className="p-5 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white z-10">
-                <h3 className="font-bold text-slate-800">Add New Domain</h3>
+                <h3 className="font-bold text-slate-800">{isEditingDomain ? 'Edit Domain' : 'Add New Domain'}</h3>
                 <button onClick={() => setShowAddDomainModal(false)} className="p-2 bg-slate-50 hover:bg-slate-100 rounded-full text-slate-500"><X className="h-4 w-4" /></button>
               </div>
               <div className="p-5 space-y-4">
@@ -3247,7 +3278,7 @@ export default function AdminPanel({ currentUser, setCurrentTab }: AdminPanelPro
               </div>
               <div className="p-5 border-t border-slate-100 flex justify-end gap-3 sticky bottom-0 bg-white">
                 <button onClick={() => setShowAddDomainModal(false)} className="px-4 py-2 border rounded-xl font-bold">Cancel</button>
-                <button onClick={handleAddDomain} className="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold">Save Domain</button>
+                <button onClick={handleAddDomain} className="px-4 py-2 bg-blue-600 text-white rounded-xl font-bold">{isEditingDomain ? 'Update Domain' : 'Save Domain'}</button>
               </div>
             </motion.div>
           </div>
